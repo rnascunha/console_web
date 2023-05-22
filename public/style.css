@@ -1,0 +1,35 @@
+html, body{
+  height: 100%;
+  /* width: 100%;
+  margin: 0;
+  padding: 0; */
+  overflow: hidden;
+}
+
+#error {
+  background-color: red;
+  color: white;
+  padding: 2px;
+  border-radius: 2px;
+}
+
+#error:empty {
+  display: none;
+}
+
+.command-data {
+  margin: 0px;
+  padding: 3px;
+}
+
+.command {
+  background-color: lightgray;
+}
+
+.recv-data {
+  background-color: limegreen;
+}
+
+.send-data {
+  background-color: green;
+}

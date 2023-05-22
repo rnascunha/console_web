@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Websocket</title>
+</head>
+<body>
+  <h1>Websocket</h1>
+  <div>
+    <div>
+      <select id="protocols"></select>
+      <span>://</span>
+      <input id="url" focus value="192.168.0.87/ws">
+      <button id="connect">Connect</button>
+      <span id="error"></span>
+    </div>
+    <div>
+      <input type="text" id="input_data" disabled>
+      <button id="send_data" disabled>Send</button>
+    </div>
+  </div>
+  <div id="data"></div>
+  <script src="index.js" type="module"></script>
+</body>
+</html>
