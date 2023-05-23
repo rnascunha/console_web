@@ -33,3 +33,15 @@ html, body{
 .send-data {
   background-color: green;
 }
+
+.error-data {
+  background-color: red;
+  color: white;
+}
+
+/**
+ *
+ */
+#golden {
+  height: 100%;
+}

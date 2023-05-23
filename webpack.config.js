@@ -4,7 +4,6 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   entry: [
-    path.resolve(__dirname, "./src/css/style.css"),
     path.resolve(__dirname, "./src/ts/index.ts"),
   ],
 
@@ -55,6 +54,12 @@ module.exports = {
         enforce: 'pre',
         use: ['source-map-loader'],
       },
+      {
+        test: /\.less$/,
+        use: ["style-loader",
+              "css-loader",
+              "less-loader"],
+      }
     ]
   },
 
