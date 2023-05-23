@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode development --config ./public/webpack.config.js",
-    "serve": "webpack serve --mode development --config ./public/webpack.config.js"
+    "build": "webpack --mode development --config ./webpack.config.js",
+    "serve": "webpack serve --mode development --config ./webpack.config.js"
   },
   "keywords": [],
   "author": "",

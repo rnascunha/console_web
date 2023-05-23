@@ -4,8 +4,8 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   entry: [
-    path.resolve(__dirname, "style.css"),
-    path.resolve(__dirname, "index.ts"),
+    path.resolve(__dirname, "./src/css/style.css"),
+    path.resolve(__dirname, "./src/ts/index.ts"),
   ],
 
   output: {
@@ -22,7 +22,7 @@ module.exports = {
     static: [
       {
         directory: path.resolve(__dirname, 'dist'),
-        publicPath: 'public/dist/',
+        // publicPath: './dist/',
       }
     ],
     devMiddleware: {
@@ -41,7 +41,7 @@ module.exports = {
         use: {
           loader: 'ts-loader',
           options: {
-            "configFile": "./tsconfig.json",
+            configFile: "./tsconfig.json",
           },
         },
         exclude: /node_modules/,
@@ -63,7 +63,7 @@ module.exports = {
       env: JSON.stringify(process.env)
     }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, "index.html")
+      template: path.resolve(__dirname, "./src/index.html")
     }),
   ]
 };
