@@ -1,4 +1,4 @@
-import Websocket from "./websocket.js";
+import Websocket from "./websocket";
 
 interface protocol {
   readonly protocol:string;
@@ -59,10 +59,14 @@ class WebsocketView {
     }
 
     this._btn_send_data.onclick = () => {
-      if (!this._socket || this._el_input_data.value == '')
-        return;
-      this._socket.send(this._el_input_data.value);
-      this._add_message('send-data', `>>> ${this._el_input_data.value}`);
+      this._send_data();
+    }
+
+    this._el_input_data.onkeyup = ev => {
+      if (ev.code == 'Enter') {
+        ev.preventDefault();
+        this._send_data();
+      }
     }
   }
 
@@ -78,6 +82,7 @@ class WebsocketView {
       this._socket.on('error', ev => this._on_error(ev));
     } catch (e) {
       this._error("Error instantiating websocket");
+      this._add_message('command', 'Invalid address');
       this._socket = null;
     }
   }
@@ -125,6 +130,13 @@ class WebsocketView {
     p.classList.add('command-data', type);
     p.textContent += `${time()}: ${message}`;
     this._el_data.appendChild(p);
+  }
+
+  private _send_data() {
+    if (!this._socket || this._el_input_data.value == '')
+        return;
+    this._socket.send(this._el_input_data.value);
+    this._add_message('send-data', `>>> ${this._el_input_data.value}`);
   }
 }
 

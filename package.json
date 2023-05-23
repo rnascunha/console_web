@@ -4,7 +4,9 @@
   "description": "A simple websocket test",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode development --config ./public/webpack.config.js",
+    "serve": "webpack serve --mode development --config ./public/webpack.config.js"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +15,14 @@
     "golden-layout": "^2.6.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.4"
+    "css-loader": "^6.7.4",
+    "html-webpack-plugin": "^5.5.1",
+    "source-map-loader": "^4.0.1",
+    "style-loader": "^3.3.3",
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.0.4",
+    "webpack": "^5.83.1",
+    "webpack-cli": "^5.1.1",
+    "webpack-dev-server": "^4.15.0"
   }
 }

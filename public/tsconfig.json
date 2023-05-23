@@ -10,6 +10,6 @@
             "es2018",
             "es2019"]
   },
-  "include": ["public/*"],
+  "include": ["*"],
   "exclude": ["node_modules"]
 }
