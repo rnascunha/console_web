@@ -129,6 +129,7 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
     this._socket = socket;
 
     this._container = document.createElement('div');
+    this._container.classList.add('ws-connection');
     this._container.appendChild(template.content.cloneNode(true));
 
     this._in_data = this._container.querySelector('.input_data') as HTMLInputElement;

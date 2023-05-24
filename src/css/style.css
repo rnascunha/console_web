@@ -43,5 +43,16 @@ html, body{
  *
  */
 #golden {
+  overflow: hidden;
+  height: 100%;
+}
+
+.ws-connection {
+  overflow: hidden;
+  height: 100%;
+}
+
+.data {
+  overflow: auto;
   height: 100%;
 }
