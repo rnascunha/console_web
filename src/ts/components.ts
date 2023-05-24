@@ -32,7 +32,20 @@ export class WSCompoenent extends ComponentBase {
     const socket = new Websocket(url);
     this._view = new WebsocketView(socket);
     this.rootHtmlElement.appendChild(this._view.container);
-    this.container.on('beforeComponentRelease',
-                      () => this._view.close());
+
+    this.container.setTitle(`${this.socket.url} (connecting)`);
+    this.container.on('beforeComponentRelease', () => this._view.close());
+
+    this._view.on('close', () => this.container.setTitle(`${this.socket.url} (closed)`));
+    this._view.on('open', () => this.container.setTitle(`${this.socket.url}`));
+  }
+
+  get socket() : Websocket {
+    return this._view.socket;
+  }
+
+  set socket(s:Websocket) {
+    this._view.socket = s;
+    this.container.setTitle(`${this.socket.url} (connecting)`);
   }
 }

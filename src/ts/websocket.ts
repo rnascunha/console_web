@@ -30,8 +30,9 @@ const WebsocketState:Record<number, string> = {
   1: 'OPEN',
   2: 'CLOSING',
   3: 'CLOSE',
-  4: 'UNDEFINED'
 };
+
+type WebsocketStateName = typeof WebsocketState[keyof typeof WebsocketState];
 
 function ws_error_name(code:number) : string {
   if (code in WebsocketErrors)
@@ -40,28 +41,28 @@ function ws_error_name(code:number) : string {
 }
 
 export class Websocket extends EventEmitter<WebSocketEvents> {
-  private _socket : WebSocket | null = null;
+  private _socket:WebSocket;
 
   constructor(url:string, protocol:string | Array<string> = []) {
     super();
-    try {
-      this._socket = new WebSocket(url, protocol);
-      this._socket.onopen = ev => this.on_open(ev);
-      this._socket.onmessage = ev => this.on_message(ev);
-      this._socket.onclose = ev => this.on_close(ev);
-      this._socket.onerror = ev => this.on_error(ev);
-    }
-    catch(e) {
-      console.log('catch constructor', e);
-      this._socket = null;
-      throw e;
-    }
+
+    this._socket = new WebSocket(url, protocol);
+    this._socket.onopen = ev => this.on_open(ev);
+    this._socket.onmessage = ev => this.on_message(ev);
+    this._socket.onclose = ev => this.on_close(ev);
+    this._socket.onerror = ev => this.on_error(ev);
   }
 
-  get state() : number {
-    if (!this._socket)
-      return 4;
+  get state_number() : number {
     return this._socket.readyState;
+  }
+
+  get state() : WebsocketStateName {
+    return WebsocketState[this._socket.readyState];
+  }
+
+  get url() : string {
+    return this._socket.url;
   }
 
   public send(message:string) {
@@ -69,8 +70,8 @@ export class Websocket extends EventEmitter<WebSocketEvents> {
   }
 
   public close(code:number = 1000, reason:string = "") {
-    if (this._socket === null)
-      throw "no valid socket";
+    if (this.state === 'CLOSING' || this.state === 'CLOSED')
+      throw "Invalid socket";
     this._socket.close(code, reason);
   }
 
@@ -83,7 +84,6 @@ export class Websocket extends EventEmitter<WebSocketEvents> {
   }
 
   private on_close(ev:CloseEvent) {
-    this._socket = null;
     this.emit('close', ev);
     this.clear_events();
   }
@@ -103,8 +103,19 @@ function time() : string {
           `${d.getMilliseconds()}`.padStart(3, '0');
 }
 
-export class WebsocketView {
-  private _socket:Websocket|null = null;
+const template = document.createElement('template');
+template.innerHTML = `
+  <div>
+    <input class=input_data disabled>
+    <button class=send_data disabled>Send</button>
+    <button class=close_conn disabled>Close</button>
+    <button class=clear>Clear</button>
+  </div>
+  <div class=data></div>
+`;
+
+export class WebsocketView extends EventEmitter<WebSocketEvents> {
+  private _socket:Websocket;
 
   private _container:HTMLElement;
   private _in_data:HTMLInputElement;
@@ -113,19 +124,12 @@ export class WebsocketView {
   private _out_data:HTMLElement;
 
   constructor(socket:Websocket) {
+    super();
+
     this._socket = socket;
-    this._socket.on('open', ev => this._on_open(ev));
-    this._socket.on('message', ev => this._on_message(ev));
-    this._socket.on('close', ev => this._on_close(ev));
-    this._socket.on('error', ev => this._on_error(ev));
 
     this._container = document.createElement('div');
-    this._container.innerHTML = `<div>
-                                  <input class=input_data disabled>
-                                  <button class=send_data disabled>Send</button>
-                                  <button class=close_conn disabled>Close</button>
-                                </div>
-                                <div class=data></div>`;
+    this._container.appendChild(template.content.cloneNode(true));
 
     this._in_data = this._container.querySelector('.input_data') as HTMLInputElement;
     this._btn_send_data = this._container.querySelector('.send_data') as HTMLButtonElement;
@@ -141,14 +145,38 @@ export class WebsocketView {
         this._send_data();
       }
     }
+
+    (this._container.querySelector('.clear') as HTMLElement).onclick = () => {
+      this._out_data.innerHTML = '';
+    }
+    this.config_socket(socket);
   }
 
   public get container() : HTMLElement {
     return this._container;
   }
 
+  public get socket() : Websocket {
+    return this._socket;
+  }
+
+  public set socket(s:Websocket) {
+    this._socket = s;
+    this.config_socket(s);
+  }
+
+  private config_socket(socket:Websocket) : void {
+    this._add_message('command', `Connecting to ${this._socket.url}`);
+    this._socket.on('open', ev => this._on_open(ev));
+    this._socket.on('message', ev => this._on_message(ev));
+    this._socket.on('close', ev => this._on_close(ev));
+    this._socket.on('error', ev => this._on_error(ev));
+  }
+
   public close (reason = '') {
-    this._socket?.close(1000, reason);
+    if (this._socket.state == 'CLOSING' || this._socket.state == 'CLOSED')
+      return;
+    this._socket.close(1000, reason);
   }
 
   private _on_open(ev:Event) {
@@ -158,6 +186,7 @@ export class WebsocketView {
     this._btn_send_data.removeAttribute('disabled');
     this._btn_close.removeAttribute('disabled');
     this._in_data.focus();
+    this.emit('open', ev);
   }
 
   private _on_message(ev:MessageEvent) {
@@ -166,10 +195,10 @@ export class WebsocketView {
 
   private _on_close(ev:CloseEvent) {
     this._to_close(ev.code);
+    this.emit('close', ev);
   }
 
   private _to_close(code = 1000) {
-    this._socket = null;
     this._add_message('command', `Closed [${code}:${ws_error_name(code)}]`);
     this._in_data.setAttribute('disabled', '');
     this._btn_send_data.setAttribute('disabled', '');
@@ -177,7 +206,7 @@ export class WebsocketView {
   }
 
   private _on_error(ev:Event) {
-    console.error('error', ev);
+    console.error('on_error', ev);
     this._error("Error ocurred");
   }
 
@@ -195,8 +224,9 @@ export class WebsocketView {
   }
 
   private _send_data() {
-    if (!this._socket || this._socket.state == 2 || this._socket.state == 3) {
+    if (this._socket.state == 'CLOSING' || this._socket.state == 'CLOSED') {
       this._to_close(1006);
+      this.emit('close', new CloseEvent('Close'));
       return;
     }
     if (this._in_data.value == '')

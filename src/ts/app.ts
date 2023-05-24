@@ -1,5 +1,9 @@
 import {WSCompoenent} from "./components";
-import {GoldenLayout} from 'golden-layout';
+import {ComponentItem,
+        ItemType,
+        LayoutConfig,
+        GoldenLayout} from 'golden-layout';
+import { Websocket } from "./websocket";
 
 interface protocol {
   readonly protocol:string;
@@ -13,9 +17,13 @@ const protocols:Array<protocol> = [
   {protocol: 'https', name: 'Secure HTTP'}
 ];
 
-/**
- * **********************************************
- */
+const WSLayout: LayoutConfig = {
+  root: {
+    type: ItemType.row,
+    content: []
+  },
+};
+
 export class App {
   private _layout:GoldenLayout;
   private _sel_protocols:HTMLSelectElement;
@@ -26,6 +34,7 @@ export class App {
   constructor(container = document, proto = protocols) {
     this._layout = new GoldenLayout(container.querySelector('#golden') as HTMLElement);
     this._layout.registerComponentConstructor('WSComponent', WSCompoenent);
+    this._layout.loadLayout(WSLayout);
 
     this._sel_protocols = container.querySelector('#protocols') as HTMLSelectElement;
     this._btn_connect = container.querySelector('#connect') as HTMLButtonElement;
@@ -42,15 +51,42 @@ export class App {
     try {
       this._error();
       const url = `${this._sel_protocols.selectedOptions[0].value}://${this._in_url.value}`;
-      this._layout.addComponent(WSCompoenent.component_name, url, url);
+      const comp = this.find_component(url);
+      if (comp) {
+        if (comp.socket.state == 'CONNECTING') {
+          this._error(`Already trying to connect to ${url}`);
+          comp.rootHtmlElement.focus();
+        } else {
+          comp.rootHtmlElement.focus();
+          comp.socket = new Websocket(url);
+        }
+      } else {
+        this._layout.addComponent(WSCompoenent.component_name, url, url);
+      }
     } catch (e) {
-      console.error('conn', e);
-      this._error("Error instantiating websocket");
+      this._error((e as DOMException).message);
     }
   }
 
   private _error(message:string = "") {
     this._el_error.textContent = message;
+  }
+
+  private find_component(url:string) : WSCompoenent | undefined {
+    let res = undefined;
+    this._layout.rootItem?.contentItems.some(comp => {
+      if (!(comp instanceof ComponentItem))
+        return false;
+      
+      let v = (comp as ComponentItem).component;
+      if (v instanceof WSCompoenent &&
+          v.socket.url === url &&
+          v.socket.state !== 'OPEN') {
+          res = v;
+          return true;
+      }
+    });
+    return res;
   }
 
   public static start() : void {
