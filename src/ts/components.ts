@@ -1,9 +1,15 @@
 import { GoldenLayout, 
          ComponentContainer,
          JsonValue } from "golden-layout";
-import { Websocket, WebsocketView } from "./websocket";
+import { Websocket,
+         WebsocketView } from "./websocket";
+import { HTTPView } from "./http";
 
-abstract class ComponentBase implements GoldenLayout.VirtuableComponent {
+interface ConnectComponent {
+  is_reusable(url:string) : Boolean;
+}
+
+export abstract class ComponentBase implements GoldenLayout.VirtuableComponent, ConnectComponent {
   private _rootElement: HTMLElement;
 
   get container(): ComponentContainer { return this._container; }
@@ -18,9 +24,13 @@ abstract class ComponentBase implements GoldenLayout.VirtuableComponent {
       this._rootElement = this._container.element;
     }
   }
+
+  public is_reusable(url: string): Boolean {
+    return false;
+  } 
 }
 
-export class WSCompoenent extends ComponentBase {
+export class WSComponent extends ComponentBase {
   public static readonly component_name:string = 'WSComponent';
   private _view:WebsocketView;
 
@@ -36,8 +46,8 @@ export class WSCompoenent extends ComponentBase {
     this.container.setTitle(`${this.socket.url} (connecting)`);
     this.container.on('beforeComponentRelease', () => this._view.close());
 
-    this._view.on('close', () => this.container.setTitle(`${this.socket.url} (closed)`));
     this._view.on('open', () => this.container.setTitle(`${this.socket.url}`));
+    this._view.on('close', () => this.container.setTitle(`${this.socket.url} (closed)`));
   }
 
   get socket() : Websocket {
@@ -47,5 +57,27 @@ export class WSCompoenent extends ComponentBase {
   set socket(s:Websocket) {
     this._view.socket = s;
     this.container.setTitle(`${this.socket.url} (connecting)`);
+  }
+
+  public is_reusable(url:string) : Boolean {
+    return url == this.socket.url && this.socket.state !== 'OPEN';
+  }
+}
+
+export class HTTPComponent extends ComponentBase {
+  public static readonly component_name:string = 'HTTPComponent';
+  private _view:HTTPView;
+
+  constructor(_container: ComponentContainer, state: JsonValue | undefined, virtual: boolean) {
+    super(_container, state, virtual);
+
+    this._view = new HTTPView(state as string); // url
+    this.rootHtmlElement.appendChild(this._view.container);
+
+    this.container.setTitle(`${this._view.url}`);
+  }
+
+  public is_reusable(url:string) : Boolean {
+    return url == this._view.url;
   }
 }

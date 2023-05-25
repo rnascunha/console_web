@@ -1,7 +1,10 @@
-import {WSCompoenent} from "./components";
+import {ComponentBase,
+        WSComponent,
+        HTTPComponent} from "./components";
 import {ComponentItem,
-        ItemType,
+        ContentItem,
         LayoutConfig,
+        ItemType,
         GoldenLayout} from 'golden-layout';
 import { Websocket } from "./websocket";
 
@@ -17,11 +20,14 @@ const protocols:Array<protocol> = [
   {protocol: 'https', name: 'Secure HTTP'}
 ];
 
-const WSLayout: LayoutConfig = {
+const WSLayout:LayoutConfig = {
+  settings: {
+    responsiveMode: 'always'
+  },
   root: {
     type: ItemType.row,
     content: []
-  },
+  }
 };
 
 export class App {
@@ -33,7 +39,8 @@ export class App {
 
   constructor(container = document, proto = protocols) {
     this._layout = new GoldenLayout(container.querySelector('#golden') as HTMLElement);
-    this._layout.registerComponentConstructor('WSComponent', WSCompoenent);
+    this._layout.registerComponentConstructor('WSComponent', WSComponent);
+    this._layout.registerComponentConstructor('HTTPComponent', HTTPComponent);
     this._layout.loadLayout(WSLayout);
 
     this._sel_protocols = container.querySelector('#protocols') as HTMLSelectElement;
@@ -42,27 +49,50 @@ export class App {
     this._el_error = container.querySelector('#error') as HTMLElement;
 
     proto.forEach((v:protocol) =>
-      this._sel_protocols.appendChild(new Option(v.protocol, v.protocol)));
+      this._sel_protocols.appendChild(new Option(v.protocol, v.protocol, undefined, v.protocol == 'http')));
 
     this._btn_connect.onclick = () => this.open();
   }
 
   private open() {
+    const protocol = this._sel_protocols.selectedOptions[0].value;
+    if (['ws', 'wss'].includes(protocol)) {
+      this.ws_open(protocol);
+    } else {
+      this.http_open(protocol);
+    }
+  }
+
+  private ws_open(protocol:string) {
     try {
       this._error();
-      const url = `${this._sel_protocols.selectedOptions[0].value}://${this._in_url.value}`;
-      const comp = this.find_component(url);
+      const url = `${protocol}://${this._in_url.value}`;
+      const comp = this.find_component(url, this._layout.rootItem);
       if (comp) {
         if (comp.socket.state == 'CONNECTING') {
           this._error(`Already trying to connect to ${url}`);
-          comp.rootHtmlElement.focus();
+          comp.container.focus();
         } else {
-          comp.rootHtmlElement.focus();
           comp.socket = new Websocket(url);
+          comp.container.focus();
         }
       } else {
-        this._layout.addComponent(WSCompoenent.component_name, url, url);
+        this._layout.addComponent(WSComponent.component_name, url, url);
       }
+    } catch (e) {
+      this._error((e as DOMException).message);
+    }
+  }
+
+  private http_open(protocol:string) {
+    try {
+      this._error();
+      const url = `${protocol}://${this._in_url.value}`;
+      const comp = this.find_component(url, this._layout.rootItem);
+      if (comp)
+        comp.container.focus();
+      else
+        this._layout.addComponent(HTTPComponent.component_name, url, url);
     } catch (e) {
       this._error((e as DOMException).message);
     }
@@ -72,18 +102,19 @@ export class App {
     this._el_error.textContent = message;
   }
 
-  private find_component(url:string) : WSCompoenent | undefined {
+  private find_component(url:string, item:ContentItem|undefined) : WSComponent | undefined {
     let res = undefined;
-    this._layout.rootItem?.contentItems.some(comp => {
-      if (!(comp instanceof ComponentItem))
-        return false;
-      
-      let v = (comp as ComponentItem).component;
-      if (v instanceof WSCompoenent &&
-          v.socket.url === url &&
-          v.socket.state !== 'OPEN') {
-          res = v;
+    item?.contentItems.some(comp => {
+      if (!comp.isComponent) {
+        res = this.find_component(url, comp);
+        if (res)
           return true;
+      }
+      
+      let v = ((comp as ComponentItem).component as ComponentBase);
+      if (v && v.is_reusable(url)) {
+        res = v;
+        return true;
       }
     });
     return res;

@@ -1,4 +1,5 @@
 import EventEmitter from "./event_emitter";
+import {time} from './helper';
 
 type WebSocketEvents = {
   open: Event;
@@ -94,14 +95,6 @@ export class Websocket extends EventEmitter<WebSocketEvents> {
 }
 
 type type_data = 'command' | 'recv-data' | 'send-data' | 'error-data';
-
-function time() : string {
-  const d = new Date();
-  return `${d.getHours()}`.padStart(2, '0') + ':' +
-          `${d.getMinutes()}`.padStart(2, '0') + ':' +
-          `${d.getSeconds()}`.padStart(2, '0') + '.' +
-          `${d.getMilliseconds()}`.padStart(3, '0');
-}
 
 const template = document.createElement('template');
 template.innerHTML = `
@@ -220,8 +213,13 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
   private _add_message(type:type_data, message:string) {
     const p = document.createElement('pre');
     p.classList.add('command-data', type);
-    p.textContent += `${time()}: ${message}`;
+    if (type === 'recv-data' || type === 'send-data') {
+      const size = `${message.length}`.padStart(3, '0');
+      p.textContent += `${time()}: [${size}] ${message}`;
+    } else
+      p.textContent += `${time()}: ${message}`;
     this._out_data.appendChild(p);
+    this._out_data.scrollTo(0, this._out_data.scrollHeight);
   }
 
   private _send_data() {
