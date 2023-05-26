@@ -84,15 +84,12 @@ export class HTTPView {
 
       this._add_message('send-data', `[${id}] ${this.method} ${url} body:[${this._in_body.value}]`, this._in_body.value.length);
       const response = await HTTP.request(url, this.method, this._in_body.value);
-      console.log('response', response.status, response.statusText);
       if (response.ok) {
         const data = await response.text();
         this._add_message('recv-data', `[${id}] ${data}`, data.length);
       }
     } catch(e) {
-      console.dir(e as TypeError);
-      console.error('http_error', (e as TypeError).message);
-      this._add_message('error-data', `[${id}] ${(e as TypeError).toString()}`);
+      this._add_message('error-data', `[${id}] ${(e as TypeError).message}`);
     }
   }
 

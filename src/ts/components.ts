@@ -6,8 +6,8 @@ import { Websocket,
 import { HTTPView } from "./http";
 
 interface ConnectComponent {
-  is_reusable(url:string) : Boolean;
-}
+  reused(url:string) : Boolean;
+};
 
 export abstract class ComponentBase implements GoldenLayout.VirtuableComponent, ConnectComponent {
   private _rootElement: HTMLElement;
@@ -25,13 +25,10 @@ export abstract class ComponentBase implements GoldenLayout.VirtuableComponent, 
     }
   }
 
-  public is_reusable(url: string): Boolean {
-    return false;
-  } 
+  public abstract reused(url: string): Boolean;
 }
 
 export class WSComponent extends ComponentBase {
-  public static readonly component_name:string = 'WSComponent';
   private _view:WebsocketView;
 
   constructor(_container: ComponentContainer, state: JsonValue | undefined, virtual: boolean) {
@@ -62,10 +59,22 @@ export class WSComponent extends ComponentBase {
   public is_reusable(url:string) : Boolean {
     return url == this.socket.url && this.socket.state !== 'OPEN';
   }
+
+  public reused(url: string): Boolean {
+    if (url !== this.socket.url)
+      return false;
+    if (this.socket.state == 'CONNECTING') {
+      this._view.error(`Already trying to connect to ${url}`);
+      this.container.focus();
+    } else {
+      this.socket = new Websocket(url);
+      this.container.focus();
+    }
+    return true;
+  }
 }
 
 export class HTTPComponent extends ComponentBase {
-  public static readonly component_name:string = 'HTTPComponent';
   private _view:HTTPView;
 
   constructor(_container: ComponentContainer, state: JsonValue | undefined, virtual: boolean) {
@@ -79,5 +88,13 @@ export class HTTPComponent extends ComponentBase {
 
   public is_reusable(url:string) : Boolean {
     return url == this._view.url;
+  }
+
+  public reused(url: string): Boolean {
+    if (url != this._view.url)
+      return false;
+
+    this.container.focus();
+    return true;
   }
 }

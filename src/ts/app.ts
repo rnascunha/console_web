@@ -6,19 +6,28 @@ import {ComponentItem,
         LayoutConfig,
         ItemType,
         GoldenLayout} from 'golden-layout';
-import { Websocket } from "./websocket";
+
+interface component {
+  readonly name:string;
+  readonly component:any;
+};
+
+const Components:Record<string, component> = {
+  WSComponent: {name: 'WSComponent', component: WSComponent},
+  HTTPComponent: {name: 'HTTPComponent', component: HTTPComponent},
+};
 
 interface protocol {
   readonly protocol:string;
-  readonly name:string
-}
+  readonly component:component;
+};
 
-const protocols:Array<protocol> = [
-  {protocol: 'ws', name: 'Websocket'},
-  {protocol: 'wss', name: 'Secure Wesocket'},
-  {protocol: 'http', name: 'HTTP'},
-  {protocol: 'https', name: 'Secure HTTP'}
-];
+const protocols:Record<string, protocol> = {
+  ws:    {protocol: 'ws',     component: Components['WSComponent']},
+  wss:   {protocol: 'wss',    component: Components['WSComponent']},
+  http:  {protocol: 'http',   component: Components['HTTPComponent']},
+  https: {protocol: 'https',  component: Components['HTTPComponent']}
+};
 
 const WSLayout:LayoutConfig = {
   settings: {
@@ -39,8 +48,8 @@ export class App {
 
   constructor(container = document, proto = protocols) {
     this._layout = new GoldenLayout(container.querySelector('#golden') as HTMLElement);
-    this._layout.registerComponentConstructor('WSComponent', WSComponent);
-    this._layout.registerComponentConstructor('HTTPComponent', HTTPComponent);
+    Object.values(Components).forEach(v =>
+                this._layout.registerComponentConstructor(v.name, v.component));
     this._layout.loadLayout(WSLayout);
 
     this._sel_protocols = container.querySelector('#protocols') as HTMLSelectElement;
@@ -48,51 +57,21 @@ export class App {
     this._in_url = container.querySelector('#url') as HTMLInputElement;
     this._el_error = container.querySelector('#error') as HTMLElement;
 
-    proto.forEach((v:protocol) =>
+    Object.values(proto).forEach((v:protocol) =>
       this._sel_protocols.appendChild(new Option(v.protocol, v.protocol, undefined, v.protocol == 'http')));
 
     this._btn_connect.onclick = () => this.open();
   }
 
   private open() {
-    const protocol = this._sel_protocols.selectedOptions[0].value;
-    if (['ws', 'wss'].includes(protocol)) {
-      this.ws_open(protocol);
-    } else {
-      this.http_open(protocol);
-    }
-  }
-
-  private ws_open(protocol:string) {
     try {
       this._error();
+      const protocol = this._sel_protocols.selectedOptions[0].value;
       const url = `${protocol}://${this._in_url.value}`;
       const comp = this.find_component(url, this._layout.rootItem);
-      if (comp) {
-        if (comp.socket.state == 'CONNECTING') {
-          this._error(`Already trying to connect to ${url}`);
-          comp.container.focus();
-        } else {
-          comp.socket = new Websocket(url);
-          comp.container.focus();
-        }
-      } else {
-        this._layout.addComponent(WSComponent.component_name, url, url);
-      }
-    } catch (e) {
-      this._error((e as DOMException).message);
-    }
-  }
-
-  private http_open(protocol:string) {
-    try {
-      this._error();
-      const url = `${protocol}://${this._in_url.value}`;
-      const comp = this.find_component(url, this._layout.rootItem);
-      if (comp)
-        comp.container.focus();
-      else
-        this._layout.addComponent(HTTPComponent.component_name, url, url);
+      if (!comp)
+        this._layout.addComponent(protocols[protocol].component.name,
+                                  url, url);
     } catch (e) {
       this._error((e as DOMException).message);
     }
@@ -102,7 +81,7 @@ export class App {
     this._el_error.textContent = message;
   }
 
-  private find_component(url:string, item:ContentItem|undefined) : WSComponent | undefined {
+  private find_component(url:string, item:ContentItem|undefined) : ComponentBase | undefined {
     let res = undefined;
     item?.contentItems.some(comp => {
       if (!comp.isComponent) {
@@ -112,7 +91,7 @@ export class App {
       }
       
       let v = ((comp as ComponentItem).component as ComponentBase);
-      if (v && v.is_reusable(url)) {
+      if (v && v.reused(url)) {
         res = v;
         return true;
       }

@@ -204,10 +204,14 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
     this._error("Error ocurred");
   }
 
-  private _error(message:string = "") {
+  private _error(message:string = "") :void {
     if (message.length > 0) {
       this._add_message('error-data', message);
     }
+  }
+
+  public error(message:string = "") : void {
+    this._error(message);
   }
 
   private _add_message(type:type_data, message:string) {
