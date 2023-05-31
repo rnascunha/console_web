@@ -4,6 +4,7 @@ import { GoldenLayout,
 import { Websocket,
          WebsocketView } from "./websocket";
 import { HTTPView } from "./http";
+import { SerialView } from "./serial";
 
 interface ConnectComponent {
   reused(url:string) : Boolean;
@@ -34,10 +35,7 @@ export class WSComponent extends ComponentBase {
   constructor(_container: ComponentContainer, state: JsonValue | undefined, virtual: boolean) {
     super(_container, state, virtual);
 
-    const url = state as string;
-
-    const socket = new Websocket(url);
-    this._view = new WebsocketView(socket);
+    this._view = new WebsocketView(new Websocket(state as string));
     this.rootHtmlElement.appendChild(this._view.container);
 
     this.container.setTitle(`${this.socket.url} (connecting)`);
@@ -56,12 +54,8 @@ export class WSComponent extends ComponentBase {
     this.container.setTitle(`${this.socket.url} (connecting)`);
   }
 
-  public is_reusable(url:string) : Boolean {
-    return url == this.socket.url && this.socket.state !== 'OPEN';
-  }
-
   public reused(url: string): Boolean {
-    if (url !== this.socket.url)
+    if (url !== this.socket.url || this.socket.state === 'OPEN')
       return false;
     if (this.socket.state == 'CONNECTING') {
       this._view.error(`Already trying to connect to ${url}`);
@@ -97,4 +91,32 @@ export class HTTPComponent extends ComponentBase {
     this.container.focus();
     return true;
   }
+}
+
+export class SerialComponent extends ComponentBase {
+  private _view:SerialView;
+
+  constructor(_container: ComponentContainer, state: JsonValue | undefined, virtual: boolean) {
+    super(_container, state, virtual);
+
+    const port = (<any>window).serial_list.port_by_id(state);
+    if (!port)
+      throw `Failed to find port [${state}]`;
+
+    this._view = new SerialView(port);
+    this.rootHtmlElement.appendChild(this._view.container);
+
+    this._view.on('disconnect', () =>
+      this.container.setTitle(`${this._view.port.name} (disconnected)`));
+
+    this.container.on('beforeComponentRelease', () => this._view.port.close());
+  }
+
+  public reused(url:string) : Boolean {
+    if (url !== `serial://${this._view.port.id}`)
+      return false;
+
+    this.container.focus();
+    return true;
+  } 
 }

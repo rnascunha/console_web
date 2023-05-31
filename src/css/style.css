@@ -10,7 +10,8 @@ body {
   display: grid;
   grid-template: 
     "header" min-content
-    "body" auto;
+    "body" auto
+    "footer" 2px
 }
 
 #error {
@@ -24,28 +25,6 @@ body {
   display: none;
 }
 
-.command-data {
-  margin: 0px;
-  padding: 3px;
-}
-
-.command {
-  background-color: lightgray;
-}
-
-.recv-data {
-  background-color: limegreen;
-}
-
-.send-data {
-  background-color: green;
-}
-
-.error-data {
-  background-color: red;
-  color: white;
-}
-
 /**
  *
  */
@@ -54,13 +33,11 @@ body {
   height: 100%;
 }
 
-.ws-connection {
+.golden-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   overflow: hidden;
-  height: 100%;
-}
-
-.data {
-  overflow: auto;
-  height: 100%;
-  scroll-behavior: smooth;
+  padding: 0px;
+  margin: 0px;
 }

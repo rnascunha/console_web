@@ -1,0 +1,9 @@
+.serial-get-signal {
+  background-color: yellow;
+  padding: 1px;
+  border-radius: 2px;
+}
+
+.serial-get-signal .signal-set {
+  background-color: greenyellow;
+}

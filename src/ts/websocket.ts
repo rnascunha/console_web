@@ -1,5 +1,5 @@
+import DataDisplay from "./components/data-display/data-display";
 import EventEmitter from "./event_emitter";
-import {time} from './helper';
 
 type WebSocketEvents = {
   open: Event;
@@ -94,18 +94,19 @@ export class Websocket extends EventEmitter<WebSocketEvents> {
   }
 }
 
-type type_data = 'command' | 'recv-data' | 'send-data' | 'error-data';
-
-const template = document.createElement('template');
-template.innerHTML = `
+const template = function() {
+  const template = document.createElement('template');
+  template.innerHTML = `
   <div>
     <input class=input_data disabled>
     <button class=send_data disabled>Send</button>
     <button class=close_conn disabled>Close</button>
     <button class=clear>Clear</button>
   </div>
-  <div class=data></div>
+  <display-data class=data></display-data>
 `;
+  return template;
+}();
 
 export class WebsocketView extends EventEmitter<WebSocketEvents> {
   private _socket:Websocket;
@@ -114,7 +115,7 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
   private _in_data:HTMLInputElement;
   private _btn_send_data:HTMLButtonElement;
   private _btn_close:HTMLButtonElement;
-  private _out_data:HTMLElement;
+  private _data:DataDisplay;
 
   constructor(socket:Websocket) {
     super();
@@ -122,13 +123,13 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
     this._socket = socket;
 
     this._container = document.createElement('div');
-    this._container.classList.add('ws-connection');
+    this._container.classList.add('golden-content');
     this._container.appendChild(template.content.cloneNode(true));
 
     this._in_data = this._container.querySelector('.input_data') as HTMLInputElement;
     this._btn_send_data = this._container.querySelector('.send_data') as HTMLButtonElement;
     this._btn_close = this._container.querySelector('.close_conn') as HTMLButtonElement;
-    this._out_data = this._container.querySelector('.data') as HTMLElement;
+    this._data = this._container.querySelector('.data') as DataDisplay;
 
     this._btn_send_data.onclick = () => this._send_data();
     this._btn_close.onclick = () => this.close();
@@ -141,9 +142,10 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
     }
 
     (this._container.querySelector('.clear') as HTMLElement).onclick = () => {
-      this._out_data.innerHTML = '';
+      this._data.innerHTML = '';
     }
-    this.config_socket(socket);
+
+    this.config_socket();
   }
 
   public get container() : HTMLElement {
@@ -156,11 +158,14 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
 
   public set socket(s:Websocket) {
     this._socket = s;
-    this.config_socket(s);
+    this.config_socket();
   }
 
-  private config_socket(socket:Websocket) : void {
-    this._add_message('command', `Connecting to ${this._socket.url}`);
+  private config_socket() : void {
+    // Workaround...
+    customElements.whenDefined('display-data').then(() => {
+      this._data.command(`Connecting to ${this._socket.url}`);
+    });
     this._socket.on('open', ev => this._on_open(ev));
     this._socket.on('message', ev => this._on_message(ev));
     this._socket.on('close', ev => this._on_close(ev));
@@ -175,7 +180,7 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
 
   private _on_open(ev:Event) {
     this._error('');
-    this._add_message('command', `Connected to ${(ev.currentTarget as WebSocket).url}`);
+    this._data.command(`Connected to ${(ev.currentTarget as WebSocket).url}`);
     this._in_data.removeAttribute('disabled');
     this._btn_send_data.removeAttribute('disabled');
     this._btn_close.removeAttribute('disabled');
@@ -184,7 +189,7 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
   }
 
   private _on_message(ev:MessageEvent) {
-    this._add_message('recv-data', `<<< ${ev.data}`);
+    this._data.receive(`${ev.data}`)
   }
 
   private _on_close(ev:CloseEvent) {
@@ -193,37 +198,24 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
   }
 
   private _to_close(code = 1000) {
-    this._add_message('command', `Closed [${code}:${ws_error_name(code)}]`);
+    this._data.command(`Closed [${code}:${ws_error_name(code)}]`);
     this._in_data.setAttribute('disabled', '');
     this._btn_send_data.setAttribute('disabled', '');
     this._btn_close.setAttribute('disabled', '');
   }
 
   private _on_error(ev:Event) {
-    console.error('on_error', ev);
     this._error("Error ocurred");
   }
 
   private _error(message:string = "") :void {
     if (message.length > 0) {
-      this._add_message('error-data', message);
+      this._data.error(message);
     }
   }
 
   public error(message:string = "") : void {
     this._error(message);
-  }
-
-  private _add_message(type:type_data, message:string) {
-    const p = document.createElement('pre');
-    p.classList.add('command-data', type);
-    if (type === 'recv-data' || type === 'send-data') {
-      const size = `${message.length}`.padStart(3, '0');
-      p.textContent += `${time()}: [${size}] ${message}`;
-    } else
-      p.textContent += `${time()}: ${message}`;
-    this._out_data.appendChild(p);
-    this._out_data.scrollTo(0, this._out_data.scrollHeight);
   }
 
   private _send_data() {
@@ -236,6 +228,6 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
       return;
 
     this._socket.send(this._in_data.value);
-    this._add_message('send-data', `>>> ${this._in_data.value}`);
+    this._data.send(`${this._in_data.value}`);
   }
 }
