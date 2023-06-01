@@ -9,7 +9,7 @@ import {ComponentItem,
         GoldenLayout} from 'golden-layout';
 import {SerialList, install_serial_events} from "./serial";
 
-(<any>window).serial_list = new SerialList();
+// (<any>window).serial_list = new SerialList();
 
 interface component {
   readonly name:string;
@@ -72,10 +72,10 @@ export class App {
 
     this._serial_container = container.querySelector('#serial-container') as HTMLElement;
     this._sel_serial = container.querySelector('#sel-serial-port') as HTMLSelectElement;
-    this._serial_list = (<any>window).serial_list;
+    this._serial_list = new SerialList();
 
     Object.values(proto).forEach((v:protocol) =>
-      this._sel_protocols.appendChild(new Option(v.protocol, v.protocol, undefined, v.protocol == 'ws')));
+      this._sel_protocols.appendChild(new Option(v.protocol, v.protocol, undefined, v.protocol == 'serial')));
 
     this._btn_connect.onclick = () => this.open();
 
@@ -94,6 +94,10 @@ export class App {
     (container.querySelector('#serial-request') as HTMLButtonElement).onclick = () => {
       this._serial_list.request();
     }
+  }
+
+  public get serial_list() {
+    return this._serial_list;
   }
 
   private get protocol() {
@@ -156,10 +160,5 @@ export class App {
       }
     });
     return res;
-  }
-
-  public static start() : void {
-    if (document.readyState !== "loading") new App();
-    else document.addEventListener("DOMContentLoaded", () => new App(), { passive: true });
   }
 };

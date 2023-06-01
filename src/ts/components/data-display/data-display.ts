@@ -1,6 +1,6 @@
 import {time} from '../../helper';
 
-type type_data = 'comm' | 'recv' | 'send' | 'error';
+type type_data = 'comm' | 'recv' | 'send' | 'error' | 'warn';
 
 const template_class:HTMLTemplateElement = function() : HTMLTemplateElement {
   const template = document.createElement('template');
@@ -40,6 +40,11 @@ const template_class:HTMLTemplateElement = function() : HTMLTemplateElement {
       background-color: red;
       color: white;
     }
+
+    .warn {
+      background-color: yellow;
+    }
+
   </style>
   <div id=data></div>`;
   return template;
@@ -55,12 +60,16 @@ export default class DataDisplay extends HTMLElement {
     this._data = this.shadowRoot?.querySelector('#data') as HTMLElement;
   }
 
-  public send(message:string) {
-    this.add_message('send', message);
+  public clear() {
+    this._data.innerHTML = '';
   }
 
-  public receive(message:string) {
-    this.add_message('recv', message);
+  public send(message:string, message_size?:number) {
+    this.add_message('send', message, message_size);
+  }
+
+  public receive(message:string, message_size?:number) {
+    this.add_message('recv', message, message_size);
   }
 
   public command(message:string) {
@@ -71,10 +80,14 @@ export default class DataDisplay extends HTMLElement {
     this.add_message('error', message);
   }
 
-  public add_message(type:type_data, message:string) {
+  public warning(message:string) {
+    this.add_message('warn', message);
+  }
+
+  public add_message(type:type_data, message:string, message_size?:number) {
     const p = document.createElement('pre');
     p.classList.add('command-data', type);
-    const size = `${message.length}`.padStart(3, '0');
+    const size = `${message_size ? message_size : message.length}`.padStart(3, '0');
     
     let out = `${time()} `;
     if (type === 'send')

@@ -6,7 +6,7 @@
     "resolveJsonModule": true,
     "strict": true,
     "target": "ES2015",
-    "lib": ["dom",
+    "lib": ["DOM",
             "es2017",
             "es2018",
             "es2019"]

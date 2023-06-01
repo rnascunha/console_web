@@ -1,5 +1,8 @@
 import DataDisplay from './components/data-display/data-display';
 import EventEmitter from './event_emitter';
+import { sleep } from './helper';
+import { parse_until,
+         check_timeout } from './stream_parser';
 import * as serialJSON from './usb_filtered.json';
 
 export function support_serial() {
@@ -49,7 +52,7 @@ const SerialParity = ['none', 'even', 'odd'];
 const SerialStopBits = [1, 2];
 
 const SerialDefaults = {
-  baudRate: 460800,
+  baudRate: 115200,
   dataBits: 8,
   flowControl: 'none',
   parity: 'none',
@@ -111,30 +114,38 @@ class SerialConn extends EventEmitter<SerialConnEvents>{
     this.emit('close', this);
   }
 
-  public async read() {
-    try {
-      const decoder = new TextDecoder("utf-8");
-      let re = /\r\n|\n|\r/gm;
-      let queue = "";
+  public disconnect() {
+    this._input_stream = null;
+    this._reader = null;
+    this._output_stream = null;
+  }
 
+  public async read() {
+    const decoder = new TextDecoder("utf-8");
+    const parser = new parse_until();
+    const timeout = new check_timeout(100, () => {
+      if (parser.chunk.length > 0) {
+        this.emit('data', parser.chunk);
+        parser.clear_chunk();
+      }
+    });
+    try {
       while (true) {
         const { value, done } = await (this._reader as ReadableStreamDefaultReader<Uint8Array>).read();
         if (done)
           break;
 
-        queue += decoder.decode(value, {stream: true});
-        while (true) {
-          let result = re.exec(queue);
-          if (!result) {
-            break;
-          }
-          this.emit('data', queue.substring(0, result.index + 1));
-          queue = queue.substring(result.index + result[0].length);
+        parser.add_chunk(decoder.decode(value, {stream: true}));
+        const result = parser.parse();
+        for (const d of result) {
+          this.emit('data', d.data);
+          timeout.reset();
         }
       }
     } catch (error) {
       this.emit('error', error);
-      this.close();
+    } finally {
+      timeout.stop();
     }
   }
 
@@ -159,6 +170,16 @@ class SerialConn extends EventEmitter<SerialConnEvents>{
   public get state() : SerialState {
     return this._input_stream ? 'open' : 'closed';
   }
+
+  async signal_reset() {
+    await this.signals({dataTerminalReady: false, requestToSend: true});
+    await sleep(100);
+    await this.signals({dataTerminalReady: true});
+  }
+
+  async signals(signals:SerialOutputSignals) {
+    await this._port.setSignals(signals);
+  }
 }
 
 const template = function(){
@@ -172,6 +193,7 @@ const template = function(){
         <select class='sel-serial-conn serial-parity'></select>
         <select class='sel-serial-conn serial-stopbits'></select>
         <button class=serial-connect>Open</button>
+        <button class=serial-data-clear>Clear</button>
       </div>
       <div>
         <input class=serial-input placeholder=Data>
@@ -184,6 +206,7 @@ const template = function(){
         <span class='serial-get-signal serial-DSR'>DSR</span>
         <span class='serial-get-signal serial-RI'>RI</span>
         <button class=serial-btn-signal>&#x27F3;</button>
+        <button class='serial-signal-button serial-signal-reset'>Reset</button>
       </div>
     </div>
     <display-data class=data></display-data>
@@ -232,9 +255,11 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     this._port.on('error', error => this.error(error));
     this._port.on('data', data => this.data(data));
     this._port.on('disconnect', async () => {
+      this._port.disconnect();
       this.configure_connect(false);
       this.configure_connected(false);
       this._btn_open.disabled = true;
+      this._data.warning('Disconnected');
       this.emit('disconnect', undefined);
     });
 
@@ -267,7 +292,6 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
           container.querySelector(mclass)?.classList.remove('signal-set');
       }
       this._port.port.getSignals().then(s => {
-        console.log('signals', s);
         set_signal(s, '.serial-CTS', 'clearToSend', this._container);
         set_signal(s, '.serial-DCD', 'dataCarrierDetect', this._container);
         set_signal(s, '.serial-DSR', 'dataSetReady', this._container);
@@ -281,6 +305,16 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
         this._port.write(this._out_data.value);
         this._data.send(this._out_data.value);
       }
+    }
+
+    // Clear data
+    (this._container.querySelector('.serial-data-clear') as HTMLButtonElement).onclick = () => {
+      this._data.clear();
+    }
+
+    // Reset ESP32 device
+    (this._container.querySelector('.serial-signal-reset') as HTMLButtonElement).onclick = () => {
+      this._port.signal_reset();
     }
   }
 

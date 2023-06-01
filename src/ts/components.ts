@@ -99,7 +99,7 @@ export class SerialComponent extends ComponentBase {
   constructor(_container: ComponentContainer, state: JsonValue | undefined, virtual: boolean) {
     super(_container, state, virtual);
 
-    const port = (<any>window).serial_list.port_by_id(state);
+    const port = window.console_app.serial_list.port_by_id((state as number));
     if (!port)
       throw `Failed to find port [${state}]`;
 
