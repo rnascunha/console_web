@@ -11,7 +11,7 @@ class ParseUntil {
 
   constructor(br?:RegExp, chunk?:string) {
     this._chunk = chunk ?? "";
-    this._break = br ?? /\r\n|\n|\r/;
+    this._break = br ?? /\r\n|\n|\r(?=.)/;  // Match if \r\n, \n or if is a \r with something ahead
   }
 
   get chunk() : string {

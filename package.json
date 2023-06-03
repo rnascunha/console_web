@@ -12,7 +12,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "golden-layout": "^2.6.0"
+    "golden-layout": "^2.6.0",
+    "xterm": "^5.1.0",
+    "xterm-addon-fit": "^0.7.0"
   },
   "devDependencies": {
     "@types/w3c-web-serial": "^1.0.3",

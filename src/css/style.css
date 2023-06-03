@@ -14,6 +14,18 @@ body {
     "footer" 2px
 }
 
+#header {
+  display: flex;
+  align-items: center;
+}
+
+#title {
+  margin: 0px;
+  flex-grow: 1;
+  order: 2;
+  text-align: center;
+}
+
 #error {
   background-color: red;
   color: white;
@@ -23,6 +35,15 @@ body {
 
 #error:empty {
   display: none;
+}
+
+.btn-pressed{
+  border-style: inset;
+  background-color: darkgray;
+}
+
+.btn-not-pressed {
+  border-style: outset;
 }
 
 /**

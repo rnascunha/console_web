@@ -1,31 +1,40 @@
 import {ComponentBase,
         WSComponent,
         HTTPComponent,
-        SerialComponent} from "./components";
+        SerialComponent,
+        SerialConsoleComponent} from "./components";
 import {ComponentItem,
         ContentItem,
         LayoutConfig,
         ItemType,
         GoldenLayout} from 'golden-layout';
-import {SerialList, install_serial_events} from "./serial";
+import {SerialList,
+        install_serial_events} from "./serial";
 
-// (<any>window).serial_list = new SerialList();
-
-interface component {
+interface Component {
   readonly name:string;
   readonly component:any;
   readonly protocols:Array<string>;
 };
 
-const Components:Record<string, component> = {
+const Components:Record<string, Component> = {
   WSComponent: {name: 'WSComponent', component: WSComponent, protocols: ['ws', 'wss']},
   HTTPComponent: {name: 'HTTPComponent', component: HTTPComponent, protocols: ['http', 'https']},
   SerialComponent: {name: 'SerialComponent', component: SerialComponent, protocols: ['serial']}
 };
 
+interface OtherComponent {
+  name: string,
+  component: any
+}
+
+const otherComponents:Array<OtherComponent> = [
+  {name: 'SerialConsoleComponent', component: SerialConsoleComponent}
+];
+
 interface protocol {
   readonly protocol:string;
-  readonly component:component;
+  readonly component:Component;
 };
 
 const protocols:Record<string, protocol> = function(){
@@ -40,7 +49,8 @@ const protocols:Record<string, protocol> = function(){
 
 const ConsoleLayout:LayoutConfig = {
   settings: {
-    responsiveMode: 'always'
+    responsiveMode: 'always',
+    showPopoutIcon: false
   },
   root: {
     type: ItemType.row,
@@ -62,6 +72,8 @@ export class App {
   constructor(container = document, proto = protocols) {
     this._layout = new GoldenLayout(container.querySelector('#golden') as HTMLElement);
     Object.values(Components).forEach(v =>
+                this._layout.registerComponentConstructor(v.name, v.component));
+    otherComponents.forEach(v =>
                 this._layout.registerComponentConstructor(v.name, v.component));
     this._layout.loadLayout(ConsoleLayout);
 
@@ -98,6 +110,10 @@ export class App {
 
   public get serial_list() {
     return this._serial_list;
+  }
+
+  public get layout() {
+    return this._layout;
   }
 
   private get protocol() {
@@ -155,6 +171,25 @@ export class App {
       
       let v = ((comp as ComponentItem).component as ComponentBase);
       if (v && v.reused(url)) {
+        res = v;
+        return true;
+      }
+    });
+    return res;
+  }
+
+  private find_component2(fn:(...args:any[]) => boolean, item:ContentItem|undefined) {
+    let res = undefined;
+    item?.contentItems.some(comp => {
+      if (!comp.isComponent) {
+        res = this.find_component2(fn, comp);
+        if (res)
+          return true;
+      }
+      
+      comp
+      let v = (comp as ComponentItem).component;
+      if (v && fn(v)) {
         res = v;
         return true;
       }

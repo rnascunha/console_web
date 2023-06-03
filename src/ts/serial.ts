@@ -4,6 +4,7 @@ import { sleep } from './helper';
 import { ParseUntilTimeout,
          ParseData } from './stream_parser';
 import * as serialJSON from './usb_filtered.json';
+import { DataTerminal } from './terminal';
 
 export function support_serial() {
   return 'serial' in navigator;
@@ -73,7 +74,7 @@ async function esp32_signal_reset(port:SerialConn) {
   await port.signals({dataTerminalReady: true});
 }
 
-class SerialConn extends EventEmitter<SerialConnEvents>{
+export class SerialConn extends EventEmitter<SerialConnEvents>{
   private _port:SerialPort;
   private _id:number;
 
@@ -174,6 +175,7 @@ const template = function(){
         <select class='sel-serial-conn serial-stopbits'></select>
         <button class=serial-connect>Open</button>
         <button class=serial-data-clear>Clear</button>
+        <button class='serial-console btn-not-pressed'>Console</button>
       </div>
       <div>
         <input class=serial-input placeholder=Data>
@@ -207,8 +209,10 @@ const template = function(){
 }()
 
 interface SerialViewEvents {
+  console: boolean,
+  close_console: undefined,
   disconnect: undefined
-}
+};
 
 export class SerialView extends EventEmitter<SerialViewEvents> {
   private _port:SerialConn;
@@ -230,7 +234,7 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     this._btn_open = this._container.querySelector('.serial-connect') as HTMLButtonElement;
     this._data = this._container.querySelector('.data') as DataDisplay;
     this._out_data = this._container.querySelector('.serial-input') as HTMLInputElement;
-
+    
     this._parser = new ParseUntilTimeout(100);
 
     this._port.on('open', () => {
@@ -242,7 +246,9 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
       this._parser.stop();
     });
     this._port.on('error', error => this.error(error));
-    this._port.on('data', data => this._parser.process(data));
+    this._port.on('data', data => {
+      this._parser.process(data)
+    });
     this._port.on('disconnect', () => this.disconnect())
 
     this._parser.on('data', d => this.data(d));
@@ -301,6 +307,23 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     (this._container.querySelector('.serial-signal-reset') as HTMLButtonElement).onclick = () => {
       esp32_signal_reset(this._port);
     }
+
+    // Open/Close serial console
+    const btn_console = this._container.querySelector('.serial-console') as HTMLButtonElement;
+    (this._container.querySelector('.serial-console') as HTMLButtonElement).onclick = ev => {
+      if (btn_console.classList.contains('btn-pressed')) {
+        this.emit('console', false);
+      } else {
+        btn_console.classList.remove('btn-not-pressed');
+        btn_console.classList.add('btn-pressed');
+        this.emit('console', true);
+      }
+    }
+
+    this.on('close_console', () => {
+      btn_console.classList.add('btn-not-pressed');
+      btn_console.classList.remove('btn-pressed');
+    });
   }
 
   get container() : HTMLElement {
@@ -356,6 +379,35 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     this._data.warning('Disconnected');
     
     this.emit('disconnect', undefined);
+  }
+};
+
+interface SerialViewConsoleEvents {
+  'open': undefined,
+  'close': undefined,
+  'release': undefined
+};
+
+export class SerialViewConsole extends EventEmitter<SerialViewConsoleEvents> {
+  private _port:SerialConn;
+  private _terminal:DataTerminal;
+
+  constructor(port:SerialConn, container:HTMLElement) {
+    super();
+
+    this._port = port;
+    this._terminal = new DataTerminal(container);
+    this._port.on('data', data => this._terminal.write(data));
+    this._port.on('open', () => this.emit('open', undefined));
+    this._port.on('close', () => this.emit('close', undefined));
+  }
+
+  public get terminal()  {
+    return this._terminal;
+  }
+
+  public get port() {
+    return this._port;
   }
 };
 

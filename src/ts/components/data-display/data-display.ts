@@ -22,6 +22,7 @@ const template_class:HTMLTemplateElement = function() : HTMLTemplateElement {
     .command-data {
       margin: 0px;
       padding: 3px;
+      white-space: break-spaces;
     }
     
     .comm {
