@@ -1,0 +1,22 @@
+
+.window {
+  background-color: white;
+  margin: 0px;
+  padding: 0px;
+  box-shadow: 3px 2px 2px black;
+  border: 1px black solid;
+  border-radius: 5px;
+}
+
+.window-header {
+  background-color: blue;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  padding: 3px 0px;
+  border-top-left-radius: 4px;
+}
+
+.window-body {
+  border-bottom-right-radius: 4px;
+}

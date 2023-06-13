@@ -141,9 +141,8 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
       }
     }
 
-    (this._container.querySelector('.clear') as HTMLElement).onclick = () => {
-      this._data.innerHTML = '';
-    }
+    (this._container.querySelector('.clear') as HTMLElement).onclick = () =>
+      this._data.clear();
 
     this.config_socket();
   }
@@ -189,7 +188,7 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
   }
 
   private _on_message(ev:MessageEvent) {
-    this._data.receive(`${ev.data}`)
+    this._data.receive(ev.data, ev.data.length, ev.data);
   }
 
   private _on_close(ev:CloseEvent) {
@@ -228,6 +227,6 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
       return;
 
     this._socket.send(this._in_data.value);
-    this._data.send(`${this._in_data.value}`);
+    this._data.send(this._in_data.value, this._in_data.value.length, this._in_data.value);
   }
 }

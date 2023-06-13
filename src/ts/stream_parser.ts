@@ -78,7 +78,8 @@ export class CheckTimeout {
 
 export interface ParseData {
   data:string,
-  size:number
+  size:number,
+  raw?:string
 };
 
 interface ParserUntilTimeoutEvents {
@@ -93,12 +94,12 @@ export class ParseUntilTimeout extends EventEmitter<ParserUntilTimeoutEvents> {
   constructor(interval:number) {
     super();
 
-    this._decoder = new TextDecoder('utf-8');
+    this._decoder = new TextDecoder('latin1');
     this._parser = new ParseUntil();
     this._timeout = new CheckTimeout(interval, () => {
       if (this._parser.chunk.length > 0) {
         const data = this._parser.chunk;
-        this.emit('data', {data: ascii_decoder(data), size: data.length});
+        this.emit('data', {data: ascii_decoder(data), size: data.length, raw: data});
         this._parser.clear_chunk();
       };
     });
@@ -109,7 +110,8 @@ export class ParseUntilTimeout extends EventEmitter<ParserUntilTimeoutEvents> {
     const result = this._parser.parse();
     for (const d of result) {
       this.emit('data', {data: `${ascii_decoder(d.data)}[${ascii_decoder(d.result[0])}]`,
-                         size: d.data.length + d.result[0].length});
+                         size: d.data.length + d.result[0].length,
+                         raw: d.data});
       this._timeout.reset();
     }
   }

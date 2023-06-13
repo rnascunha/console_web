@@ -294,7 +294,9 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     (this._container.querySelector('.serial-send') as HTMLButtonElement).onclick = () => {
       if (this._out_data.value.length > 0) {
         this._port.write(this._out_data.value);
-        this._data.send(this._out_data.value);
+        this._data.send(this._out_data.value,
+                        this._out_data.value.length,
+                        this._out_data.value);
       }
     }
 
@@ -366,7 +368,7 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
   }
 
   private data(data:ParseData) {
-    this._data.receive(data.data, data.size);
+    this._data.receive(data.data, data.size, data.raw);
   }
 
   private disconnect() {

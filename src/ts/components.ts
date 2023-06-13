@@ -9,6 +9,8 @@ import { HTTPView } from "./http";
 import { SerialConn,
          SerialView,
          SerialViewConsole } from "./serial";
+import { string_to_binary } from "./encode";
+import { BinaryDump } from "./components/binary-dump/binary-dump";
 
 interface ConnectComponent {
   reused(url:string) : Boolean;
@@ -20,7 +22,7 @@ export abstract class ComponentBase implements GoldenLayout.VirtuableComponent, 
   get container(): ComponentContainer { return this._container; }
   get rootHtmlElement(): HTMLElement { return this._rootElement; }
 
-  constructor(private _container: ComponentContainer, state: JsonValue | undefined , virtual: boolean) {
+  constructor(private _container: ComponentContainer, virtual: boolean) {
     if (virtual) {
       this._rootElement = document.createElement('div');
       this._rootElement.style.position = 'absolute';
@@ -37,16 +39,16 @@ export class WSComponent extends ComponentBase {
   private _view:WebsocketView;
 
   constructor(_container: ComponentContainer, state: JsonValue | undefined, virtual: boolean) {
-    super(_container, state, virtual);
+    super(_container, virtual);
 
     this._view = new WebsocketView(new Websocket(state as string));
     this.rootHtmlElement.appendChild(this._view.container);
 
-    this.container.setTitle(`${this.socket.url} (connecting)`);
+    this.set_title(`${this.socket.url} (connecting)`);
     this.container.on('beforeComponentRelease', () => this._view.close());
 
-    this._view.on('open', () => this.container.setTitle(`${this.socket.url}`));
-    this._view.on('close', () => this.container.setTitle(`${this.socket.url} (closed)`));
+    this._view.on('open', () => this.set_title(`${this.socket.url}`));
+    this._view.on('close', () => this.set_title(`${this.socket.url} (closed)`));
   }
 
   get socket() : Websocket {
@@ -55,7 +57,13 @@ export class WSComponent extends ComponentBase {
 
   set socket(s:Websocket) {
     this._view.socket = s;
-    this.container.setTitle(`${this.socket.url} (connecting)`);
+    this.set_title(`${this.socket.url} (connecting)`);
+  }
+
+  set_title(title:string) : void {
+    this.container.setTitle(title);
+    if (this.container.layoutManager.isSubWindow)
+      window.document.title = this.container.title;
   }
 
   public reused(url: string): Boolean {
@@ -76,12 +84,14 @@ export class HTTPComponent extends ComponentBase {
   private _view:HTTPView;
 
   constructor(_container: ComponentContainer, state: JsonValue | undefined, virtual: boolean) {
-    super(_container, state, virtual);
+    super(_container, virtual);
 
     this._view = new HTTPView(state as string); // url
     this.rootHtmlElement.appendChild(this._view.container);
 
     this.container.setTitle(`${this._view.url}`);
+    if (this.container.layoutManager.isSubWindow)
+      window.document.title = this.container.title;
   }
 
   public is_reusable(url:string) : Boolean {
@@ -102,7 +112,7 @@ export class SerialComponent extends ComponentBase {
   private _console:SerialConsoleComponent | null;
 
   constructor(_container: ComponentContainer, state: JsonValue | undefined, virtual: boolean) {
-    super(_container, state, virtual);
+    super(_container, virtual);
 
     const port = window.console_app.serial_list.port_by_id((state as number));
     if (!port)
@@ -176,7 +186,7 @@ export class SerialConsoleComponent implements GoldenLayout.VirtuableComponent {
     /**
      * As the container is not at DOM yet, this is a
      * workaroud to delay until after the constructor
-     * (envet open dint work)
+     * (event open didn't work)
      */
     setTimeout(() => {
       const port = window.console_app.serial_list.port_by_id(this._id) as SerialConn;
@@ -205,5 +215,39 @@ export class SerialConsoleComponent implements GoldenLayout.VirtuableComponent {
       this._container.setTitle(`${port.name} (console)`)
     else
     this._container.setTitle(`${port.name} (console/closed)`)
+  }
+}
+
+export class DockDumpComponent implements GoldenLayout.VirtuableComponent {
+  private _rootElement: HTMLElement;
+  private _data:Uint8Array;
+
+  get container(): ComponentContainer { return this._container; }
+  get rootHtmlElement(): HTMLElement { return this._rootElement; }
+
+  constructor(private _container: ComponentContainer, state: JsonValue | undefined , virtual: boolean) {
+    if (virtual) {
+      this._rootElement = document.createElement('div');
+      this._rootElement.style.position = 'absolute';
+      this._rootElement.style.overflow = 'hidden';
+    } else {
+      this._rootElement = this._container.element;
+    }
+    this._data = string_to_binary(state as string);
+
+    this.container.setTitle('Binary Dump');
+    if (this.container.layoutManager.isSubWindow) {
+      window.document.title = 'Binary Dump';
+    }
+
+    const body = new BinaryDump();
+    body.classList.add('window-body');
+    body.update(this._data, 8);
+    this._rootElement.appendChild(body);
+
+    this.container.stateRequestEvent = () => {
+      // console.log('event');
+      return state;
+    }
   }
 }

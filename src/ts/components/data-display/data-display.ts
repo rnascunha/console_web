@@ -1,4 +1,7 @@
 import {time} from '../../helper';
+import { string_to_binary } from '../../encode';
+import { BinaryDump } from '../binary-dump/binary-dump';
+import { create_window } from '../../window';
 
 type type_data = 'comm' | 'recv' | 'send' | 'error' | 'warn';
 
@@ -24,6 +27,14 @@ const template_class:HTMLTemplateElement = function() : HTMLTemplateElement {
       padding: 3px;
       white-space: break-spaces;
     }
+
+    .command-data[data-data] {
+      cursor: pointer;
+    }
+
+    .command-data:hover {
+      filter: brightness(1.2);
+    }
     
     .comm {
       background-color: lightgray;
@@ -45,7 +56,6 @@ const template_class:HTMLTemplateElement = function() : HTMLTemplateElement {
     .warn {
       background-color: yellow;
     }
-
   </style>
   <div id=data></div>`;
   return template;
@@ -59,18 +69,43 @@ export default class DataDisplay extends HTMLElement {
     this.attachShadow({mode: 'open'});
     this.shadowRoot?.appendChild(template_class.content.cloneNode(true));
     this._data = this.shadowRoot?.querySelector('#data') as HTMLElement;
+
+    this._data.onclick = ev => {
+      const el = ev.composedPath()[0] as HTMLElement;
+      if (!('data' in el.dataset))
+        return;
+
+      const d = string_to_binary(el.dataset.data as string);
+      
+      const body = new BinaryDump(8, d);
+    
+      const win = create_window('Binary Dump', body);
+      document.body.appendChild(win);
+      win.center();
+      win.addEventListener('undock', () => {
+        const p = window.console_app.layout.createPopout(
+          window.console_app.layout.newComponent('DockDumpComponent', el.dataset.data as string),
+          {
+            width: win.clientWidth,
+            height: win.clientHeight - win.header.clientHeight,
+            left: win.offsetLeft,
+            top: win.offsetTop
+          }, null, null);
+        win.close();
+      });
+    }
   }
 
   public clear() {
     this._data.innerHTML = '';
   }
 
-  public send(message:string, message_size?:number) {
-    this.add_message('send', message, message_size);
+  public send(message:string, message_size?:number, raw?:string) {
+    this.add_message('send', message, message_size, raw);
   }
 
-  public receive(message:string, message_size?:number) {
-    this.add_message('recv', message, message_size);
+  public receive(message:string, message_size?:number, raw?:string) {
+    this.add_message('recv', message, message_size, raw);
   }
 
   public command(message:string) {
@@ -85,10 +120,14 @@ export default class DataDisplay extends HTMLElement {
     this.add_message('warn', message);
   }
 
-  public add_message(type:type_data, message:string, message_size?:number) {
+  public add_message(type:type_data, message:string,
+                     message_size?:number,
+                     raw?:string) {
     const p = document.createElement('pre');
     p.classList.add('command-data', type);
     const size = `${message_size ? message_size : message.length}`.padStart(3, '0');
+
+    if (raw) p.dataset.data = raw;
     
     let out = `${time()} `;
     if (type === 'send')

@@ -3,9 +3,10 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: [
-    path.resolve(__dirname, "./src/ts/index.ts")
-  ],
+  entry: {
+    main: path.resolve(__dirname, "./src/ts/main.ts"),
+    input: path.resolve(__dirname, "./src/ts/input.ts")
+  },
 
   output: {
     filename: '[name].bundle.js',
@@ -68,7 +69,13 @@ module.exports = {
       env: JSON.stringify(process.env)
     }),
     new HtmlWebpackPlugin({
+      chunks: ['main'],
       template: path.resolve(__dirname, "./src/index.html")
+    }),
+    new HtmlWebpackPlugin({
+      chunks: ['input'],
+      filename: 'input.html',
+      template: path.resolve(__dirname, "./src/input.html")
     }),
   ]
 };
