@@ -10,8 +10,7 @@ import {ComponentItem,
         ItemType,
         GoldenLayout,
         ComponentContainer,
-        ResolvedComponentItemConfig,
-        LogicalZIndex} from 'golden-layout';
+        ResolvedComponentItemConfig} from 'golden-layout';
 import {SerialList,
         install_serial_events} from "./serial";
 
@@ -78,7 +77,6 @@ const ConsoleLayout:LayoutConfig = {
 };
 
 export class App {
-  private _container:HTMLElement;
   private readonly _layout:GoldenLayout;
   private readonly _sel_protocols:HTMLSelectElement;
   private readonly _btn_connect:HTMLButtonElement;
@@ -92,7 +90,6 @@ export class App {
   constructor(container = document.body, proto = protocols) {
     window.console_app = this;
 
-    this._container = container.querySelector('#golden') as HTMLElement;
     this._layout = new GoldenLayout(container.querySelector('#golden') as HTMLElement,
                                     this.bind_component.bind(this)
                                     );
@@ -112,7 +109,7 @@ export class App {
     this._sel_serial = container.querySelector('#sel-serial-port') as HTMLSelectElement;
 
     Object.values(proto).forEach((v:protocol) =>
-      this._sel_protocols.appendChild(new Option(v.protocol, v.protocol, undefined, v.protocol == 'serial')));
+      this._sel_protocols.appendChild(new Option(v.protocol, v.protocol, undefined, v.protocol == 'http')));
 
     this._btn_connect.onclick = () => this.open();
 
@@ -172,7 +169,7 @@ export class App {
     };
   }
 
-  private handleContainerVirtualZIndexChangeRequiredEvent(container: ComponentContainer, logicalZIndex: LogicalZIndex, defaultZIndex: string) {
+  // private handleContainerVirtualZIndexChangeRequiredEvent(container: ComponentContainer, logicalZIndex: LogicalZIndex, defaultZIndex: string) {
     // const component = this._boundComponentMap.get(container);
     // if (component === undefined) {
     //     throw new Error('handleContainerVirtualZIndexChangeRequiredEvent: Component not found');
@@ -185,7 +182,7 @@ export class App {
 
     // componentRootElement.style.zIndex = defaultZIndex;
     // container.element.style.zIndex = defaultZIndex;
-  }
+  // }
 
   // private handleContainerVirtualVisibilityChangeRequiredEvent(container: ComponentContainer, visible: boolean) {
   //   const component = this._boundComponentMap.get(container);
@@ -230,13 +227,13 @@ export class App {
     // this._container.style.height = this.numberToPixels(50);
   }
 
-  private numberToPixels(value: number): string {
-    return value.toString(10) + 'px';
-  }
+  // private numberToPixels(value: number): string {
+  //   return value.toString(10) + 'px';
+  // }
 
-  private unbind_component(container: ComponentContainer) {
+  // private unbind_component(container: ComponentContainer) {
 
-  }
+  // }
 
   public get serial_list() {
     return this._serial_list;

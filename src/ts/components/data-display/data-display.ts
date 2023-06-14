@@ -1,11 +1,11 @@
-import {time} from '../../helper';
+import { time } from '../../helper';
 import { string_to_binary } from '../../encode';
 import { BinaryDump } from '../binary-dump/binary-dump';
 import { create_window } from '../../window';
 
 type type_data = 'comm' | 'recv' | 'send' | 'error' | 'warn';
 
-const template_class:HTMLTemplateElement = function() : HTMLTemplateElement {
+const template_class: HTMLTemplateElement = (function (): HTMLTemplateElement {
   const template = document.createElement('template');
   template.innerHTML = `
   <style>
@@ -59,81 +59,90 @@ const template_class:HTMLTemplateElement = function() : HTMLTemplateElement {
   </style>
   <div id=data></div>`;
   return template;
-}();
+})();
 
 export default class DataDisplay extends HTMLElement {
-  private _data:HTMLElement;
+  private _data: HTMLElement;
   constructor() {
     super();
 
-    this.attachShadow({mode: 'open'});
+    this.attachShadow({ mode: 'open' });
     this.shadowRoot?.appendChild(template_class.content.cloneNode(true));
     this._data = this.shadowRoot?.querySelector('#data') as HTMLElement;
 
-    this._data.onclick = ev => {
+    this._data.onclick = (ev) => {
       const el = ev.composedPath()[0] as HTMLElement;
-      if (!('data' in el.dataset))
-        return;
+      if (!('data' in el.dataset)) return;
 
       const d = string_to_binary(el.dataset.data as string);
-      
+
       const body = new BinaryDump(8, d);
-    
+
       const win = create_window('Binary Dump', body);
       document.body.appendChild(win);
       win.center();
       win.addEventListener('undock', () => {
-        const p = window.console_app.layout.createPopout(
-          window.console_app.layout.newComponent('DockDumpComponent', el.dataset.data as string),
+        window.console_app.layout.createPopout(
+          window.console_app.layout.newComponent(
+            'DockDumpComponent',
+            el.dataset.data as string
+          ),
           {
             width: win.clientWidth,
             height: win.clientHeight - win.header.clientHeight,
             left: win.offsetLeft,
-            top: win.offsetTop
-          }, null, null);
+            top: win.offsetTop,
+          },
+          null,
+          null
+        );
         win.close();
       });
-    }
+    };
   }
 
   public clear() {
     this._data.innerHTML = '';
   }
 
-  public send(message:string, message_size?:number, raw?:string) {
+  public send(message: string, message_size?: number, raw?: string) {
     this.add_message('send', message, message_size, raw);
   }
 
-  public receive(message:string, message_size?:number, raw?:string) {
+  public receive(message: string, message_size?: number, raw?: string) {
     this.add_message('recv', message, message_size, raw);
   }
 
-  public command(message:string) {
+  public command(message: string) {
     this.add_message('comm', message);
   }
 
-  public error(message:string) {
+  public error(message: string) {
     this.add_message('error', message);
   }
 
-  public warning(message:string) {
+  public warning(message: string) {
     this.add_message('warn', message);
   }
 
-  public add_message(type:type_data, message:string,
-                     message_size?:number,
-                     raw?:string) {
+  public add_message(
+    type: type_data,
+    message: string,
+    message_size?: number,
+    raw?: string
+  ) {
     const p = document.createElement('pre');
     p.classList.add('command-data', type);
-    const size = `${message_size ? message_size : message.length}`.padStart(3, '0');
+    const size = `${message_size ? message_size : message.length}`.padStart(
+      3,
+      '0'
+    );
 
     if (raw) p.dataset.data = raw;
-    
+
     let out = `${time()} `;
-    if (type === 'send')
-      out += `<<< [${size}]`;
-    else if (type === 'recv')
-      out += `>>> [${size}]`;
+    if (type === 'send') out += `<<< [${size}]`;
+    else if (type === 'recv') out += `>>> [${size}]`;
     p.textContent += `${out} ${message}`;
     this._data.appendChild(p);
     this.go_to_bottom();
