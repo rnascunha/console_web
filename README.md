@@ -1,4 +1,4 @@
-# websocket_test
+# Console Web
 
 A simple websocket test
 ```bash
