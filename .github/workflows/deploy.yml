@@ -27,4 +27,3 @@ jobs:
         with:
           branch: gh-pages
           folder: dist
-          repositorty-name: rnascunha/rnascunha.github.io
