@@ -12,7 +12,7 @@
 - [ ] Make better input (not just text, but also binary);
 - [ ] Document it :|
 - [ ] Github Actions auto publish tool
-- [ ] change project name (Console Web?)
+- [x] change project name (Console Web?)
 
 ## Fix
 
