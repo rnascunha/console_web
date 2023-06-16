@@ -1,11 +1,5 @@
-import {
-  ComponentBase,
-  WSComponent,
-  HTTPComponent,
-  SerialComponent,
-  SerialConsoleComponent,
-  DockDumpComponent,
-} from './types/components';
+import { type ComponentBase, AppComponent } from './types/component-base';
+import { DockDumpComponent } from './types/component-utility';
 import {
   type ComponentItem,
   type ContentItem,
@@ -15,7 +9,14 @@ import {
   type ComponentContainer,
   ResolvedComponentItemConfig,
 } from 'golden-layout';
-import { SerialList, install_serial_events } from './apps/serial/serial';
+import { HTTPComponent } from './apps/http/component';
+import { WSComponent } from './apps/websocket/component';
+import {
+  SerialComponent,
+  SerialConsoleComponent,
+} from './apps/serial/component';
+import { SerialList } from './apps/serial/serial';
+import { install_serial_events } from './apps/serial/functions';
 
 interface Component {
   readonly name: string;
@@ -347,7 +348,7 @@ export class App {
       }
 
       const temp = (comp as ComponentItem).component;
-      if (!(temp instanceof ComponentBase)) return false;
+      if (!(temp instanceof AppComponent)) return false;
 
       if (temp?.reused(url)) {
         res = temp;

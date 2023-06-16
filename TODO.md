@@ -3,7 +3,7 @@
 - [x] Make popup golden-layout work (or disable if not possible);
 - [x] Add Web Serial API;
 - [ ] Clean code;
-- [ ] Structure better the code.
+- [x] Structure better the code.
 - [x] Add better typescript configuration (tsconfig);
 - [x] Use a prettify tool to code.
 - [ ] Work with electron
