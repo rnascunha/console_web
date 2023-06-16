@@ -5,11 +5,15 @@ import type {
   ComponentItem,
   ContentItem,
 } from 'golden-layout';
-import { Websocket, WebsocketView } from './websocket';
-import { HTTPView } from './http';
-import { type SerialConn, SerialView, SerialViewConsole } from './serial';
-import { string_to_binary } from './helper/encode';
-import { BinaryDump } from './components/binary-dump/binary-dump';
+import { Websocket, WebsocketView } from '../apps/websocket/websocket';
+import { HTTPView } from '../apps/http/http';
+import {
+  type SerialConn,
+  SerialView,
+  SerialViewConsole,
+} from '../apps/serial/serial';
+import { string_to_binary } from '../helper/encode';
+import { BinaryDump } from '../components/binary-dump/binary-dump';
 
 interface ConnectComponent {
   reused: (url: string) => boolean;

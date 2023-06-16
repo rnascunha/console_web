@@ -20,3 +20,4 @@
 - [ ] Check workaround at `websocket.ts` (`config_socket` function) to load custom-element;
 - [ ] Popout not working with `serial` protocol;
 - [ ] Popout at a poped out window error (disable?);
+- [ ] Serial issueing 2 disconnect messages

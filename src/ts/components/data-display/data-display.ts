@@ -1,7 +1,7 @@
 import { time } from '../../helper/time';
 import { string_to_binary } from '../../helper/encode';
 import { BinaryDump } from '../binary-dump/binary-dump';
-import { create_window } from '../../window';
+import { create_window } from '../../helper/window';
 
 type TypeData = 'comm' | 'recv' | 'send' | 'error' | 'warn';
 

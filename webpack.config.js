@@ -1,26 +1,26 @@
-const webpack = require("webpack");
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+const webpack = require('webpack');
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
-    main: path.resolve(__dirname, "./src/ts/main.ts"),
-    input: path.resolve(__dirname, "./src/ts/input.ts"),
+    main: path.resolve(__dirname, './src/ts/main.ts'),
+    input: path.resolve(__dirname, './src/tools/input/input.ts'),
   },
 
   output: {
-    filename: "[name].bundle.js",
-    path: path.resolve(__dirname, "dist"),
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
     clean: true,
   },
 
-  devtool: "cheap-module-source-map",
+  devtool: 'cheap-module-source-map',
 
   devServer: {
     port: 3000,
     static: [
       {
-        directory: path.resolve(__dirname, "dist"),
+        directory: path.resolve(__dirname, 'dist'),
       },
     ],
     devMiddleware: {
@@ -29,7 +29,7 @@ module.exports = {
   },
 
   resolve: {
-    extensions: [".ts", ".js"],
+    extensions: ['.ts', '.js'],
   },
 
   module: {
@@ -37,25 +37,22 @@ module.exports = {
       {
         test: /.tsx?$/,
         use: {
-          loader: "ts-loader",
-          options: {
-            configFile: "./tsconfig.json",
-          },
+          loader: 'ts-loader',
         },
         exclude: /node_modules/,
       },
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"],
+        use: ['style-loader', 'css-loader'],
       },
       {
         test: /\.js$/,
-        enforce: "pre",
-        use: ["source-map-loader"],
+        enforce: 'pre',
+        use: ['source-map-loader'],
       },
       {
         test: /\.less$/,
-        use: ["style-loader", "css-loader", "less-loader"],
+        use: ['style-loader', 'css-loader', 'less-loader'],
       },
     ],
   },
@@ -65,13 +62,13 @@ module.exports = {
       env: JSON.stringify(process.env),
     }),
     new HtmlWebpackPlugin({
-      chunks: ["main"],
-      template: path.resolve(__dirname, "./src/index.html"),
+      chunks: ['main'],
+      template: path.resolve(__dirname, './src/index.html'),
     }),
     new HtmlWebpackPlugin({
-      chunks: ["input"],
-      filename: "input.html",
-      template: path.resolve(__dirname, "./src/input.html"),
+      chunks: ['input'],
+      filename: 'input.html',
+      template: path.resolve(__dirname, './src/tools/input/input.html'),
     }),
   ],
 };

@@ -1,11 +1,11 @@
-import DataDisplay from './components/data-display/data-display';
-import EventEmitter from './event_emitter';
-import { sleep } from './helper/time';
-import { ParseUntilTimeout, ParseData } from './stream_parser';
+import type DataDisplay from '../../components/data-display/data-display';
+import EventEmitter from '../../types/event_emitter';
+import { sleep } from '../../helper/time';
+import { ParseUntilTimeout, type ParseData } from '../../types/stream_parser';
 import * as serialJSON from './usb_filtered.json';
-import { DataTerminal } from './terminal';
+import { DataTerminal } from '../../types/terminal';
 
-export function support_serial() {
+export function support_serial(): boolean {
   return 'serial' in navigator;
 }
 
@@ -33,26 +33,25 @@ function get_serial_info(port: SerialPort): SerialPortInfo {
 
 function make_serial_name(port: SerialPort): string {
   const info = get_serial_info(port);
-  if (info.productName) return info.productName as string;
+  if (info.productName !== undefined) return info.productName;
 
-  if (info.vendorName) {
+  if (info.vendorName !== undefined)
     return `${info.vendorName} [${info.productID}]`;
-  }
 
   return `Generic [${info.vendorID}/${info.productID}]`;
 }
 
 type SerialState = 'open' | 'close';
 
-const SerialBaurate = [
+const serialBaudrate: number[] = [
   9600, 19200, 38400, 57600, 115200, 230400, 460800, 576000, 921600,
 ];
-const SerialDataBits = [7, 8];
-const SerialFlowControl = ['none', 'hardware'];
-const SerialParity = ['none', 'even', 'odd'];
-const SerialStopBits = [1, 2];
+const serialDataBits = [7, 8];
+const serialFlowControl = ['none', 'hardware'];
+const serialParity = ['none', 'even', 'odd'];
+const serialStopBits = [1, 2];
 
-const SerialDefaults = {
+const serialDefaults = {
   baudRate: 115200,
   dataBits: 8,
   flowControl: 'none',
@@ -68,15 +67,15 @@ interface SerialConnEvents {
   disconnect: undefined;
 }
 
-async function esp32_signal_reset(port: SerialConn) {
+async function esp32_signal_reset(port: SerialConn): Promise<void> {
   await port.signals({ dataTerminalReady: false, requestToSend: true });
   await sleep(100);
   await port.signals({ dataTerminalReady: true });
 }
 
 export class SerialConn extends EventEmitter<SerialConnEvents> {
-  private _port: SerialPort;
-  private _id: number;
+  private readonly _port: SerialPort;
+  private readonly _id: number;
 
   private _input_stream: ReadableStream<Uint8Array> | null;
   private _reader: ReadableStreamDefaultReader<Uint8Array> | null;
@@ -100,19 +99,19 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
       this._input_stream?.getReader() as ReadableStreamDefaultReader<Uint8Array>;
     this._output_stream = this._port.writable;
     this.emit('open', this);
-    return await this.read();
+    await this.read();
   }
 
-  public async close() {
-    if (this.state == 'close') return;
+  public async close(): Promise<void> {
+    if (this.state === 'close') return;
 
-    if (this._reader) {
+    if (this._reader !== null) {
       await this._reader.cancel();
       this._input_stream = null;
       this._reader = null;
     }
 
-    if (this._output_stream) {
+    if (this._output_stream !== null) {
       await this._output_stream.getWriter().close();
       this._output_stream = null;
     }
@@ -121,13 +120,13 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
     this.emit('close', this);
   }
 
-  public disconnect() {
+  public disconnect(): void {
     this._input_stream = null;
     this._reader = null;
     this._output_stream = null;
   }
 
-  private async read() {
+  private async read(): Promise<void> {
     while (true) {
       const { value, done } = await (
         this._reader as ReadableStreamDefaultReader<Uint8Array>
@@ -137,7 +136,7 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
     }
   }
 
-  public async write(data: string) {
+  public async write(data: string): Promise<void> {
     const writer = this._output_stream?.getWriter();
     await writer?.write(new TextEncoder().encode(data));
     writer?.releaseLock();
@@ -156,10 +155,10 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
   }
 
   public get state(): SerialState {
-    return this._input_stream ? 'open' : 'close';
+    return this._input_stream !== null ? 'open' : 'close';
   }
 
-  async signals(signals: SerialOutputSignals) {
+  async signals(signals: SerialOutputSignals): Promise<void> {
     await this._port.setSignals(signals);
   }
 }
@@ -195,21 +194,25 @@ const template = (function () {
     <display-data class=data></display-data>
   `;
 
-  function make_select(mclass: string, values: Array<any>, mdefault: any) {
+  function make_select(
+    mclass: string,
+    values: string[] | number[],
+    mdefault: any
+  ): void {
     const el = template.content.querySelector(mclass);
     values.forEach(v =>
       el?.appendChild(new Option(`${v}`, `${v}`, v === mdefault))
     );
   }
-  make_select('.serial-baudrate', SerialBaurate, SerialDefaults.baudRate);
-  make_select('.serial-databits', SerialDataBits, SerialDefaults.dataBits);
+  make_select('.serial-baudrate', serialBaudrate, serialDefaults.baudRate);
+  make_select('.serial-databits', serialDataBits, serialDefaults.dataBits);
   make_select(
     '.serial-flowcontrol',
-    SerialFlowControl,
-    SerialDefaults.flowControl
+    serialFlowControl,
+    serialDefaults.flowControl
   );
-  make_select('.serial-parity', SerialParity, SerialDefaults.parity);
-  make_select('.serial-stopbits', SerialStopBits, SerialDefaults.stopBits);
+  make_select('.serial-parity', serialParity, serialDefaults.parity);
+  make_select('.serial-stopbits', serialStopBits, serialDefaults.stopBits);
 
   return template;
 })();
@@ -221,12 +224,12 @@ interface SerialViewEvents {
 }
 
 export class SerialView extends EventEmitter<SerialViewEvents> {
-  private _port: SerialConn;
-  private _container: HTMLElement;
-  private _btn_open: HTMLButtonElement;
-  private _data: DataDisplay;
-  private _out_data: HTMLInputElement;
-  private _parser: ParseUntilTimeout;
+  private readonly _port: SerialConn;
+  private readonly _container: HTMLElement;
+  private readonly _btn_open: HTMLButtonElement;
+  private readonly _data: DataDisplay;
+  private readonly _out_data: HTMLInputElement;
+  private readonly _parser: ParseUntilTimeout;
 
   constructor(port: SerialConn) {
     super();
@@ -255,19 +258,25 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
       this.closed();
       this._parser.stop();
     });
-    this._port.on('error', error => this.error(error));
+    this._port.on('error', error => {
+      this.error(error);
+    });
     this._port.on('data', data => {
       this._parser.process(data);
     });
-    this._port.on('disconnect', () => this.disconnect());
+    this._port.on('disconnect', () => {
+      this.disconnect();
+    });
 
-    this._parser.on('data', d => this.data(d));
+    this._parser.on('data', d => {
+      this.data(d);
+    });
 
     this.closed();
 
     this._btn_open.onclick = async () => {
       try {
-        if (this._port.state == 'close') {
+        if (this._port.state === 'close') {
           await this._port.open({
             baudRate: +(
               this._container.querySelector(
@@ -295,11 +304,11 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
               ) as HTMLSelectElement
             ).value,
           });
-        } else if (this._port.state == 'open') {
+        } else if (this._port.state === 'open') {
           await this._port.close();
         }
       } catch (e) {
-        this._data.error(`${e}`);
+        if (e instanceof Error) this._data.error(`${e.message}`);
         this.disconnect();
       }
     };
@@ -307,31 +316,30 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     // Read signal
     (
       this._container.querySelector('.serial-btn-signal') as HTMLButtonElement
-    ).onclick = () => {
+    ).onclick = async () => {
       function set_signal(
         s: SerialInputSignals,
         mclass: string,
         property: keyof SerialInputSignals,
         container: HTMLElement
-      ) {
+      ): void {
         if (s[property])
           container.querySelector(mclass)?.classList.add('signal-set');
         else container.querySelector(mclass)?.classList.remove('signal-set');
       }
-      this._port.port.getSignals().then(s => {
-        set_signal(s, '.serial-CTS', 'clearToSend', this._container);
-        set_signal(s, '.serial-DCD', 'dataCarrierDetect', this._container);
-        set_signal(s, '.serial-DSR', 'dataSetReady', this._container);
-        set_signal(s, '.serial-RI', 'ringIndicator', this._container);
-      });
+      const s = await this._port.port.getSignals();
+      set_signal(s, '.serial-CTS', 'clearToSend', this._container);
+      set_signal(s, '.serial-DCD', 'dataCarrierDetect', this._container);
+      set_signal(s, '.serial-DSR', 'dataSetReady', this._container);
+      set_signal(s, '.serial-RI', 'ringIndicator', this._container);
     };
 
     // Send data
     (
       this._container.querySelector('.serial-send') as HTMLButtonElement
-    ).onclick = () => {
+    ).onclick = async () => {
       if (this._out_data.value.length > 0) {
-        this._port.write(this._out_data.value);
+        await this._port.write(this._out_data.value);
         this._data.send(
           this._out_data.value,
           this._out_data.value.length,
@@ -350,8 +358,8 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     // Reset ESP32 device
     (
       this._container.querySelector('.serial-signal-reset') as HTMLButtonElement
-    ).onclick = () => {
-      esp32_signal_reset(this._port);
+    ).onclick = async () => {
+      await esp32_signal_reset(this._port);
     };
 
     // Open/Close serial console
@@ -384,25 +392,25 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     return this._port;
   }
 
-  public opened(is_open: boolean = true) {
+  public opened(is_open: boolean = true): void {
     this.configure_connect(false);
     this.configure_connected(true);
     this._btn_open.textContent = 'Close';
   }
 
-  private closed() {
+  private closed(): void {
     this.configure_connect(true);
     this.configure_connected(false);
     this._btn_open.textContent = 'Open';
   }
 
-  private configure_connect(enable: boolean) {
+  private configure_connect(enable: boolean): void {
     this._container.querySelectorAll('.sel-serial-conn').forEach(el => {
       (el as HTMLSelectElement).disabled = !enable;
     });
   }
 
-  private configure_connected(enable: boolean) {
+  private configure_connected(enable: boolean): void {
     this._container.querySelectorAll('.serial-signal-button').forEach(btn => {
       (btn as HTMLButtonElement).disabled = !enable;
     });
@@ -417,15 +425,15 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     ).disabled = !enable;
   }
 
-  private error(message: string) {
+  private error(message: string): void {
     this._data.error(message);
   }
 
-  private data(data: ParseData) {
+  private data(data: ParseData): void {
     this._data.receive(data.data, data.size, data.raw);
   }
 
-  private disconnect() {
+  private disconnect(): void {
     this._port.disconnect();
     this._parser.stop();
 
@@ -445,36 +453,42 @@ interface SerialViewConsoleEvents {
 }
 
 export class SerialViewConsole extends EventEmitter<SerialViewConsoleEvents> {
-  private _port: SerialConn;
-  private _terminal: DataTerminal;
+  private readonly _port: SerialConn;
+  private readonly _terminal: DataTerminal;
 
   constructor(port: SerialConn, container: HTMLElement) {
     super();
 
     this._port = port;
     this._terminal = new DataTerminal(container);
-    this._port.on('data', data => this._terminal.write(data));
-    this._port.on('open', () => this.emit('open', undefined));
-    this._port.on('close', () => this.emit('close', undefined));
+    this._port.on('data', data => {
+      this._terminal.write(data);
+    });
+    this._port.on('open', () => {
+      this.emit('open', undefined);
+    });
+    this._port.on('close', () => {
+      this.emit('close', undefined);
+    });
   }
 
-  public get terminal() {
+  public get terminal(): DataTerminal {
     return this._terminal;
   }
 
-  public get port() {
+  public get port(): SerialConn {
     return this._port;
   }
 }
 
-type SerialListEvents = {
-  connect: Array<SerialConn>;
-  disconnect: Array<SerialConn>;
-  get_ports: Array<SerialConn>;
-};
+interface SerialListEvents {
+  connect: SerialConn[];
+  disconnect: SerialConn[];
+  get_ports: SerialConn[];
+}
 
 export class SerialList extends EventEmitter<SerialListEvents> {
-  private _ports: Array<SerialConn>;
+  private _ports: SerialConn[];
   private _id: number = 0;
 
   constructor() {
@@ -488,7 +502,7 @@ export class SerialList extends EventEmitter<SerialListEvents> {
 
     navigator.serial.ondisconnect = ev => {
       const port = this._ports.find(p => p.port === ev.target);
-      if (port) {
+      if (port !== undefined) {
         port.emit('disconnect', undefined);
         this._ports = this._ports.filter(p => p.port !== ev.target);
       }
@@ -498,15 +512,15 @@ export class SerialList extends EventEmitter<SerialListEvents> {
     this.get_ports();
   }
 
-  public get ports(): Array<SerialConn> {
+  public get ports(): SerialConn[] {
     return this._ports;
   }
 
   public port_by_id(id: number): SerialConn | undefined {
-    return this._ports.find(p => p.id == id);
+    return this._ports.find(p => p.id === id);
   }
 
-  public request() {
+  public request(): void {
     navigator.serial
       .requestPort()
       .then(() => {
@@ -515,7 +529,7 @@ export class SerialList extends EventEmitter<SerialListEvents> {
       .catch(() => {});
   }
 
-  private get_ports() {
+  private get_ports(): void {
     navigator.serial
       .getPorts()
       .then(ports => {
@@ -529,12 +543,9 @@ export class SerialList extends EventEmitter<SerialListEvents> {
   }
 }
 
-function update_ports(
-  ports: Array<SerialConn>,
-  select: HTMLSelectElement
-): void {
+function update_ports(ports: SerialConn[], select: HTMLSelectElement): void {
   select.innerHTML = '';
-  if (ports.length == 0) {
+  if (ports.length === 0) {
     select.appendChild(new Option('No ports', '0'));
     select.disabled = true;
     return;
@@ -550,8 +561,14 @@ function update_ports(
 export function install_serial_events(
   list: SerialList,
   select: HTMLSelectElement
-) {
-  list.on('connect', () => update_ports(list.ports, select));
-  list.on('disconnect', () => update_ports(list.ports, select));
-  list.on('get_ports', () => update_ports(list.ports, select));
+): void {
+  list.on('connect', () => {
+    update_ports(list.ports, select);
+  });
+  list.on('disconnect', () => {
+    update_ports(list.ports, select);
+  });
+  list.on('get_ports', () => {
+    update_ports(list.ports, select);
+  });
 }

@@ -38,7 +38,7 @@ class ParseUntil {
   }
 
   public parse(): ParseResult[] {
-    const res = [];
+    const res: ParseResult[] = [];
     while (true) {
       const ans = this.parse_once();
       if (ans === null) break;

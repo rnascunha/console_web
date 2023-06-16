@@ -5,7 +5,7 @@ import {
   SerialComponent,
   SerialConsoleComponent,
   DockDumpComponent,
-} from './components';
+} from './types/components';
 import {
   type ComponentItem,
   type ContentItem,
@@ -15,7 +15,7 @@ import {
   type ComponentContainer,
   ResolvedComponentItemConfig,
 } from 'golden-layout';
-import { SerialList, install_serial_events } from './serial';
+import { SerialList, install_serial_events } from './apps/serial/serial';
 
 interface Component {
   readonly name: string;

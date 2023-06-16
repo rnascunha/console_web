@@ -1,4 +1,4 @@
-import { DraggablePopup } from './components/draggable-popup/draggable-popup';
+import { DraggablePopup } from '../components/draggable-popup/draggable-popup';
 
 export function create_window(
   title: string,

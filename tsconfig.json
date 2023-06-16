@@ -19,6 +19,6 @@
     "target": "ES2015",
     "lib": ["DOM", "es2017", "es2018", "es2019"]
   },
-  "include": ["*", "helper/*.ts"],
+  "include": ["src/ts/**/*.ts", "src/tools/**/**/*.ts"],
   "exclude": ["node_modules"]
 }

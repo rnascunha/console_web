@@ -7,7 +7,7 @@
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module",
-    "project": ["./src/ts/tsconfig.json"]
+    "project": ["./tsconfig.json"]
   },
   "ignorePatterns": ["**/usb_filtered.json"],
   "rules": {
