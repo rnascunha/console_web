@@ -1,9 +1,9 @@
-import { time } from '../../helper';
-import { string_to_binary } from '../../encode';
+import { time } from '../../helper/time';
+import { string_to_binary } from '../../helper/encode';
 import { BinaryDump } from '../binary-dump/binary-dump';
 import { create_window } from '../../window';
 
-type type_data = 'comm' | 'recv' | 'send' | 'error' | 'warn';
+type TypeData = 'comm' | 'recv' | 'send' | 'error' | 'warn';
 
 const template_class: HTMLTemplateElement = (function (): HTMLTemplateElement {
   const template = document.createElement('template');
@@ -62,7 +62,7 @@ const template_class: HTMLTemplateElement = (function (): HTMLTemplateElement {
 })();
 
 export default class DataDisplay extends HTMLElement {
-  private _data: HTMLElement;
+  private readonly _data: HTMLElement;
   constructor() {
     super();
 
@@ -70,7 +70,7 @@ export default class DataDisplay extends HTMLElement {
     this.shadowRoot?.appendChild(template_class.content.cloneNode(true));
     this._data = this.shadowRoot?.querySelector('#data') as HTMLElement;
 
-    this._data.onclick = (ev) => {
+    this._data.onclick = ev => {
       const el = ev.composedPath()[0] as HTMLElement;
       if (!('data' in el.dataset)) return;
 
@@ -101,54 +101,51 @@ export default class DataDisplay extends HTMLElement {
     };
   }
 
-  public clear() {
+  public clear(): void {
     this._data.innerHTML = '';
   }
 
-  public send(message: string, message_size?: number, raw?: string) {
+  public send(message: string, message_size?: number, raw?: string): void {
     this.add_message('send', message, message_size, raw);
   }
 
-  public receive(message: string, message_size?: number, raw?: string) {
+  public receive(message: string, message_size?: number, raw?: string): void {
     this.add_message('recv', message, message_size, raw);
   }
 
-  public command(message: string) {
+  public command(message: string): void {
     this.add_message('comm', message);
   }
 
-  public error(message: string) {
+  public error(message: string): void {
     this.add_message('error', message);
   }
 
-  public warning(message: string) {
+  public warning(message: string): void {
     this.add_message('warn', message);
   }
 
   public add_message(
-    type: type_data,
+    type: TypeData,
     message: string,
     message_size?: number,
     raw?: string
-  ) {
+  ): void {
     const p = document.createElement('pre');
     p.classList.add('command-data', type);
-    const size = `${message_size ? message_size : message.length}`.padStart(
-      3,
-      '0'
-    );
+    const size = `${message_size ?? message.length}`.padStart(3, '0');
 
-    if (raw) p.dataset.data = raw;
+    if (raw !== undefined) p.dataset.data = raw;
 
     let out = `${time()} `;
     if (type === 'send') out += `<<< [${size}]`;
     else if (type === 'recv') out += `>>> [${size}]`;
-    p.textContent += `${out} ${message}`;
+    p.textContent = `${p.textContent ?? ''}${out} ${message}`;
     this._data.appendChild(p);
     this.go_to_bottom();
   }
 
-  public go_to_bottom() {
+  public go_to_bottom(): void {
     this._data.scrollTo(0, this._data.scrollHeight);
   }
 }

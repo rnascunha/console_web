@@ -3,7 +3,7 @@
  */
 
 // Array of bytes to Base64 string decoding
-function b64ToUint6(nChr:number) {
+function b64_to_uint6(nChr: number): number {
   return nChr > 64 && nChr < 91
     ? nChr - 65
     : nChr > 96 && nChr < 123
@@ -17,12 +17,16 @@ function b64ToUint6(nChr:number) {
     : 0;
 }
 
-export function base64_decode(sBase64:string, nBlocksSize?:number) : Uint8Array {
-  const sB64Enc = sBase64.replace(/[^A-Za-z0-9+/]/g, ""); // Remove any non-base64 characters, such as trailing "=", whitespace, and more.
+export function base64_decode(
+  sBase64: string,
+  nBlocksSize: number = 0
+): Uint8Array {
+  const sB64Enc = sBase64.replace(/[^A-Za-z0-9+/]/g, ''); // Remove any non-base64 characters, such as trailing "=", whitespace, and more.
   const nInLen = sB64Enc.length;
-  const nOutLen = nBlocksSize
-    ? Math.ceil(((nInLen * 3 + 1) >> 2) / nBlocksSize) * nBlocksSize
-    : (nInLen * 3 + 1) >> 2;
+  const nOutLen =
+    nBlocksSize !== 0
+      ? Math.ceil(((nInLen * 3 + 1) >> 2) / nBlocksSize) * nBlocksSize
+      : (nInLen * 3 + 1) >> 2;
   const taBytes = new Uint8Array(nOutLen);
 
   let nMod3;
@@ -31,7 +35,7 @@ export function base64_decode(sBase64:string, nBlocksSize?:number) : Uint8Array 
   let nOutIdx = 0;
   for (let nInIdx = 0; nInIdx < nInLen; nInIdx++) {
     nMod4 = nInIdx & 3;
-    nUint24 |= b64ToUint6(sB64Enc.charCodeAt(nInIdx)) << (6 * (3 - nMod4));
+    nUint24 |= b64_to_uint6(sB64Enc.charCodeAt(nInIdx)) << (6 * (3 - nMod4));
     if (nMod4 === 3 || nInLen - nInIdx === 1) {
       nMod3 = 0;
       while (nMod3 < 3 && nOutIdx < nOutLen) {
@@ -47,7 +51,7 @@ export function base64_decode(sBase64:string, nBlocksSize?:number) : Uint8Array 
 }
 
 /* Base64 string to array encoding */
-function uint6ToB64(nUint6:number) {
+function uint6_to_b64(nUint6: number): number {
   return nUint6 < 26
     ? nUint6 + 65
     : nUint6 < 52
@@ -61,9 +65,9 @@ function uint6ToB64(nUint6:number) {
     : 65;
 }
 
-export function base64_encode(aBytes:Uint8Array) : string {
+export function base64_encode(aBytes: Uint8Array): string {
   let nMod3 = 2;
-  let sB64Enc = "";
+  let sB64Enc = '';
 
   const nLen = aBytes.length;
   let nUint24 = 0;
@@ -77,16 +81,16 @@ export function base64_encode(aBytes:Uint8Array) : string {
     nUint24 |= aBytes[nIdx] << ((16 >>> nMod3) & 24);
     if (nMod3 === 2 || aBytes.length - nIdx === 1) {
       sB64Enc += String.fromCodePoint(
-        uint6ToB64((nUint24 >>> 18) & 63),
-        uint6ToB64((nUint24 >>> 12) & 63),
-        uint6ToB64((nUint24 >>> 6) & 63),
-        uint6ToB64(nUint24 & 63)
+        uint6_to_b64((nUint24 >>> 18) & 63),
+        uint6_to_b64((nUint24 >>> 12) & 63),
+        uint6_to_b64((nUint24 >>> 6) & 63),
+        uint6_to_b64(nUint24 & 63)
       );
       nUint24 = 0;
     }
   }
   return (
     sB64Enc.substring(0, sB64Enc.length - 2 + nMod3) +
-    (nMod3 === 2 ? "" : nMod3 === 1 ? "=" : "==")
+    (nMod3 === 2 ? '' : nMod3 === 1 ? '=' : '==')
   );
 }

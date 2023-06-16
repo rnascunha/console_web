@@ -1,19 +1,17 @@
-import DataDisplay from './components/data-display/data-display';
+import type DataDisplay from './components/data-display/data-display';
 
 const methods = ['GET', 'POST', 'PUT', 'DELETE'] as const;
-type method = (typeof methods)[number];
+type Method = (typeof methods)[number];
 
-class HTTP {
-  public static async request(
-    url: string,
-    method: method = 'GET',
-    body: string = ''
-  ) {
-    const options: RequestInit = { method };
-    if (body) options.body = body;
-    const response = await fetch(url, options);
-    return response;
-  }
+async function request(
+  url: string,
+  method: Method = 'GET',
+  body: string = ''
+): Promise<Response> {
+  const options: RequestInit = { method };
+  if (body.length !== 0) options.body = body;
+  const response = await fetch(url, options);
+  return response;
 }
 
 const template = (function () {
@@ -28,21 +26,21 @@ const template = (function () {
     </div>
     <display-data class=data></display-data>`;
   const sel = template.content.querySelector('.http-method');
-  methods.forEach((v) => sel?.appendChild(new Option(v, v)));
+  methods.forEach(v => sel?.appendChild(new Option(v, v)));
   return template;
 })();
 
 export class HTTPView {
-  private _url: string;
+  private readonly _url: string;
 
   private _id: number = 0;
 
-  private _container: HTMLElement;
-  private _btn_request_data: HTMLButtonElement;
-  private _data: DataDisplay;
-  private _in_query: HTMLInputElement;
-  private _in_body: HTMLInputElement;
-  private _sel_method: HTMLSelectElement;
+  private readonly _container: HTMLElement;
+  private readonly _btn_request_data: HTMLButtonElement;
+  private readonly _data: DataDisplay;
+  private readonly _in_query: HTMLInputElement;
+  private readonly _in_body: HTMLInputElement;
+  private readonly _sel_method: HTMLSelectElement;
 
   constructor(url: string) {
     this._url = url;
@@ -69,7 +67,9 @@ export class HTTPView {
       this._data.clear();
     };
 
-    this._btn_request_data.onclick = () => this.request();
+    this._btn_request_data.onclick = async (): Promise<void> => {
+      await this.request();
+    };
   }
 
   public get url(): string {
@@ -80,32 +80,39 @@ export class HTTPView {
     return this._container;
   }
 
-  private get method(): method {
-    return this._sel_method.selectedOptions[0].value as method;
+  private get method(): Method {
+    return this._sel_method.selectedOptions[0].value as Method;
   }
 
-  public async request() {
+  public async request(): Promise<void> {
     const id = ++this._id;
     try {
       let url = this._url;
-      if (this._in_query.value) url += `?${this._in_query.value}`;
+      if (this._in_query.value.length !== 0) url += `?${this._in_query.value}`;
 
       this._data.send(
         `[${id}] ${this.method} ${url} body:[${this._in_body.value}]`,
         this._in_body.value.length,
         this._in_body.value
       );
-      const response = await HTTP.request(
-        url,
-        this.method,
-        this._in_body.value
-      );
+      const response = await request(url, this.method, this._in_body.value);
       if (response.ok) {
         const data = await response.text();
-        this._data.receive(`[${id}] ${data}`, data.length, data);
+        this._data.receive(
+          `[${id}] headers:[${HTTPView.make_headers(response)}] body:[${data}]`,
+          data.length,
+          data
+        );
       }
     } catch (e) {
       this._data.error(`[${id}] ${(e as TypeError).message}`);
     }
+  }
+
+  private static make_headers(response: Response): string {
+    const headers: string[] = [];
+    response.headers.forEach((v, k) => headers.push(`${k}: ${v}`));
+
+    return headers.join(', ');
   }
 }

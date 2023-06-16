@@ -17,11 +17,8 @@
     "downlevelIteration": true,
     "strictPropertyInitialization": true,
     "target": "ES2015",
-    "lib": ["DOM",
-            "es2017",
-            "es2018",
-            "es2019"]
+    "lib": ["DOM", "es2017", "es2018", "es2019"]
   },
-  "include": ["*"],
+  "include": ["*", "helper/*.ts"],
   "exclude": ["node_modules"]
 }

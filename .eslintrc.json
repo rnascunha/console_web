@@ -9,5 +9,32 @@
     "sourceType": "module",
     "project": ["./src/ts/tsconfig.json"]
   },
-  "rules": {}
+  "ignorePatterns": ["**/usb_filtered.json"],
+  "rules": {
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "default",
+        "format": ["snake_case", "camelCase"]
+      },
+      {
+        "selector": "typeLike",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "property",
+        "format": ["snake_case"],
+        "modifiers": ["private"],
+        "leadingUnderscore": "require"
+      },
+      {
+        "selector": "function",
+        "format": ["snake_case"]
+      },
+      {
+        "selector": "objectLiteralProperty",
+        "format": null
+      }
+    ]
+  }
 }

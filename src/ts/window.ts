@@ -1,7 +1,9 @@
-import { DraggablePopup } from "./components/draggable-popup/draggable-popup";
+import { DraggablePopup } from './components/draggable-popup/draggable-popup';
 
-export function create_window(title:string,
-  body:HTMLElement) : DraggablePopup {
+export function create_window(
+  title: string,
+  body: HTMLElement
+): DraggablePopup {
   const dp = new DraggablePopup();
   dp.classList.add('window');
 
