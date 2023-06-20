@@ -1,3 +1,4 @@
+import { string_to_ascii } from './binary-dump';
 import EventEmitter from './event_emitter';
 
 interface ParseResult {
@@ -100,7 +101,7 @@ export class ParseUntilTimeout extends EventEmitter<ParserUntilTimeoutEvents> {
       if (this._parser.chunk.length > 0) {
         const data = this._parser.chunk;
         this.emit('data', {
-          data: ascii_decoder(data),
+          data: string_to_ascii(data),
           size: data.length,
           raw: data,
         });
@@ -114,9 +115,9 @@ export class ParseUntilTimeout extends EventEmitter<ParserUntilTimeoutEvents> {
     const result = this._parser.parse();
     for (const d of result) {
       this.emit('data', {
-        data: `${ascii_decoder(d.data)}[${ascii_decoder(d.result[0])}]`,
+        data: `${string_to_ascii(d.data)}[${string_to_ascii(d.result[0])}]`,
         size: d.data.length + d.result[0].length,
-        raw: d.data,
+        raw: d.data + d.result[0],
       });
       this._timeout.reset();
     }
@@ -129,30 +130,4 @@ export class ParseUntilTimeout extends EventEmitter<ParserUntilTimeoutEvents> {
   public stop(): void {
     this._timeout.stop();
   }
-}
-
-type SpecialChars = Record<string, string>;
-
-const special_chars_list: SpecialChars = {
-  '\0': '\\0', // eslint-disable-line
-  '\n': '\\n', // eslint-disable-line
-  '\r': '\\r', // eslint-disable-line
-};
-
-export function ascii_decoder(
-  chunk: string,
-  chars: SpecialChars = special_chars_list
-): string {
-  let out: string = '';
-  for (const c of chunk) {
-    if (c in chars) {
-      out += chars[c];
-      continue;
-    }
-    const code = c.charCodeAt(0);
-    if (code <= 31 || code >= 127) {
-      out += '\\x' + code.toString(16).padStart(2, '0');
-    } else out += c;
-  }
-  return out;
 }

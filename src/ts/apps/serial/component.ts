@@ -1,4 +1,7 @@
-import { AppComponent, ComponentBase } from '../../types/component-base';
+import {
+  AppComponent,
+  ComponentBase,
+} from '../../golden-components/component-base';
 import type { SerialConn } from './serial';
 import { SerialView, SerialViewConsole } from './view';
 import type {

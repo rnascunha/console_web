@@ -1,5 +1,5 @@
 import { time } from '../../helper/time';
-import { string_to_binary } from '../../helper/encode';
+import { parse } from '../../libs/binary-dump';
 import { BinaryDump } from '../binary-dump/binary-dump';
 import { create_window } from '../../helper/window';
 
@@ -74,9 +74,9 @@ export default class DataDisplay extends HTMLElement {
       const el = ev.composedPath()[0] as HTMLElement;
       if (!('data' in el.dataset)) return;
 
-      const d = string_to_binary(el.dataset.data as string);
+      const d = parse(el.dataset.data as string, 'text');
 
-      const body = new BinaryDump(8, d);
+      const body = new BinaryDump(8, d, { hide: ['octal', 'binary'] });
 
       const win = create_window('Binary Dump', body);
       document.body.appendChild(win);
@@ -85,7 +85,10 @@ export default class DataDisplay extends HTMLElement {
         window.console_app.layout.createPopout(
           window.console_app.layout.newComponent(
             'DockDumpComponent',
-            el.dataset.data as string
+            JSON.stringify({
+              data: el.dataset.data as string,
+              hide: ['octal', 'binary'],
+            })
           ),
           {
             width: win.clientWidth,

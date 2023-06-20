@@ -1,7 +1,7 @@
-import EventEmitter from '../../types/event_emitter';
-import type DataDisplay from '../../components/data-display/data-display';
-import { ParseUntilTimeout, type ParseData } from '../../types/stream_parser';
-import { DataTerminal } from '../../types/terminal';
+import EventEmitter from '../../libs/event_emitter';
+import type DataDisplay from '../../web-components/data-display/data-display';
+import { ParseUntilTimeout, type ParseData } from '../../libs/stream_parser';
+import { DataTerminal } from '../../libs/terminal';
 import { esp32_signal_reset } from './functions';
 import type { SerialConn } from './serial';
 

@@ -48,10 +48,10 @@ const template = (function () {
 })();
 
 export class DraggablePopup extends HTMLElement {
-  private _end_x: number = 0;
-  private _end_y: number = 0;
   private _init_x: number = 0;
   private _init_y: number = 0;
+  private _end_x: number = 0;
+  private _end_y: number = 0;
 
   constructor() {
     super();
@@ -118,8 +118,8 @@ export class DraggablePopup extends HTMLElement {
     this._init_x = ev.clientX;
     this._init_y = ev.clientY;
     // set the element's new position:
-    this.style.top = `${this.offsetTop - this._end_y}px'`;
-    this.style.left = `${this.offsetLeft - this._end_x}px'`;
+    this.style.top = `${this.offsetTop - this._end_y}px`;
+    this.style.left = `${this.offsetLeft - this._end_x}px`;
   }
 
   private drag_end(): void {

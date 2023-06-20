@@ -1,7 +1,7 @@
 // Importing HTML components
-import './components/data-display/data-display';
-import './components/draggable-popup/draggable-popup';
-import './components/binary-dump/binary-dump';
+import './web-components/data-display/data-display';
+import './web-components/draggable-popup/draggable-popup';
+import './web-components/binary-dump/binary-dump';
 
 // Importing style
 import '../css/style.css';

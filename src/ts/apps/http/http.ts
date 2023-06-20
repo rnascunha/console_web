@@ -1,4 +1,4 @@
-import type DataDisplay from '../../components/data-display/data-display';
+import type DataDisplay from '../../web-components/data-display/data-display';
 
 const methods = ['GET', 'POST', 'PUT', 'DELETE'] as const;
 type Method = (typeof methods)[number];

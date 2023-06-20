@@ -1,5 +1,5 @@
 import { make_serial_name } from './functions';
-import EventEmitter from '../../types/event_emitter';
+import EventEmitter from '../../libs/event_emitter';
 
 export type SerialState = 'open' | 'close';
 

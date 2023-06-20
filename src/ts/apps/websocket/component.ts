@@ -1,4 +1,4 @@
-import { AppComponent } from '../../types/component-base';
+import { AppComponent } from '../../golden-components/component-base';
 import type { ComponentContainer, JsonValue } from 'golden-layout';
 import { WebsocketView, Websocket } from './websocket';
 

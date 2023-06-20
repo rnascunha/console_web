@@ -1,5 +1,5 @@
-import type DataDisplay from '../../components/data-display/data-display';
-import EventEmitter from '../../types/event_emitter';
+import type DataDisplay from '../../web-components/data-display/data-display';
+import EventEmitter from '../../libs/event_emitter';
 
 interface WebSocketEvents {
   open: Event;

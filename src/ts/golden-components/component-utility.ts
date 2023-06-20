@@ -1,7 +1,7 @@
 import { ComponentBase } from './component-base';
 import type { ComponentContainer, JsonValue } from 'golden-layout';
-import { string_to_binary } from '../helper/encode';
-import { BinaryDump } from '../components/binary-dump/binary-dump';
+import { parse } from '../libs/binary-dump';
+import { BinaryDump } from '../web-components/binary-dump/binary-dump';
 
 export class DockDumpComponent extends ComponentBase {
   private readonly _data: Uint8Array;
@@ -13,21 +13,16 @@ export class DockDumpComponent extends ComponentBase {
   ) {
     super(container, virtual);
 
-    this._data = string_to_binary(state as string);
+    const parsed = JSON.parse(state as string);
+    this._data = parse(parsed.data as string, 'text');
 
     this.container.setTitle('Binary Dump');
     if (this.container.layoutManager.isSubWindow) {
       window.document.title = 'Binary Dump';
     }
 
-    const body = new BinaryDump();
+    const body = new BinaryDump(8, this._data, { hide: parsed.hide });
     body.classList.add('window-body');
-    body.update(this._data, 8);
     this.rootHtmlElement.appendChild(body);
-
-    this.container.stateRequestEvent = () => {
-      // console.log('event');
-      return state;
-    };
   }
 }

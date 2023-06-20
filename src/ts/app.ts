@@ -1,5 +1,8 @@
-import { type ComponentBase, AppComponent } from './types/component-base';
-import { DockDumpComponent } from './types/component-utility';
+import {
+  type ComponentBase,
+  AppComponent,
+} from './golden-components/component-base';
+import { DockDumpComponent } from './golden-components/component-utility';
 import {
   type ComponentItem,
   type ContentItem,
@@ -181,7 +184,7 @@ export class App {
     if (comp_name === undefined) throw new Error('Component name not found');
 
     const comp_type = get_component(comp_name);
-    if (comp_type !== undefined) throw new Error('Component not found');
+    if (comp_type === undefined) throw new Error('Component not found');
 
     const use_virtual = false;
     const component = new comp_type( // eslint-disable-line
