@@ -4,6 +4,7 @@ import { ParseUntilTimeout, type ParseData } from '../../libs/stream_parser';
 import { DataTerminal } from '../../libs/terminal';
 import { esp32_signal_reset } from './functions';
 import type { SerialConn } from './serial';
+import type { BinaryInputSelect } from '../../web-components/binary-input/text-select-binary';
 
 const serialBaudrate: number[] = [
   9600, 19200, 38400, 57600, 115200, 230400, 460800, 576000, 921600,
@@ -36,7 +37,7 @@ const template = (function () {
         <button class='serial-console btn-not-pressed'>Console</button>
       </div>
       <div>
-        <input class=serial-input placeholder=Data>
+        <text-select-binary class=serial-input placeholder=Data selected=text></text-select-binary>
         <button class=serial-send>Send</button>
         <button class="serial-signal-button serial-DTR">DTR</button>
         <button class="serial-signal-button serial-RTS">RTS</button>
@@ -86,7 +87,7 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
   private readonly _container: HTMLElement;
   private readonly _btn_open: HTMLButtonElement;
   private readonly _data: DataDisplay;
-  private readonly _out_data: HTMLInputElement;
+  private readonly _out_data: BinaryInputSelect;
   private readonly _parser: ParseUntilTimeout;
 
   constructor(port: SerialConn) {
@@ -104,7 +105,7 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     this._data = this._container.querySelector('.data') as DataDisplay;
     this._out_data = this._container.querySelector(
       '.serial-input'
-    ) as HTMLInputElement;
+    ) as BinaryInputSelect;
 
     this._parser = new ParseUntilTimeout(100);
 
@@ -196,13 +197,10 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     (
       this._container.querySelector('.serial-send') as HTMLButtonElement
     ).onclick = async () => {
-      if (this._out_data.value.length > 0) {
-        await this._port.write(this._out_data.value);
-        this._data.send(
-          this._out_data.value,
-          this._out_data.value.length,
-          this._out_data.value
-        );
+      const data = this._out_data.data;
+      if (data.length > 0) {
+        await this._port.write(this._out_data.data);
+        this._data.send_binary(data);
       }
     };
 

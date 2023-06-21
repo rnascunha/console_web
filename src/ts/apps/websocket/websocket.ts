@@ -1,5 +1,6 @@
 import type DataDisplay from '../../web-components/data-display/data-display';
 import EventEmitter from '../../libs/event_emitter';
+import type { BinaryInputSelect } from '../../web-components/binary-input/text-select-binary';
 
 interface WebSocketEvents {
   open: Event;
@@ -72,7 +73,7 @@ export class Websocket extends EventEmitter<WebSocketEvents> {
     return this._socket.url;
   }
 
-  public send(message: string): void {
+  public send(message: string | Uint8Array): void {
     this._socket?.send(message);
   }
 
@@ -83,6 +84,7 @@ export class Websocket extends EventEmitter<WebSocketEvents> {
   }
 
   private on_open(ev: Event): void {
+    this._socket.binaryType = 'arraybuffer';
     this.emit('open', ev);
   }
 
@@ -104,7 +106,7 @@ const template = (function () {
   const template = document.createElement('template');
   template.innerHTML = `
   <div>
-    <input class=input_data disabled>
+    <text-select-binary class=input_data disabled selected=text></text-select-binary>
     <button class=send_data disabled>Send</button>
     <button class=close_conn disabled>Close</button>
     <button class=clear>Clear</button>
@@ -118,7 +120,7 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
   private _socket: Websocket;
 
   private readonly _container: HTMLElement;
-  private readonly _in_data: HTMLInputElement;
+  private readonly _in_data: BinaryInputSelect;
   private readonly _btn_send_data: HTMLButtonElement;
   private readonly _btn_close: HTMLButtonElement;
   private readonly _data: DataDisplay;
@@ -134,7 +136,7 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
 
     this._in_data = this._container.querySelector(
       '.input_data'
-    ) as HTMLInputElement;
+    ) as BinaryInputSelect;
     this._btn_send_data = this._container.querySelector(
       '.send_data'
     ) as HTMLButtonElement;
@@ -216,7 +218,9 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
   }
 
   private on_message(ev: MessageEvent): void {
-    this._data.receive(ev.data, ev.data.length, ev.data);
+    if (typeof ev.data === 'string')
+      this._data.receive(ev.data, ev.data.length, ev.data);
+    else this._data.receive_binary(new Uint8Array(ev.data as ArrayBuffer));
   }
 
   private on_close(ev: CloseEvent): void {
@@ -247,13 +251,14 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
       this.emit('close', new CloseEvent('Close'));
       return;
     }
-    if (this._in_data.value === '') return;
+    const data = this._in_data.data;
+    if (data.length === 0) return;
 
-    this._socket.send(this._in_data.value);
-    this._data.send(
-      this._in_data.value,
-      this._in_data.value.length,
-      this._in_data.value
-    );
+    if (this._in_data.encode !== 'text') {
+      this._socket.send(data);
+    } else {
+      this._socket.send(new TextDecoder('latin1').decode(data));
+    }
+    this._data.send_binary(data);
   }
 }

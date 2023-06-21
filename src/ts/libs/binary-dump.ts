@@ -5,7 +5,7 @@
 /**
  * Encoding
  */
-const encoding = ['binary', 'octal', 'decimal', 'hexa', 'text'] as const;
+export const encoding = ['binary', 'octal', 'decimal', 'hexa', 'text'] as const;
 export type Encoding = (typeof encoding)[number];
 
 function is_encoding(encode: Encoding): encode is Encoding {

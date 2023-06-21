@@ -2,6 +2,8 @@
 import './web-components/data-display/data-display';
 import './web-components/draggable-popup/draggable-popup';
 import './web-components/binary-dump/binary-dump';
+import './web-components/binary-input/text-binary';
+import './web-components/binary-input/text-select-binary';
 
 // Importing style
 import '../css/style.css';

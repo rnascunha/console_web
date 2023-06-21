@@ -74,9 +74,15 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
     }
   }
 
-  public async write(data: string): Promise<void> {
+  // public async write(data: string): Promise<void> {
+  //   const writer = this._output_stream?.getWriter();
+  //   await writer?.write(new TextEncoder().encode(data));
+  //   writer?.releaseLock();
+  // }
+
+  public async write(data: Uint8Array): Promise<void> {
     const writer = this._output_stream?.getWriter();
-    await writer?.write(new TextEncoder().encode(data));
+    await writer?.write(data);
     writer?.releaseLock();
   }
 

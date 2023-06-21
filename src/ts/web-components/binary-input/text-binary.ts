@@ -15,8 +15,10 @@ const template = (function () {
     :host {
       display: inline-block;
     }
+    
     input {
       width: 100%;
+      box-sizing: border-box;
     }
   </style>
   <input>`;
@@ -36,7 +38,8 @@ export class BinaryInput extends HTMLElement {
 
     this._input.onkeydown = ev => {
       if (ev.ctrlKey) return;
-      if (['Backspace', 'Delete', 'Tab'].includes(ev.key)) return;
+      if (['Backspace', 'Delete', 'Tab', 'Home', 'End'].includes(ev.key))
+        return;
       if (ev.key.startsWith('Arrow')) return;
       if (ev.key === 'Escape') {
         this.clear();
@@ -55,8 +58,53 @@ export class BinaryInput extends HTMLElement {
       ev.preventDefault();
       this.format(ev.clipboardData?.getData('text') ?? '');
     };
+  }
 
+  static get observedAttributes(): string[] {
+    return ['placeholder', 'disabled'];
+  }
+
+  connectedCallback(): void {
+    if (this.hasAttribute('placeholder')) {
+      this._input.placeholder = this.getAttribute('placeholder') as string;
+    }
+
+    this._input.disabled = this.hasAttribute('disabled');
+  }
+
+  set placeholder(name: string) {
+    this._input.placeholder = name;
+    this.setAttribute('placeholder', name);
+  }
+
+  get placeholder(): string {
+    return this._input.placeholder;
+  }
+
+  get disabled(): boolean {
+    return this._input.disabled;
+  }
+
+  set disabled(disable: boolean) {
+    this._input.disabled = disable;
+    if (disable) this.setAttribute('disabled', 'true');
+    else this.removeAttribute('disabled');
+  }
+
+  public override focus(): void {
     this._input.focus();
+  }
+
+  attributeChangedCallback(attr: string, oldVal: string, newVal: string): void {
+    if (oldVal === newVal) return;
+    switch (attr) {
+      case 'placeholder':
+        this.placeholder = newVal;
+        break;
+      case 'disabled':
+        this.disabled = newVal !== null;
+        break;
+    }
   }
 
   get value(): string {

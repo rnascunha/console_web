@@ -1,5 +1,5 @@
 import { time } from '../../helper/time';
-import { parse } from '../../libs/binary-dump';
+import { binary_to_ascii, parse } from '../../libs/binary-dump';
 import { BinaryDump } from '../binary-dump/binary-dump';
 import { create_window } from '../../helper/window';
 
@@ -112,8 +112,34 @@ export default class DataDisplay extends HTMLElement {
     this.add_message('send', message, message_size, raw);
   }
 
+  public send_binary(
+    message: Uint8Array,
+    message_size?: number,
+    raw?: string
+  ): void {
+    this.add_message(
+      'send',
+      binary_to_ascii(message),
+      message_size ?? message.length,
+      new TextDecoder('latin1').decode(message)
+    );
+  }
+
   public receive(message: string, message_size?: number, raw?: string): void {
     this.add_message('recv', message, message_size, raw);
+  }
+
+  public receive_binary(
+    message: Uint8Array,
+    message_size?: number,
+    raw?: string
+  ): void {
+    this.add_message(
+      'recv',
+      binary_to_ascii(message),
+      message_size ?? message.length,
+      new TextDecoder('latin1').decode(message)
+    );
   }
 
   public command(message: string): void {
