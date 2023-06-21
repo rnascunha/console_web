@@ -10565,42 +10565,68 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   App: () => (/* binding */ App)
 /* harmony export */ });
-/* harmony import */ var _components__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components */ "./src/ts/components.ts");
-/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/utils/types.js");
-/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/golden-layout.js");
-/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/config/resolved-config.js");
-/* harmony import */ var _serial__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./serial */ "./src/ts/serial.ts");
+/* harmony import */ var _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./golden-components/component-base */ "./src/ts/golden-components/component-base.ts");
+/* harmony import */ var _golden_components_component_utility__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./golden-components/component-utility */ "./src/ts/golden-components/component-utility.ts");
+/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/utils/types.js");
+/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/golden-layout.js");
+/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/config/resolved-config.js");
+/* harmony import */ var _apps_http_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./apps/http/component */ "./src/ts/apps/http/component.ts");
+/* harmony import */ var _apps_websocket_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./apps/websocket/component */ "./src/ts/apps/websocket/component.ts");
+/* harmony import */ var _apps_serial_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./apps/serial/component */ "./src/ts/apps/serial/component.ts");
+/* harmony import */ var _apps_serial_serial__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./apps/serial/serial */ "./src/ts/apps/serial/serial.ts");
+/* harmony import */ var _apps_serial_functions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./apps/serial/functions */ "./src/ts/apps/serial/functions.ts");
 
 
 
-;
-const Components = {
-    WSComponent: { name: 'WSComponent', component: _components__WEBPACK_IMPORTED_MODULE_0__.WSComponent, protocols: ['ws', 'wss'] },
-    HTTPComponent: { name: 'HTTPComponent', component: _components__WEBPACK_IMPORTED_MODULE_0__.HTTPComponent, protocols: ['http', 'https'] },
-    SerialComponent: { name: 'SerialComponent', component: _components__WEBPACK_IMPORTED_MODULE_0__.SerialComponent, protocols: ['serial'] }
+
+
+
+
+
+const components = {
+    WSComponent: {
+        name: 'WSComponent',
+        component: _apps_websocket_component__WEBPACK_IMPORTED_MODULE_3__.WSComponent,
+        protocols: ['ws', 'wss'],
+    },
+    HTTPComponent: {
+        name: 'HTTPComponent',
+        component: _apps_http_component__WEBPACK_IMPORTED_MODULE_2__.HTTPComponent,
+        protocols: ['http', 'https'],
+    },
+    SerialComponent: {
+        name: 'SerialComponent',
+        component: _apps_serial_component__WEBPACK_IMPORTED_MODULE_4__.SerialComponent,
+        protocols: ['serial'],
+    },
 };
-const otherComponents = {
-    SerialConsoleComponent: { name: 'SerialConsoleComponent', component: _components__WEBPACK_IMPORTED_MODULE_0__.SerialConsoleComponent },
-    DockDumpComponent: { name: 'DockDumpComponent', component: _components__WEBPACK_IMPORTED_MODULE_0__.DockDumpComponent }
+const other_components = {
+    SerialConsoleComponent: {
+        name: 'SerialConsoleComponent',
+        component: _apps_serial_component__WEBPACK_IMPORTED_MODULE_4__.SerialConsoleComponent,
+    },
+    DockDumpComponent: {
+        name: 'DockDumpComponent',
+        component: _golden_components_component_utility__WEBPACK_IMPORTED_MODULE_1__.DockDumpComponent,
+    },
 };
 function get_component(name) {
-    if (name in Components)
-        return Components[name].component;
-    if (name in otherComponents)
-        return otherComponents[name].component;
+    if (name in components)
+        return components[name].component;
+    if (name in other_components)
+        return other_components[name].component;
     return undefined;
 }
-;
-const protocols = function () {
+const protocols = (function () {
     const protocols = {};
-    Object.values(Components).forEach(comp => {
+    Object.values(components).forEach(comp => {
         comp.protocols.forEach(proto => {
             protocols[proto] = { protocol: proto, component: comp.component };
         });
     });
     return protocols;
-}();
-const ConsoleLayout = {
+})();
+const console_layout = {
     settings: {
         responsiveMode: 'always',
         // showPopoutIcon: false,
@@ -10611,17 +10637,17 @@ const ConsoleLayout = {
         // popInOnClose: true,
     },
     root: {
-        type: golden_layout__WEBPACK_IMPORTED_MODULE_2__.ItemType.row,
-        content: []
-    }
+        type: golden_layout__WEBPACK_IMPORTED_MODULE_7__.ItemType.row,
+        content: [],
+    },
 };
 class App {
     constructor(container = document.body, proto = protocols) {
-        this._serial_list = new _serial__WEBPACK_IMPORTED_MODULE_1__.SerialList();
+        this._serial_list = new _apps_serial_serial__WEBPACK_IMPORTED_MODULE_5__.SerialList();
         window.console_app = this;
-        this._layout = new golden_layout__WEBPACK_IMPORTED_MODULE_3__.GoldenLayout(container.querySelector('#golden'), this.bind_component.bind(this));
+        this._layout = new golden_layout__WEBPACK_IMPORTED_MODULE_8__.GoldenLayout(container.querySelector('#golden'), this.bind_component.bind(this));
         this._layout.resizeWithContainerAutomatically = true;
-        this._layout.beforeVirtualRectingEvent = (count) => {
+        this._layout.beforeVirtualRectingEvent = count => {
             console.log('before rect', count);
         };
         this.register_components();
@@ -10631,10 +10657,12 @@ class App {
         this._el_error = container.querySelector('#error');
         this._serial_container = container.querySelector('#serial-container');
         this._sel_serial = container.querySelector('#sel-serial-port');
-        Object.values(proto).forEach((v) => this._sel_protocols.appendChild(new Option(v.protocol, v.protocol, undefined, v.protocol == 'http')));
-        this._btn_connect.onclick = () => this.open();
+        Object.values(proto).forEach((v) => this._sel_protocols.appendChild(new Option(v.protocol, v.protocol, undefined, v.protocol === 'http')));
+        this._btn_connect.onclick = () => {
+            this.open();
+        };
         this._sel_protocols.onchange = () => {
-            if (this.protocol == 'serial') {
+            if (this.protocol === 'serial') {
                 this._serial_container.style.display = 'inline-block';
                 this._in_url.style.display = 'none';
             }
@@ -10644,35 +10672,36 @@ class App {
             }
         };
         this._sel_protocols.dispatchEvent(new Event('change'));
-        (0,_serial__WEBPACK_IMPORTED_MODULE_1__.install_serial_events)(this._serial_list, this._sel_serial);
-        container.querySelector('#serial-request').onclick = () => {
-            this._serial_list.request();
-        };
+        (0,_apps_serial_functions__WEBPACK_IMPORTED_MODULE_6__.install_serial_events)(this._serial_list, this._sel_serial);
+        container.querySelector('#serial-request').onclick =
+            () => {
+                this._serial_list.request();
+            };
         if (this._layout.isSubWindow) {
             container.style.gridTemplate = `"header" 0px
                                       "body" auto
                                       "footer" 0px`;
-            // this._layout.clearHtmlAndAdjustStylesForSubWindow();
             this._layout.checkAddDefaultPopinButton();
         }
         else
-            this._layout.loadLayout(ConsoleLayout);
+            this._layout.loadLayout(console_layout);
     }
     bind_component(container, itemConfig) {
-        const comp_name = golden_layout__WEBPACK_IMPORTED_MODULE_4__.ResolvedComponentItemConfig.resolveComponentTypeName(itemConfig);
-        if (!comp_name)
-            throw new Error("Component name not found");
+        const comp_name = golden_layout__WEBPACK_IMPORTED_MODULE_9__.ResolvedComponentItemConfig.resolveComponentTypeName(itemConfig);
+        if (comp_name === undefined)
+            throw new Error('Component name not found');
         const comp_type = get_component(comp_name);
-        if (!comp_type)
-            throw new Error("Component not found");
-        // console.log(container, itemConfig);
+        if (comp_type === undefined)
+            throw new Error('Component not found');
         const use_virtual = false;
-        const component = new comp_type(container, container.initialState, use_virtual);
+        const component = new comp_type(// eslint-disable-line
+        container, container.initialState, use_virtual);
         if (use_virtual) {
             //   const componentRootElement = component.0rootHtmlElement;
             //   this._container.appendChild(componentRootElement);
-            container.virtualRectingRequiredEvent =
-                (container, width, height) => this.handleContainerVirtualRectingRequiredEvent(container, width, height);
+            container.virtualRectingRequiredEvent = (container, width, height) => {
+                this.handleContainerVirtualRectingRequiredEvent(container, width, height);
+            };
             // container.virtualVisibilityChangeRequiredEvent =
             //     (container, visible) => this.handleContainerVirtualVisibilityChangeRequiredEvent(container, visible);
             // container.virtualZIndexChangeRequiredEvent =
@@ -10681,7 +10710,7 @@ class App {
         }
         return {
             component,
-            virtual: use_virtual
+            virtual: use_virtual,
         };
     }
     // private handleContainerVirtualZIndexChangeRequiredEvent(container: ComponentContainer, logicalZIndex: LogicalZIndex, defaultZIndex: string) {
@@ -10747,8 +10776,8 @@ class App {
         return this._sel_protocols.value;
     }
     open() {
-        this._error();
-        if (this.protocol == 'serial')
+        this.error();
+        if (this.protocol === 'serial')
             this.open_serial();
         else
             this.open_url();
@@ -10758,112 +10787,849 @@ class App {
         try {
             const serial_id = +this._sel_serial.value;
             if (serial_id === 0) {
-                this._error('No port avaiable');
+                this.error('No port avaiable');
                 return;
             }
-            if (this.find_component(`serial://${serial_id}`, this._layout.rootItem))
+            if (this.find_component(`serial://${serial_id}`, this._layout.rootItem) !==
+                undefined)
                 return;
             this._layout.addComponent(protocols[this.protocol].component.name, serial_id, (_a = this._serial_list.port_by_id(serial_id)) === null || _a === void 0 ? void 0 : _a.name);
         }
         catch (e) {
-            this._error(e);
+            this.error(e);
         }
     }
     open_url() {
         try {
             const url = `${this.protocol}://${this._in_url.value}`;
-            if (this.find_component(url, this._layout.rootItem))
+            if (this.find_component(url, this._layout.rootItem) !== undefined)
                 return;
             this._layout.addComponent(protocols[this.protocol].component.name, url, url);
         }
         catch (e) {
-            this._error(e.message);
+            this.error(e.message);
         }
     }
-    _error(message = "") {
+    error(message = '') {
         this._el_error.textContent = message;
     }
     find_component(url, item) {
-        let res = undefined;
+        let res;
         item === null || item === void 0 ? void 0 : item.contentItems.some(comp => {
             if (!comp.isComponent) {
                 res = this.find_component(url, comp);
-                if (res)
+                if (res === undefined)
                     return true;
             }
             const temp = comp.component;
-            if (!(temp instanceof _components__WEBPACK_IMPORTED_MODULE_0__.ComponentBase))
+            if (!(temp instanceof _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__.AppComponent))
                 return false;
-            const v = temp;
-            if (v && v.reused(url)) {
-                res = v;
+            if (temp === null || temp === void 0 ? void 0 : temp.reused(url)) {
+                res = temp;
                 return true;
             }
+            return false;
         });
         return res;
     }
     register_components() {
-        //Registering components
-        Object.values(Components).forEach(v => this._layout.registerComponentConstructor(v.name, v.component));
-        Object.values(otherComponents).forEach(v => this._layout.registerComponentConstructor(v.name, v.component));
+        // Registering components
+        Object.values(components).forEach(v => {
+            this._layout.registerComponentConstructor(v.name, v.component);
+        });
+        Object.values(other_components).forEach(v => {
+            this._layout.registerComponentConstructor(v.name, v.component);
+        });
     }
 }
-;
 
 
 /***/ }),
 
-/***/ "./src/ts/components.ts":
-/*!******************************!*\
-  !*** ./src/ts/components.ts ***!
-  \******************************/
+/***/ "./src/ts/apps/http/component.ts":
+/*!***************************************!*\
+  !*** ./src/ts/apps/http/component.ts ***!
+  \***************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   ComponentBase: () => (/* binding */ ComponentBase),
-/* harmony export */   DockDumpComponent: () => (/* binding */ DockDumpComponent),
-/* harmony export */   HTTPComponent: () => (/* binding */ HTTPComponent),
-/* harmony export */   SerialComponent: () => (/* binding */ SerialComponent),
-/* harmony export */   SerialConsoleComponent: () => (/* binding */ SerialConsoleComponent),
-/* harmony export */   WSComponent: () => (/* binding */ WSComponent)
+/* harmony export */   HTTPComponent: () => (/* binding */ HTTPComponent)
 /* harmony export */ });
-/* harmony import */ var _websocket__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./websocket */ "./src/ts/websocket.ts");
-/* harmony import */ var _http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./http */ "./src/ts/http.ts");
-/* harmony import */ var _serial__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./serial */ "./src/ts/serial.ts");
-/* harmony import */ var _encode__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./encode */ "./src/ts/encode.ts");
-/* harmony import */ var _components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/binary-dump/binary-dump */ "./src/ts/components/binary-dump/binary-dump.ts");
+/* harmony import */ var _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../golden-components/component-base */ "./src/ts/golden-components/component-base.ts");
+/* harmony import */ var _http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./http */ "./src/ts/apps/http/http.ts");
 
 
-
-
-
-;
-class ComponentBase {
-    get container() { return this._container; }
-    get rootHtmlElement() { return this._rootElement; }
-    constructor(_container, virtual) {
-        this._container = _container;
-        if (virtual) {
-            this._rootElement = document.createElement('div');
-            this._rootElement.style.position = 'absolute';
-            this._rootElement.style.overflow = 'hidden';
-        }
-        else {
-            this._rootElement = this._container.element;
-        }
+class HTTPComponent extends _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__.AppComponent {
+    constructor(container, state, virtual) {
+        super(container, virtual);
+        this._view = new _http__WEBPACK_IMPORTED_MODULE_1__.HTTPView(state); // url
+        this.rootHtmlElement.appendChild(this._view.container);
+        this.container.setTitle(`${this._view.url}`);
+        if (this.container.layoutManager.isSubWindow)
+            window.document.title = this.container.title;
+    }
+    is_reusable(url) {
+        return url === this._view.url;
+    }
+    reused(url) {
+        if (url !== this._view.url)
+            return false;
+        this.container.focus();
+        return true;
     }
 }
-class WSComponent extends ComponentBase {
-    constructor(_container, state, virtual) {
-        super(_container, virtual);
-        this._view = new _websocket__WEBPACK_IMPORTED_MODULE_0__.WebsocketView(new _websocket__WEBPACK_IMPORTED_MODULE_0__.Websocket(state));
+
+
+/***/ }),
+
+/***/ "./src/ts/apps/http/http.ts":
+/*!**********************************!*\
+  !*** ./src/ts/apps/http/http.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   HTTPView: () => (/* binding */ HTTPView)
+/* harmony export */ });
+/* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+const methods = ['GET', 'POST', 'PUT', 'DELETE'];
+function request(url, method = 'GET', body = '') {
+    return __awaiter(this, void 0, void 0, function* () {
+        const options = { method };
+        if (body.length !== 0)
+            options.body = body;
+        const response = yield fetch(url, options);
+        return response;
+    });
+}
+const template = (function () {
+    const template = document.createElement('template');
+    template.innerHTML = `
+    <div>
+      <select class=http-method></select>
+      <input class=query-url placeholder=query>
+      <text-select-binary class=body-data placeholder=body selected=text></text-select-binary>
+      <button class=request-data>Request</button>
+      <button class=clear>Clear</button>
+    </div>
+    <display-data class=data></display-data>`;
+    const sel = template.content.querySelector('.http-method');
+    methods.forEach(v => sel === null || sel === void 0 ? void 0 : sel.appendChild(new Option(v, v)));
+    return template;
+})();
+class HTTPView {
+    constructor(url) {
+        this._id = 0;
+        this._url = url;
+        this._container = document.createElement('div');
+        this._container.classList.add('golden-content');
+        this._container.appendChild(template.content.cloneNode(true));
+        this._btn_request_data = this._container.querySelector('.request-data');
+        this._data = this._container.querySelector('.data');
+        this._in_query = this._container.querySelector('.query-url');
+        this._in_body = this._container.querySelector('.body-data');
+        this._sel_method = this._container.querySelector('.http-method');
+        this._container.querySelector('.clear').onclick = () => {
+            this._data.clear();
+        };
+        this._btn_request_data.onclick = () => __awaiter(this, void 0, void 0, function* () {
+            yield this.request();
+        });
+    }
+    get url() {
+        return this._url;
+    }
+    get container() {
+        return this._container;
+    }
+    get method() {
+        return this._sel_method.selectedOptions[0].value;
+    }
+    request() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const id = ++this._id;
+            try {
+                let url = this._url;
+                if (this._in_query.value.length !== 0)
+                    url += `?${this._in_query.value}`;
+                const data = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.binary_to_ascii)(this._in_body.data);
+                this._data.send(`[${id}] ${this.method} ${url} body:[${data}]`, this._in_body.value.length, this._in_body.value);
+                const response = yield request(url, this.method, data);
+                if (response.ok) {
+                    const data = yield response.text();
+                    this._data.receive(`[${id}] headers:[${HTTPView.make_headers(response)}] body:[${data}]`, data.length, data);
+                }
+            }
+            catch (e) {
+                this._data.error(`[${id}] ${e.message}`);
+            }
+        });
+    }
+    static make_headers(response) {
+        const headers = [];
+        response.headers.forEach((v, k) => headers.push(`${k}: ${v}`));
+        return headers.join(', ');
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/apps/serial/component.ts":
+/*!*****************************************!*\
+  !*** ./src/ts/apps/serial/component.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   SerialComponent: () => (/* binding */ SerialComponent),
+/* harmony export */   SerialConsoleComponent: () => (/* binding */ SerialConsoleComponent)
+/* harmony export */ });
+/* harmony import */ var _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../golden-components/component-base */ "./src/ts/golden-components/component-base.ts");
+/* harmony import */ var _view__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./view */ "./src/ts/apps/serial/view.ts");
+
+
+class SerialComponent extends _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__.AppComponent {
+    constructor(container, state, virtual) {
+        super(container, virtual);
+        const port = window.console_app.serial_list.port_by_id(state);
+        if (port === undefined)
+            throw new Error(`Failed to find port [${state}]`);
+        this._view = new _view__WEBPACK_IMPORTED_MODULE_1__.SerialView(port);
+        this.rootHtmlElement.appendChild(this._view.container);
+        this._view.on('disconnect', () => {
+            this.container.setTitle(`${this._view.port.name} (disconnected)`);
+        });
+        this.container.on('beforeComponentRelease', () => {
+            this._view.port.close().finally(() => { });
+        });
+        this._console = null;
+        this._view.on('console', open => {
+            var _a, _b;
+            if (open) {
+                const p = window.console_app.layout.addComponent('SerialConsoleComponent', state);
+                this.find_console_component(state, p.parentItem);
+                (_a = this._console) === null || _a === void 0 ? void 0 : _a.container.on('beforeComponentRelease', () => {
+                    this._view.emit('close_console', undefined);
+                });
+            }
+            else {
+                (_b = this._console) === null || _b === void 0 ? void 0 : _b.container.focus();
+            }
+        });
+    }
+    reused(url) {
+        if (url !== `serial://${this._view.port.id}`)
+            return false;
+        this.container.focus();
+        return true;
+    }
+    find_console_component(id, parent) {
+        parent.contentItems.some(c => {
+            if (c === null || c === void 0 ? void 0 : c.isComponent)
+                return false;
+            const v = c.component;
+            if (!(v instanceof SerialConsoleComponent))
+                return false;
+            if (v.id === id)
+                this._console = v;
+            return true;
+        });
+        return false;
+    }
+}
+class SerialConsoleComponent extends _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__.ComponentBase {
+    constructor(container, state, virtual) {
+        super(container, virtual);
+        this._id = state;
+        this._console = null;
+        /**
+         * As the container is not at DOM yet, this is a
+         * workaroud to delay until after the constructor
+         * (event open didn't work)
+         */
+        setTimeout(() => {
+            const port = window.console_app.serial_list.port_by_id(this._id);
+            this._console = new _view__WEBPACK_IMPORTED_MODULE_1__.SerialViewConsole(port, this.rootHtmlElement);
+            this.set_name();
+            this.container.on('resize', () => { var _a; return (_a = this._console) === null || _a === void 0 ? void 0 : _a.terminal.fit(); });
+            this.container.on('beforeComponentRelease', () => { var _a; return (_a = this._console) === null || _a === void 0 ? void 0 : _a.emit('release', undefined); });
+            this._console.on('open', () => {
+                this.set_name();
+            });
+            this._console.on('close', () => {
+                this.set_name();
+            });
+        }, 0);
+    }
+    get console() {
+        return this._console;
+    }
+    get id() {
+        return this._id;
+    }
+    set_name() {
+        var _a, _b;
+        const port = (_a = this._console) === null || _a === void 0 ? void 0 : _a.port;
+        if (port === undefined)
+            return;
+        if (((_b = this._console) === null || _b === void 0 ? void 0 : _b.port.state) === 'open')
+            this.container.setTitle(`${port.name} (console)`);
+        else
+            this.container.setTitle(`${port.name} (console/closed)`);
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/apps/serial/functions.ts":
+/*!*****************************************!*\
+  !*** ./src/ts/apps/serial/functions.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+var _usb_filtered_json__WEBPACK_IMPORTED_MODULE_0___namespace_cache;
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   esp32_signal_reset: () => (/* binding */ esp32_signal_reset),
+/* harmony export */   get_serial_info: () => (/* binding */ get_serial_info),
+/* harmony export */   install_serial_events: () => (/* binding */ install_serial_events),
+/* harmony export */   make_serial_name: () => (/* binding */ make_serial_name),
+/* harmony export */   support_serial: () => (/* binding */ support_serial)
+/* harmony export */ });
+/* harmony import */ var _usb_filtered_json__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./usb_filtered.json */ "./src/ts/apps/serial/usb_filtered.json");
+/* harmony import */ var _helper_time__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../helper/time */ "./src/ts/helper/time.ts");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+function support_serial() {
+    return 'serial' in navigator;
+}
+function get_serial_info(port) {
+    var _a, _b;
+    const { usbProductId, usbVendorId } = port.getInfo();
+    const vID = usbVendorId === null || usbVendorId === void 0 ? void 0 : usbVendorId.toString(16);
+    const pID = usbProductId === null || usbProductId === void 0 ? void 0 : usbProductId.toString(16);
+    const vName = (_a = /*#__PURE__*/ (_usb_filtered_json__WEBPACK_IMPORTED_MODULE_0___namespace_cache || (_usb_filtered_json__WEBPACK_IMPORTED_MODULE_0___namespace_cache = __webpack_require__.t(_usb_filtered_json__WEBPACK_IMPORTED_MODULE_0__, 2)))[vID]) === null || _a === void 0 ? void 0 : _a.name;
+    const pName = (_b = /*#__PURE__*/ (_usb_filtered_json__WEBPACK_IMPORTED_MODULE_0___namespace_cache || (_usb_filtered_json__WEBPACK_IMPORTED_MODULE_0___namespace_cache = __webpack_require__.t(_usb_filtered_json__WEBPACK_IMPORTED_MODULE_0__, 2)))[vID]) === null || _b === void 0 ? void 0 : _b.devices[pID];
+    return {
+        vendorID: vID,
+        productID: pID,
+        vendorName: vName,
+        productName: pName,
+    };
+}
+function make_serial_name(port) {
+    const info = get_serial_info(port);
+    if (info.productName !== undefined)
+        return info.productName;
+    if (info.vendorName !== undefined)
+        return `${info.vendorName} [${info.productID}]`;
+    return `Generic [${info.vendorID}/${info.productID}]`;
+}
+function esp32_signal_reset(port) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield port.signals({ dataTerminalReady: false, requestToSend: true });
+        yield (0,_helper_time__WEBPACK_IMPORTED_MODULE_1__.sleep)(100);
+        yield port.signals({ dataTerminalReady: true });
+    });
+}
+function update_ports(ports, select) {
+    select.innerHTML = '';
+    if (ports.length === 0) {
+        select.appendChild(new Option('No ports', '0'));
+        select.disabled = true;
+        return;
+    }
+    select.disabled = false;
+    ports.forEach(port => select.appendChild(new Option(make_serial_name(port.port), port.id.toString())));
+}
+function install_serial_events(list, select) {
+    list.on('connect', () => {
+        update_ports(list.ports, select);
+    });
+    list.on('disconnect', () => {
+        update_ports(list.ports, select);
+    });
+    list.on('get_ports', () => {
+        update_ports(list.ports, select);
+    });
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/apps/serial/serial.ts":
+/*!**************************************!*\
+  !*** ./src/ts/apps/serial/serial.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   SerialConn: () => (/* binding */ SerialConn),
+/* harmony export */   SerialList: () => (/* binding */ SerialList)
+/* harmony export */ });
+/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./functions */ "./src/ts/apps/serial/functions.ts");
+/* harmony import */ var _libs_event_emitter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../libs/event_emitter */ "./src/ts/libs/event_emitter.ts");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+class SerialConn extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_1__["default"] {
+    constructor(port, id) {
+        super();
+        this._port = port;
+        this._id = id;
+        this._input_stream = null;
+        this._reader = null;
+        this._output_stream = null;
+    }
+    open(opt) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this._port.open(opt);
+            this._input_stream = this._port.readable;
+            this._reader =
+                (_a = this._input_stream) === null || _a === void 0 ? void 0 : _a.getReader();
+            this._output_stream = this._port.writable;
+            this.emit('open', this);
+            yield this.read();
+        });
+    }
+    close() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.state === 'close')
+                return;
+            if (this._reader !== null) {
+                yield this._reader.cancel();
+                this._input_stream = null;
+                this._reader = null;
+            }
+            if (this._output_stream !== null) {
+                yield this._output_stream.getWriter().close();
+                this._output_stream = null;
+            }
+            yield this._port.close();
+            this.emit('close', this);
+        });
+    }
+    disconnect() {
+        this._input_stream = null;
+        this._reader = null;
+        this._output_stream = null;
+    }
+    read() {
+        return __awaiter(this, void 0, void 0, function* () {
+            while (true) {
+                const { value, done } = yield this._reader.read();
+                if (done)
+                    break;
+                this.emit('data', value);
+            }
+        });
+    }
+    // public async write(data: string): Promise<void> {
+    //   const writer = this._output_stream?.getWriter();
+    //   await writer?.write(new TextEncoder().encode(data));
+    //   writer?.releaseLock();
+    // }
+    write(data) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            const writer = (_a = this._output_stream) === null || _a === void 0 ? void 0 : _a.getWriter();
+            yield (writer === null || writer === void 0 ? void 0 : writer.write(data));
+            writer === null || writer === void 0 ? void 0 : writer.releaseLock();
+        });
+    }
+    get id() {
+        return this._id;
+    }
+    get name() {
+        return (0,_functions__WEBPACK_IMPORTED_MODULE_0__.make_serial_name)(this._port);
+    }
+    get port() {
+        return this._port;
+    }
+    get state() {
+        return this._input_stream !== null ? 'open' : 'close';
+    }
+    signals(signals) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this._port.setSignals(signals);
+        });
+    }
+}
+class SerialList extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_1__["default"] {
+    constructor() {
+        super();
+        this._id = 0;
+        this._ports = [];
+        navigator.serial.onconnect = ev => {
+            this._ports.push(new SerialConn(ev.target, ++this._id));
+            this.emit('connect', this._ports);
+        };
+        navigator.serial.ondisconnect = ev => {
+            const port = this._ports.find(p => p.port === ev.target);
+            if (port !== undefined) {
+                port.emit('disconnect', undefined);
+                this._ports = this._ports.filter(p => p.port !== ev.target);
+            }
+            this.emit('disconnect', this._ports);
+        };
+        this.get_ports();
+    }
+    get ports() {
+        return this._ports;
+    }
+    port_by_id(id) {
+        return this._ports.find(p => p.id === id);
+    }
+    request() {
+        navigator.serial
+            .requestPort()
+            .then(() => {
+            this.get_ports();
+        })
+            .catch(() => { });
+    }
+    get_ports() {
+        navigator.serial
+            .getPorts()
+            .then(ports => {
+            this._ports = ports.reduce((acc, port) => {
+                acc.push(new SerialConn(port, ++this._id));
+                return acc;
+            }, Array());
+            this.emit('get_ports', this._ports);
+        })
+            .catch(() => { });
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/apps/serial/view.ts":
+/*!************************************!*\
+  !*** ./src/ts/apps/serial/view.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   SerialView: () => (/* binding */ SerialView),
+/* harmony export */   SerialViewConsole: () => (/* binding */ SerialViewConsole)
+/* harmony export */ });
+/* harmony import */ var _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/event_emitter */ "./src/ts/libs/event_emitter.ts");
+/* harmony import */ var _libs_stream_parser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../libs/stream_parser */ "./src/ts/libs/stream_parser.ts");
+/* harmony import */ var _libs_terminal__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../libs/terminal */ "./src/ts/libs/terminal.ts");
+/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./functions */ "./src/ts/apps/serial/functions.ts");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+const serialBaudrate = [
+    9600, 19200, 38400, 57600, 115200, 230400, 460800, 576000, 921600,
+];
+const serialDataBits = [7, 8];
+const serialFlowControl = ['none', 'hardware'];
+const serialParity = ['none', 'even', 'odd'];
+const serialStopBits = [1, 2];
+const serialDefaults = {
+    baudRate: 115200,
+    dataBits: 8,
+    flowControl: 'none',
+    parity: 'none',
+    stopBits: 1,
+};
+const template = (function () {
+    const template = document.createElement('template');
+    template.innerHTML = `
+    <div>
+      <div>
+        <select class='sel-serial-conn serial-baudrate'></select>
+        <select class='sel-serial-conn serial-databits'></select>
+        <select class='sel-serial-conn serial-flowcontrol'></select>
+        <select class='sel-serial-conn serial-parity'></select>
+        <select class='sel-serial-conn serial-stopbits'></select>
+        <button class=serial-connect>Open</button>
+        <button class=serial-data-clear>Clear</button>
+        <button class='serial-console btn-not-pressed'>Console</button>
+      </div>
+      <div>
+        <text-select-binary class=serial-input placeholder=Data selected=text></text-select-binary>
+        <button class=serial-send>Send</button>
+        <button class="serial-signal-button serial-DTR">DTR</button>
+        <button class="serial-signal-button serial-RTS">RTS</button>
+        <button class="serial-signal-button serial-BREAK">BREAK</button>
+        <span class='serial-get-signal serial-CTS'>CTS</span>
+        <span class='serial-get-signal serial-DCD'>DCD</span>
+        <span class='serial-get-signal serial-DSR'>DSR</span>
+        <span class='serial-get-signal serial-RI'>RI</span>
+        <button class=serial-btn-signal>&#x27F3;</button>
+        <button class='serial-signal-button serial-signal-reset'>Reset</button>
+      </div>
+    </div>
+    <display-data class=data></display-data>
+  `;
+    function make_select(mclass, values, mdefault) {
+        const el = template.content.querySelector(mclass);
+        values.forEach(v => el === null || el === void 0 ? void 0 : el.appendChild(new Option(`${v}`, `${v}`, v === mdefault)));
+    }
+    make_select('.serial-baudrate', serialBaudrate, serialDefaults.baudRate);
+    make_select('.serial-databits', serialDataBits, serialDefaults.dataBits);
+    make_select('.serial-flowcontrol', serialFlowControl, serialDefaults.flowControl);
+    make_select('.serial-parity', serialParity, serialDefaults.parity);
+    make_select('.serial-stopbits', serialStopBits, serialDefaults.stopBits);
+    return template;
+})();
+class SerialView extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    constructor(port) {
+        super();
+        this._port = port;
+        this._container = document.createElement('div');
+        this._container.classList.add('golden-content');
+        this._container.appendChild(template.content.cloneNode(true));
+        this._btn_open = this._container.querySelector('.serial-connect');
+        this._data = this._container.querySelector('.data');
+        this._out_data = this._container.querySelector('.serial-input');
+        this._parser = new _libs_stream_parser__WEBPACK_IMPORTED_MODULE_1__.ParseUntilTimeout(100);
+        this._port.on('open', () => {
+            this.opened();
+            this._parser.start();
+        });
+        this._port.on('close', () => {
+            this.closed();
+            this._parser.stop();
+        });
+        this._port.on('error', error => {
+            this.error(error);
+        });
+        this._port.on('data', data => {
+            this._parser.process(data);
+        });
+        this._port.on('disconnect', () => {
+            this.disconnect();
+        });
+        this._parser.on('data', d => {
+            this.data(d);
+        });
+        this.closed();
+        this._btn_open.onclick = () => __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (this._port.state === 'close') {
+                    yield this._port.open({
+                        baudRate: +this._container.querySelector('.serial-baudrate').value,
+                        dataBits: +this._container.querySelector('.serial-databits').value,
+                        flowControl: this._container.querySelector('.serial-flowcontrol').value,
+                        parity: this._container.querySelector('.serial-parity').value,
+                        stopBits: +this._container.querySelector('.serial-stopbits').value,
+                    });
+                }
+                else if (this._port.state === 'open') {
+                    yield this._port.close();
+                }
+            }
+            catch (e) {
+                if (e instanceof Error)
+                    this._data.error(`${e.message}`);
+                this.disconnect();
+            }
+        });
+        // Read signal
+        this._container.querySelector('.serial-btn-signal').onclick = () => __awaiter(this, void 0, void 0, function* () {
+            function set_signal(s, mclass, property, container) {
+                var _a, _b;
+                if (s[property])
+                    (_a = container.querySelector(mclass)) === null || _a === void 0 ? void 0 : _a.classList.add('signal-set');
+                else
+                    (_b = container.querySelector(mclass)) === null || _b === void 0 ? void 0 : _b.classList.remove('signal-set');
+            }
+            const s = yield this._port.port.getSignals();
+            set_signal(s, '.serial-CTS', 'clearToSend', this._container);
+            set_signal(s, '.serial-DCD', 'dataCarrierDetect', this._container);
+            set_signal(s, '.serial-DSR', 'dataSetReady', this._container);
+            set_signal(s, '.serial-RI', 'ringIndicator', this._container);
+        });
+        // Send data
+        this._container.querySelector('.serial-send').onclick = () => __awaiter(this, void 0, void 0, function* () {
+            const data = this._out_data.data;
+            if (data.length > 0) {
+                yield this._port.write(this._out_data.data);
+                this._data.send_binary(data);
+            }
+        });
+        // Clear data
+        this._container.querySelector('.serial-data-clear').onclick = () => {
+            this._data.clear();
+        };
+        // Reset ESP32 device
+        this._container.querySelector('.serial-signal-reset').onclick = () => __awaiter(this, void 0, void 0, function* () {
+            yield (0,_functions__WEBPACK_IMPORTED_MODULE_3__.esp32_signal_reset)(this._port);
+        });
+        // Open/Close serial console
+        const btn_console = this._container.querySelector('.serial-console');
+        this._container.querySelector('.serial-console').onclick = ev => {
+            if (btn_console.classList.contains('btn-pressed')) {
+                this.emit('console', false);
+            }
+            else {
+                btn_console.classList.remove('btn-not-pressed');
+                btn_console.classList.add('btn-pressed');
+                this.emit('console', true);
+            }
+        };
+        this.on('close_console', () => {
+            btn_console.classList.add('btn-not-pressed');
+            btn_console.classList.remove('btn-pressed');
+        });
+    }
+    get container() {
+        return this._container;
+    }
+    get port() {
+        return this._port;
+    }
+    opened(is_open = true) {
+        this.configure_connect(false);
+        this.configure_connected(true);
+        this._btn_open.textContent = 'Close';
+    }
+    closed() {
+        this.configure_connect(true);
+        this.configure_connected(false);
+        this._btn_open.textContent = 'Open';
+    }
+    configure_connect(enable) {
+        this._container.querySelectorAll('.sel-serial-conn').forEach(el => {
+            el.disabled = !enable;
+        });
+    }
+    configure_connected(enable) {
+        this._container.querySelectorAll('.serial-signal-button').forEach(btn => {
+            btn.disabled = !enable;
+        });
+        this._container.querySelector('.serial-input').disabled = !enable;
+        this._container.querySelector('.serial-send').disabled = !enable;
+        this._container.querySelector('.serial-btn-signal').disabled = !enable;
+    }
+    error(message) {
+        this._data.error(message);
+    }
+    data(data) {
+        this._data.receive(data.data, data.size, data.raw);
+    }
+    disconnect() {
+        this._port.disconnect();
+        this._parser.stop();
+        this.configure_connect(false);
+        this.configure_connected(false);
+        this._btn_open.disabled = true;
+        this._data.warning('Disconnected');
+        this.emit('disconnect', undefined);
+    }
+}
+class SerialViewConsole extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    constructor(port, container) {
+        super();
+        this._port = port;
+        this._terminal = new _libs_terminal__WEBPACK_IMPORTED_MODULE_2__.DataTerminal(container);
+        this._port.on('data', data => {
+            this._terminal.write(data);
+        });
+        this._port.on('open', () => {
+            this.emit('open', undefined);
+        });
+        this._port.on('close', () => {
+            this.emit('close', undefined);
+        });
+    }
+    get terminal() {
+        return this._terminal;
+    }
+    get port() {
+        return this._port;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/apps/websocket/component.ts":
+/*!********************************************!*\
+  !*** ./src/ts/apps/websocket/component.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   WSComponent: () => (/* binding */ WSComponent)
+/* harmony export */ });
+/* harmony import */ var _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../golden-components/component-base */ "./src/ts/golden-components/component-base.ts");
+/* harmony import */ var _websocket__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./websocket */ "./src/ts/apps/websocket/websocket.ts");
+
+
+class WSComponent extends _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__.AppComponent {
+    constructor(container, state, virtual) {
+        super(container, virtual);
+        this._view = new _websocket__WEBPACK_IMPORTED_MODULE_1__.WebsocketView(new _websocket__WEBPACK_IMPORTED_MODULE_1__.Websocket(state));
         this.rootHtmlElement.appendChild(this._view.container);
         this.set_title(`${this.socket.url} (connecting)`);
-        this.container.on('beforeComponentRelease', () => this._view.close());
-        this._view.on('open', () => this.set_title(`${this.socket.url}`));
-        this._view.on('close', () => this.set_title(`${this.socket.url} (closed)`));
+        this.container.on('beforeComponentRelease', () => {
+            this._view.close();
+        });
+        this._view.on('open', () => {
+            this.set_title(`${this.socket.url}`);
+        });
+        this._view.on('close', () => {
+            this.set_title(`${this.socket.url} (closed)`);
+        });
     }
     get socket() {
         return this._view.socket;
@@ -10880,163 +11646,839 @@ class WSComponent extends ComponentBase {
     reused(url) {
         if (url !== this.socket.url || this.socket.state === 'OPEN')
             return false;
-        if (this.socket.state == 'CONNECTING') {
+        if (this.socket.state === 'CONNECTING') {
             this._view.error(`Already trying to connect to ${url}`);
             this.container.focus();
         }
         else {
-            this.socket = new _websocket__WEBPACK_IMPORTED_MODULE_0__.Websocket(url);
+            this.socket = new _websocket__WEBPACK_IMPORTED_MODULE_1__.Websocket(url);
             this.container.focus();
         }
         return true;
-    }
-}
-class HTTPComponent extends ComponentBase {
-    constructor(_container, state, virtual) {
-        super(_container, virtual);
-        this._view = new _http__WEBPACK_IMPORTED_MODULE_1__.HTTPView(state); // url
-        this.rootHtmlElement.appendChild(this._view.container);
-        this.container.setTitle(`${this._view.url}`);
-        if (this.container.layoutManager.isSubWindow)
-            window.document.title = this.container.title;
-    }
-    is_reusable(url) {
-        return url == this._view.url;
-    }
-    reused(url) {
-        if (url != this._view.url)
-            return false;
-        this.container.focus();
-        return true;
-    }
-}
-class SerialComponent extends ComponentBase {
-    constructor(_container, state, virtual) {
-        super(_container, virtual);
-        const port = window.console_app.serial_list.port_by_id(state);
-        if (!port)
-            throw `Failed to find port [${state}]`;
-        this._view = new _serial__WEBPACK_IMPORTED_MODULE_2__.SerialView(port);
-        this.rootHtmlElement.appendChild(this._view.container);
-        this._view.on('disconnect', () => this.container.setTitle(`${this._view.port.name} (disconnected)`));
-        this.container.on('beforeComponentRelease', () => this._view.port.close());
-        this._console = null;
-        this._view.on('console', open => {
-            var _a, _b;
-            if (open) {
-                const p = window.console_app.layout.addComponent('SerialConsoleComponent', state);
-                this.find_console_component(state, p.parentItem);
-                (_a = this._console) === null || _a === void 0 ? void 0 : _a.container.on('beforeComponentRelease', () => this._view.emit('close_console', undefined));
-            }
-            else {
-                (_b = this._console) === null || _b === void 0 ? void 0 : _b.container.focus();
-            }
-        });
-    }
-    reused(url) {
-        if (url !== `serial://${this._view.port.id}`)
-            return false;
-        this.container.focus();
-        return true;
-    }
-    find_console_component(id, parent) {
-        let vv = null;
-        parent.contentItems.some(c => {
-            if (!c || !c.isComponent)
-                return false;
-            const v = c.component;
-            if (!(v instanceof SerialConsoleComponent))
-                return false;
-            if (v.id === id)
-                this._console = v;
-            return true;
-        });
-        return vv;
-    }
-}
-class SerialConsoleComponent {
-    get container() { return this._container; }
-    get rootHtmlElement() { return this._rootElement; }
-    constructor(_container, state, virtual) {
-        this._container = _container;
-        if (virtual) {
-            this._rootElement = document.createElement('div');
-            this._rootElement.style.position = 'absolute';
-            this._rootElement.style.overflow = 'hidden';
-        }
-        else {
-            this._rootElement = this._container.element;
-        }
-        this._id = state;
-        this._console = null;
-        /**
-         * As the container is not at DOM yet, this is a
-         * workaroud to delay until after the constructor
-         * (event open didn't work)
-         */
-        setTimeout(() => {
-            const port = window.console_app.serial_list.port_by_id(this._id);
-            this._console = new _serial__WEBPACK_IMPORTED_MODULE_2__.SerialViewConsole(port, this._rootElement);
-            this.set_name();
-            this._container.on('resize', () => { var _a; return (_a = this._console) === null || _a === void 0 ? void 0 : _a.terminal.fit(); });
-            this._container.on('beforeComponentRelease', () => { var _a; return (_a = this._console) === null || _a === void 0 ? void 0 : _a.emit('release', undefined); });
-            this._console.on('open', () => this.set_name());
-            this._console.on('close', () => this.set_name());
-        }, 0);
-    }
-    get console() {
-        return this._console;
-    }
-    get id() {
-        return this._id;
-    }
-    set_name() {
-        var _a, _b;
-        const port = (_a = this._console) === null || _a === void 0 ? void 0 : _a.port;
-        if (!port)
-            return;
-        if (((_b = this._console) === null || _b === void 0 ? void 0 : _b.port.state) == 'open')
-            this._container.setTitle(`${port.name} (console)`);
-        else
-            this._container.setTitle(`${port.name} (console/closed)`);
-    }
-}
-class DockDumpComponent {
-    get container() { return this._container; }
-    get rootHtmlElement() { return this._rootElement; }
-    constructor(_container, state, virtual) {
-        this._container = _container;
-        if (virtual) {
-            this._rootElement = document.createElement('div');
-            this._rootElement.style.position = 'absolute';
-            this._rootElement.style.overflow = 'hidden';
-        }
-        else {
-            this._rootElement = this._container.element;
-        }
-        this._data = (0,_encode__WEBPACK_IMPORTED_MODULE_3__.string_to_binary)(state);
-        this.container.setTitle('Binary Dump');
-        if (this.container.layoutManager.isSubWindow) {
-            window.document.title = 'Binary Dump';
-        }
-        const body = new _components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_4__.BinaryDump();
-        body.classList.add('window-body');
-        body.update(this._data, 8);
-        this._rootElement.appendChild(body);
-        this.container.stateRequestEvent = () => {
-            // console.log('event');
-            return state;
-        };
     }
 }
 
 
 /***/ }),
 
-/***/ "./src/ts/components/binary-dump/binary-dump.ts":
-/*!******************************************************!*\
-  !*** ./src/ts/components/binary-dump/binary-dump.ts ***!
-  \******************************************************/
+/***/ "./src/ts/apps/websocket/websocket.ts":
+/*!********************************************!*\
+  !*** ./src/ts/apps/websocket/websocket.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Websocket: () => (/* binding */ Websocket),
+/* harmony export */   WebsocketView: () => (/* binding */ WebsocketView)
+/* harmony export */ });
+/* harmony import */ var _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/event_emitter */ "./src/ts/libs/event_emitter.ts");
+
+/**
+ * https://www.rfc-editor.org/rfc/rfc6455.html#section-11.7
+ */
+const websocketErrors = {
+    1000: 'Normal Closure',
+    1001: 'Going Away',
+    1002: 'Protocol error',
+    1003: 'Unsupported Data',
+    1005: 'No Status Rcvd',
+    1006: 'Abnormal Closure',
+    1007: 'Invalid frame',
+    1008: 'Policy Violation',
+    1009: 'Message Too Big',
+    1010: 'Mandatory Ext.',
+    1011: 'Internal Server Error',
+    1015: 'TLS handshake',
+};
+const websocketState = {
+    0: 'CONNECTING',
+    1: 'OPEN',
+    2: 'CLOSING',
+    3: 'CLOSE',
+};
+function ws_error_name(code) {
+    var _a;
+    return (_a = websocketErrors[code]) !== null && _a !== void 0 ? _a : 'Undefined';
+}
+class Websocket extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    constructor(url, protocol = []) {
+        super();
+        this._socket = new WebSocket(url, protocol);
+        this._socket.onopen = ev => {
+            this.on_open(ev);
+        };
+        this._socket.onmessage = ev => {
+            this.on_message(ev);
+        };
+        this._socket.onclose = ev => {
+            this.on_close(ev);
+        };
+        this._socket.onerror = ev => {
+            this.on_error(ev);
+        };
+    }
+    get state_number() {
+        return this._socket.readyState;
+    }
+    get state() {
+        return websocketState[this._socket.readyState];
+    }
+    get url() {
+        return this._socket.url;
+    }
+    send(message) {
+        var _a;
+        (_a = this._socket) === null || _a === void 0 ? void 0 : _a.send(message);
+    }
+    close(code = 1000, reason = '') {
+        if (this.state === 'CLOSING' || this.state === 'CLOSED')
+            throw new Error('Invalid socket');
+        this._socket.close(code, reason);
+    }
+    on_open(ev) {
+        this._socket.binaryType = 'arraybuffer';
+        this.emit('open', ev);
+    }
+    on_message(ev) {
+        this.emit('message', ev);
+    }
+    on_close(ev) {
+        this.emit('close', ev);
+        this.clear_events();
+    }
+    on_error(ev) {
+        this.emit('error', ev);
+    }
+}
+const template = (function () {
+    const template = document.createElement('template');
+    template.innerHTML = `
+  <div>
+    <text-select-binary class=input_data disabled selected=text></text-select-binary>
+    <button class=send_data disabled>Send</button>
+    <button class=close_conn disabled>Close</button>
+    <button class=clear>Clear</button>
+  </div>
+  <display-data class=data></display-data>
+`;
+    return template;
+})();
+class WebsocketView extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    constructor(socket) {
+        super();
+        this._socket = socket;
+        this._container = document.createElement('div');
+        this._container.classList.add('golden-content');
+        this._container.appendChild(template.content.cloneNode(true));
+        this._in_data = this._container.querySelector('.input_data');
+        this._btn_send_data = this._container.querySelector('.send_data');
+        this._btn_close = this._container.querySelector('.close_conn');
+        this._data = this._container.querySelector('.data');
+        this._btn_send_data.onclick = () => {
+            this.send_data();
+        };
+        this._btn_close.onclick = () => {
+            this.close();
+        };
+        this._in_data.onkeyup = ev => {
+            if (ev.code === 'Enter') {
+                ev.preventDefault();
+                this.send_data();
+            }
+        };
+        this._container.querySelector('.clear').onclick = () => {
+            this._data.clear();
+        };
+        this.config_socket();
+    }
+    get container() {
+        return this._container;
+    }
+    get socket() {
+        return this._socket;
+    }
+    set socket(s) {
+        this._socket = s;
+        this.config_socket();
+    }
+    config_socket() {
+        // Workaround...
+        customElements
+            .whenDefined('display-data')
+            .then(() => {
+            this._data.command(`Connecting to ${this._socket.url}`);
+        })
+            .finally(() => { });
+        this._socket.on('open', ev => {
+            this.on_open(ev);
+        });
+        this._socket.on('message', ev => {
+            this.on_message(ev);
+        });
+        this._socket.on('close', ev => {
+            this.on_close(ev);
+        });
+        this._socket.on('error', ev => {
+            this.on_error(ev);
+        });
+    }
+    close(reason = '') {
+        if (this._socket.state === 'CLOSING' || this._socket.state === 'CLOSED')
+            return;
+        this._socket.close(1000, reason);
+    }
+    on_open(ev) {
+        this.error('');
+        this._data.command(`Connected to ${ev.currentTarget.url}`);
+        this._in_data.removeAttribute('disabled');
+        this._btn_send_data.removeAttribute('disabled');
+        this._btn_close.removeAttribute('disabled');
+        this._in_data.focus();
+        this.emit('open', ev);
+    }
+    on_message(ev) {
+        if (typeof ev.data === 'string')
+            this._data.receive(ev.data, ev.data.length, ev.data);
+        else
+            this._data.receive_binary(new Uint8Array(ev.data));
+    }
+    on_close(ev) {
+        this.to_close(ev.code);
+        this.emit('close', ev);
+    }
+    to_close(code = 1000) {
+        this._data.command(`Closed [${code}:${ws_error_name(code)}]`);
+        this._in_data.setAttribute('disabled', '');
+        this._btn_send_data.setAttribute('disabled', '');
+        this._btn_close.setAttribute('disabled', '');
+    }
+    on_error(ev) {
+        this.error('Error ocurred');
+    }
+    error(message = '') {
+        if (message.length > 0) {
+            this._data.error(message);
+        }
+    }
+    send_data() {
+        if (this._socket.state === 'CLOSING' || this._socket.state === 'CLOSED') {
+            this.to_close(1006);
+            this.emit('close', new CloseEvent('Close'));
+            return;
+        }
+        const data = this._in_data.data;
+        if (data.length === 0)
+            return;
+        if (this._in_data.encode !== 'text') {
+            this._socket.send(data);
+        }
+        else {
+            this._socket.send(new TextDecoder('latin1').decode(data));
+        }
+        this._data.send_binary(data);
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/golden-components/component-base.ts":
+/*!****************************************************!*\
+  !*** ./src/ts/golden-components/component-base.ts ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   AppComponent: () => (/* binding */ AppComponent),
+/* harmony export */   ComponentBase: () => (/* binding */ ComponentBase)
+/* harmony export */ });
+class ComponentBase {
+    get container() {
+        return this._container;
+    }
+    get rootHtmlElement() {
+        return this._root_element;
+    }
+    constructor(container, virtual) {
+        this._container = container;
+        if (virtual) {
+            this._root_element = document.createElement('div');
+            this._root_element.style.position = 'absolute';
+            this._root_element.style.overflow = 'hidden';
+        }
+        else {
+            this._root_element = this._container.element;
+        }
+    }
+}
+class AppComponent extends ComponentBase {
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/golden-components/component-utility.ts":
+/*!*******************************************************!*\
+  !*** ./src/ts/golden-components/component-utility.ts ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   DockDumpComponent: () => (/* binding */ DockDumpComponent)
+/* harmony export */ });
+/* harmony import */ var _component_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./component-base */ "./src/ts/golden-components/component-base.ts");
+/* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
+/* harmony import */ var _web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../web-components/binary-dump/binary-dump */ "./src/ts/web-components/binary-dump/binary-dump.ts");
+
+
+
+class DockDumpComponent extends _component_base__WEBPACK_IMPORTED_MODULE_0__.ComponentBase {
+    constructor(container, state, virtual) {
+        super(container, virtual);
+        const parsed = JSON.parse(state);
+        this._data = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__.parse)(parsed.data, 'text');
+        this.container.setTitle('Binary Dump');
+        if (this.container.layoutManager.isSubWindow) {
+            window.document.title = 'Binary Dump';
+        }
+        const body = new _web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__.BinaryDump(8, this._data, { hide: parsed.hide });
+        body.classList.add('window-body');
+        this.rootHtmlElement.appendChild(body);
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/helper/time.ts":
+/*!*******************************!*\
+  !*** ./src/ts/helper/time.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   sleep: () => (/* binding */ sleep),
+/* harmony export */   time: () => (/* binding */ time)
+/* harmony export */ });
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+function time() {
+    const d = new Date();
+    return (`${d.getHours()}`.padStart(2, '0') +
+        ':' +
+        `${d.getMinutes()}`.padStart(2, '0') +
+        ':' +
+        `${d.getSeconds()}`.padStart(2, '0') +
+        '.' +
+        `${d.getMilliseconds()}`.padStart(3, '0'));
+}
+function sleep(ms) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield new Promise(resolve => setTimeout(resolve, ms));
+    });
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/helper/window.ts":
+/*!*********************************!*\
+  !*** ./src/ts/helper/window.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   create_window: () => (/* binding */ create_window)
+/* harmony export */ });
+/* harmony import */ var _web_components_draggable_popup_draggable_popup__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../web-components/draggable-popup/draggable-popup */ "./src/ts/web-components/draggable-popup/draggable-popup.ts");
+
+function create_window(title, body) {
+    const dp = new _web_components_draggable_popup_draggable_popup__WEBPACK_IMPORTED_MODULE_0__.DraggablePopup();
+    dp.classList.add('window');
+    const header = document.createElement('div');
+    header.slot = 'header';
+    header.classList.add('window-header');
+    header.textContent = title;
+    dp.appendChild(header);
+    body.classList.add('window-body');
+    dp.appendChild(body);
+    return dp;
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/libs/binary-dump.ts":
+/*!************************************!*\
+  !*** ./src/ts/libs/binary-dump.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   binary_to_ascii: () => (/* binding */ binary_to_ascii),
+/* harmony export */   binary_to_ascii_array: () => (/* binding */ binary_to_ascii_array),
+/* harmony export */   check_encoding: () => (/* binding */ check_encoding),
+/* harmony export */   clear_string: () => (/* binding */ clear_string),
+/* harmony export */   convert: () => (/* binding */ convert),
+/* harmony export */   encoding: () => (/* binding */ encoding),
+/* harmony export */   format: () => (/* binding */ format),
+/* harmony export */   is_ascii_code_printable: () => (/* binding */ is_ascii_code_printable),
+/* harmony export */   is_ascii_printable: () => (/* binding */ is_ascii_printable),
+/* harmony export */   is_encode_char: () => (/* binding */ is_encode_char),
+/* harmony export */   is_valid: () => (/* binding */ is_valid),
+/* harmony export */   parse: () => (/* binding */ parse),
+/* harmony export */   split: () => (/* binding */ split),
+/* harmony export */   string_to_ascii: () => (/* binding */ string_to_ascii),
+/* harmony export */   string_to_ascii_array: () => (/* binding */ string_to_ascii_array),
+/* harmony export */   to_array_string: () => (/* binding */ to_array_string),
+/* harmony export */   to_data: () => (/* binding */ to_data)
+/* harmony export */ });
+// Decimal match
+//
+// Octal match
+//
+/**
+ * Encoding
+ */
+const encoding = ['binary', 'octal', 'decimal', 'hexa', 'text'];
+function is_encoding(encode) {
+    return encoding.includes(encode);
+}
+function check_encoding(encode) {
+    if (!is_encoding(encode))
+        throw new Error('Invalid Encoding');
+}
+/**
+ * Check valid characters
+ */
+function is_binary(char) {
+    const c = char.charAt(0);
+    return c === '0' || c === '1';
+}
+function is_octal(char) {
+    const c = char.charAt(0);
+    return c >= '0' && c <= '7';
+}
+function is_hexa(char) {
+    const c = char.charAt(0);
+    return ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
+}
+function is_decimal(char) {
+    const c = char.charAt(0);
+    return c >= '0' && c <= '9';
+}
+function is_ascii(char) {
+    return char.charCodeAt(0) <= 255;
+}
+function is_ascii_printable(char) {
+    return is_ascii_code_printable(char.charCodeAt(0));
+}
+function is_ascii_code_printable(code) {
+    return code >= 32 && code <= 126;
+}
+/**
+ * Separate function
+ * This functions assume that all characters are valid based on the encoding
+ */
+function split_binary(str) {
+    var _a;
+    return (_a = str.match(/[01]{1,8}/g)) !== null && _a !== void 0 ? _a : [];
+}
+function split_octal(str) {
+    var _a;
+    return (_a = str.match(/[0-3]?[0-7]{1,2}/g)) !== null && _a !== void 0 ? _a : [];
+}
+function split_decimal(str) {
+    var _a;
+    return (_a = str.match(/25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2}/g)) !== null && _a !== void 0 ? _a : [];
+}
+function split_hexa(str) {
+    var _a;
+    return (_a = str.match(/[0-9a-fA-F]{1,2}/g)) !== null && _a !== void 0 ? _a : [];
+}
+function split_text(str) {
+    var _a;
+    return (_a = str.match(/\\x[0-9a-fA-F]{1,2}|\\n|\\r|\\0|[ -~]/g)) !== null && _a !== void 0 ? _a : [];
+}
+/**
+ * Type definitions
+ */
+const dataType = {
+    binary: {
+        base: 2,
+        char_byte_size: 8,
+        check_char: is_binary,
+        split: split_binary,
+    },
+    octal: {
+        base: 8,
+        char_byte_size: 3,
+        check_char: is_octal,
+        split: split_octal,
+    },
+    decimal: {
+        base: 10,
+        char_byte_size: 3,
+        check_char: is_decimal,
+        split: split_decimal,
+    },
+    hexa: {
+        base: 16,
+        char_byte_size: 2,
+        check_char: is_hexa,
+        split: split_hexa,
+    },
+    text: {
+        base: 1,
+        char_byte_size: 1,
+        check_char: is_ascii,
+        split: split_text,
+    },
+};
+/**
+ * Encoding functions
+ */
+function is_encode_char(char, enc) {
+    check_encoding(enc);
+    return dataType[enc].check_char(char);
+}
+function clear_string(str, enc) {
+    check_encoding(enc);
+    return Array.from(str)
+        .filter(c => dataType[enc].check_char(c))
+        .join('');
+}
+function format(str, encode, opt = {}) {
+    check_encoding(encode);
+    if (encode === 'text')
+        return str.join('');
+    const fmt = Object.assign({ separator: ' ', pad: '' }, opt);
+    if (fmt.pad.length > 0)
+        str = str.map(v => v.padStart(dataType[encode].char_byte_size, fmt.pad));
+    return str.join(fmt.separator);
+}
+function split(str, encode) {
+    check_encoding(encode);
+    return dataType[encode].split(str);
+}
+function string_to_binary(str) {
+    return string_array_to_binary(split_text(str));
+}
+function string_array_to_binary(str) {
+    return Uint8Array.from(str.map(c => {
+        switch (c) {
+            case '\\n':
+                return 10;
+            case '\\r':
+                return 13;
+            case '\\0':
+                return 0;
+            default:
+                break;
+        }
+        const cc = c.match(/(?<=\x)[0-9a-fA-F]{1,2}/g);
+        if (cc !== null && cc.length > 0) {
+            return parseInt(cc[0], 16);
+        }
+        return c.charCodeAt(0);
+    }));
+}
+function parse(str, encode) {
+    check_encoding(encode);
+    str = clear_string(str, encode);
+    if (encode === 'text')
+        return string_to_binary(str);
+    return Uint8Array.from(dataType[encode]
+        .split(str)
+        .map((s) => parseInt(s, dataType[encode].base)));
+}
+function to_data(str, encode) {
+    check_encoding(encode);
+    if (encode === 'text')
+        return string_array_to_binary(str);
+    return Uint8Array.from(str.map((s) => parseInt(s, dataType[encode].base)));
+}
+function to_array_string(data, encode, pad = '') {
+    check_encoding(encode);
+    if (encode === 'text')
+        return binary_to_ascii_array(data);
+    const { base, char_byte_size } = dataType[encode];
+    if (pad.length > 0)
+        return Array.from(data).map(n => n.toString(base).padStart(char_byte_size, pad));
+    return Array.from(data).map(n => n.toString(base));
+}
+function convert(input, from, to) {
+    if (from === to)
+        return input;
+    const d = to_data(input, from);
+    return to_array_string(d, to);
+}
+function is_valid(str, encode) {
+    return Array.from(str).every(c => is_encode_char(c, encode));
+}
+const specialChars = {
+    '\0': '\\0',
+    '\n': '\\n',
+    '\r': '\\r',
+};
+function string_to_ascii_array(chunk, chars = specialChars) {
+    const out = [];
+    for (const c of chunk) {
+        if (c in chars) {
+            out.push(chars[c]);
+            continue;
+        }
+        if (!is_ascii_printable(c)) {
+            out.push('\\x' + c.charCodeAt(0).toString(16).padStart(2, '0'));
+        }
+        else
+            out.push(c);
+    }
+    return out;
+}
+function string_to_ascii(chunk, chars = specialChars) {
+    return string_to_ascii_array(chunk, chars).join('');
+}
+function binary_to_ascii_array(chunk, chars = specialChars) {
+    const out = [];
+    for (const code of chunk) {
+        const c = String.fromCharCode(code);
+        if (c in chars) {
+            out.push(chars[c]);
+            continue;
+        }
+        if (!is_ascii_code_printable(code)) {
+            out.push('\\x' + code.toString(16).padStart(2, '0'));
+        }
+        else
+            out.push(c);
+    }
+    return out;
+}
+function binary_to_ascii(chunk, chars = specialChars) {
+    return binary_to_ascii_array(chunk, chars).join('');
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/libs/event_emitter.ts":
+/*!**************************************!*\
+  !*** ./src/ts/libs/event_emitter.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ EventEmitter)
+/* harmony export */ });
+/**
+ * https://rjzaworski.com/2019/10/event-emitters-in-typescript
+ */
+class EventEmitter {
+    constructor() {
+        this._listeners = {};
+    }
+    on(eventName, fn) {
+        var _a;
+        this._listeners[eventName] = ((_a = this._listeners[eventName]) !== null && _a !== void 0 ? _a : []).concat(fn);
+    }
+    off(eventName, fn) {
+        var _a;
+        this._listeners[eventName] = ((_a = this._listeners[eventName]) !== null && _a !== void 0 ? _a : []).filter(f => f !== fn);
+    }
+    emit(eventName, params) {
+        var _a;
+        ((_a = this._listeners[eventName]) !== null && _a !== void 0 ? _a : []).forEach(function (fn) {
+            fn(params);
+        });
+    }
+    clear_events() {
+        this._listeners = {};
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/libs/stream_parser.ts":
+/*!**************************************!*\
+  !*** ./src/ts/libs/stream_parser.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CheckTimeout: () => (/* binding */ CheckTimeout),
+/* harmony export */   ParseUntilTimeout: () => (/* binding */ ParseUntilTimeout)
+/* harmony export */ });
+/* harmony import */ var _binary_dump__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./binary-dump */ "./src/ts/libs/binary-dump.ts");
+/* harmony import */ var _event_emitter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./event_emitter */ "./src/ts/libs/event_emitter.ts");
+
+
+class ParseUntil {
+    constructor(br, chunk) {
+        this._chunk = chunk !== null && chunk !== void 0 ? chunk : '';
+        this._break = br !== null && br !== void 0 ? br : /\r\n|\n|\r(?=.)/; // Match if \r\n, \n or if is a \r with something ahead
+    }
+    get chunk() {
+        return this._chunk;
+    }
+    clear_chunk() {
+        this._chunk = '';
+    }
+    add_chunk(chunk) {
+        this._chunk += chunk;
+    }
+    parse_once() {
+        const result = this._break.exec(this._chunk);
+        if (result === null)
+            return null;
+        const data = this._chunk.substring(0, result.index);
+        this._chunk = this._chunk.substring(result.index + result[0].length);
+        return {
+            data,
+            result,
+        };
+    }
+    parse() {
+        const res = [];
+        while (true) {
+            const ans = this.parse_once();
+            if (ans === null)
+                break;
+            res.push(ans);
+        }
+        return res;
+    }
+}
+class CheckTimeout {
+    constructor(interval, fn, ...args) {
+        this._fn = fn;
+        this._interval = interval;
+        this._args = args;
+        this._token = 0;
+    }
+    start() {
+        // eslint-disable-next-line
+        this._token = window.setInterval(this._fn, this._interval, ...this._args);
+    }
+    stop() {
+        clearInterval(this._token);
+    }
+    reset() {
+        this.stop();
+        this.start();
+    }
+}
+class ParseUntilTimeout extends _event_emitter__WEBPACK_IMPORTED_MODULE_1__["default"] {
+    constructor(interval) {
+        super();
+        this._decoder = new TextDecoder('latin1');
+        this._parser = new ParseUntil();
+        this._timeout = new CheckTimeout(interval, () => {
+            if (this._parser.chunk.length > 0) {
+                const data = this._parser.chunk;
+                this.emit('data', {
+                    data: (0,_binary_dump__WEBPACK_IMPORTED_MODULE_0__.string_to_ascii)(data),
+                    size: data.length,
+                    raw: data,
+                });
+                this._parser.clear_chunk();
+            }
+        });
+    }
+    process(data) {
+        this._parser.add_chunk(this._decoder.decode(data, { stream: true }));
+        const result = this._parser.parse();
+        for (const d of result) {
+            this.emit('data', {
+                data: `${(0,_binary_dump__WEBPACK_IMPORTED_MODULE_0__.string_to_ascii)(d.data)}[${(0,_binary_dump__WEBPACK_IMPORTED_MODULE_0__.string_to_ascii)(d.result[0])}]`,
+                size: d.data.length + d.result[0].length,
+                raw: d.data + d.result[0],
+            });
+            this._timeout.reset();
+        }
+    }
+    start() {
+        this._timeout.start();
+    }
+    stop() {
+        this._timeout.stop();
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/libs/terminal.ts":
+/*!*********************************!*\
+  !*** ./src/ts/libs/terminal.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   DataTerminal: () => (/* binding */ DataTerminal)
+/* harmony export */ });
+/* harmony import */ var xterm__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! xterm */ "./node_modules/xterm/lib/xterm.js");
+/* harmony import */ var xterm__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(xterm__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var xterm_addon_fit__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! xterm-addon-fit */ "./node_modules/xterm-addon-fit/lib/xterm-addon-fit.js");
+/* harmony import */ var xterm_addon_fit__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(xterm_addon_fit__WEBPACK_IMPORTED_MODULE_1__);
+
+
+class DataTerminal {
+    constructor(container) {
+        this._terminal = new xterm__WEBPACK_IMPORTED_MODULE_0__.Terminal();
+        this._fit = new xterm_addon_fit__WEBPACK_IMPORTED_MODULE_1__.FitAddon();
+        this._terminal.loadAddon(this._fit);
+        if (container !== undefined)
+            this.open(container);
+    }
+    open(container) {
+        this._terminal.open(container);
+        this._fit.fit();
+    }
+    write(data) {
+        this._terminal.write(data);
+    }
+    get terminal() {
+        return this._terminal;
+    }
+    fit() {
+        this._fit.fit();
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/web-components/binary-dump/binary-dump.ts":
+/*!**********************************************************!*\
+  !*** ./src/ts/web-components/binary-dump/binary-dump.ts ***!
+  \**********************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -11044,9 +12486,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   BinaryDump: () => (/* binding */ BinaryDump)
 /* harmony export */ });
-/* harmony import */ var _encode__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../encode */ "./src/ts/encode.ts");
+/* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
 
-const template = function () {
+const template = (function () {
     const template = document.createElement('template');
     template.innerHTML = `
     <style>
@@ -11054,7 +12496,7 @@ const template = function () {
         width: fit-content;
         overflow: hidden;
         display: grid;
-        grid-template: ". . . . ."
+        grid-template: ". . . . . ."
       }
       
       .field {
@@ -11074,8 +12516,12 @@ const template = function () {
         background-color: blue;
       }
 
-      #char {
+      #text {
         background-color: red;
+      }
+
+      #binary {
+        background-color: grey;
       }
 
       #octal {
@@ -11096,70 +12542,438 @@ const template = function () {
       
       #decimal span[data-value],
       #octal span[data-value],
-      #hexa span[data-value] {
+      #hexa span[data-value],
+      #binary span[data-value] {
         padding: 2px 4px;
       }
     </style>
     <pre id="line-count" class="field"></pre>
+    <pre id="binary" class="field"></pre>
+    <pre id="octal" class="field"></pre>
     <pre id="decimal" class="field"></pre>
     <pre id="hexa" class="field"></pre>
-    <pre id="octal" class="field"></pre>
-    <pre id="char" class="field"></pre>`;
+    <pre id="text" class="field"></pre>`;
     return template;
-}();
+})();
 class BinaryDump extends HTMLElement {
-    constructor(bl = 16, data) {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+    constructor(bl = 16, data, option) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         super();
         this.attachShadow({ mode: 'open' });
         (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.appendChild(template.content.cloneNode(true));
-        this._deci = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#decimal');
-        this._hexa = (_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#hexa');
-        this._octal = (_d = this.shadowRoot) === null || _d === void 0 ? void 0 : _d.querySelector('#octal');
-        this._char = (_e = this.shadowRoot) === null || _e === void 0 ? void 0 : _e.querySelector('#char');
-        this._lc = (_f = this.shadowRoot) === null || _f === void 0 ? void 0 : _f.querySelector('#line-count');
+        this._hide = new Set(option === null || option === void 0 ? void 0 : option.hide);
+        this._binary = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#binary');
+        this._octal = (_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#octal');
+        this._decimal = (_d = this.shadowRoot) === null || _d === void 0 ? void 0 : _d.querySelector('#decimal');
+        this._hexa = (_e = this.shadowRoot) === null || _e === void 0 ? void 0 : _e.querySelector('#hexa');
+        this._text = (_f = this.shadowRoot) === null || _f === void 0 ? void 0 : _f.querySelector('#text');
+        this._lc = (_g = this.shadowRoot) === null || _g === void 0 ? void 0 : _g.querySelector('#line-count');
         this._bl = bl;
-        (_g = this.shadowRoot) === null || _g === void 0 ? void 0 : _g.addEventListener('mouseover', ev => {
+        (_h = this.shadowRoot) === null || _h === void 0 ? void 0 : _h.addEventListener('mouseover', ev => {
             var _a, _b;
             const el = ev.target;
             if ('value' in el.dataset) {
-                (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll(`[data-value='${el.dataset.value}']`).forEach(e => e.classList.add('hovered'));
-                (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelectorAll(`[data-idx='${el.dataset.idx}']`).forEach(e => e.classList.add('selected'));
+                (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll(`[data-value='${el.dataset.value}']`).forEach(e => {
+                    e.classList.add('hovered');
+                });
+                (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelectorAll(`[data-idx='${el.dataset.idx}']`).forEach(e => {
+                    e.classList.add('selected');
+                });
             }
         });
-        (_h = this.shadowRoot) === null || _h === void 0 ? void 0 : _h.addEventListener('mouseout', ev => {
+        (_j = this.shadowRoot) === null || _j === void 0 ? void 0 : _j.addEventListener('mouseout', ev => {
             var _a, _b;
             const el = ev.target;
             if ('value' in el.dataset) {
-                (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll(`[data-value='${el.dataset.value}']`).forEach(e => e.classList.remove('hovered'));
-                (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelectorAll(`[data-idx='${el.dataset.idx}']`).forEach(e => e.classList.remove('selected'));
+                (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll(`[data-value='${el.dataset.value}']`).forEach(e => {
+                    e.classList.remove('hovered');
+                });
+                (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelectorAll(`[data-idx='${el.dataset.idx}']`).forEach(e => {
+                    e.classList.remove('selected');
+                });
             }
         });
-        if (data)
+        if (data !== undefined)
             this.update(data);
+        this.set_hide();
+    }
+    connectedCallback() {
+        var _a;
+        if (this.hasAttribute('hide'))
+            this.hide(...(_a = this.getAttribute('hide')) === null || _a === void 0 ? void 0 : _a.split(','));
+    }
+    attributeChangedCallback(attr, oldVal, newVal) {
+        if (oldVal === newVal)
+            return;
+        this._hide.clear();
+        this.hide(...newVal.split(','));
+    }
+    static get observedAttributes() {
+        return ['hide'];
+    }
+    hide(...args) {
+        let changed = false;
+        args.forEach((s) => {
+            if (this.is_encoding(s) && !this._hide.has(s)) {
+                changed = true;
+                this._hide.add(s);
+            }
+        });
+        if (changed)
+            this.set_hide();
+    }
+    show(...args) {
+        let changed = false;
+        args.forEach((s) => {
+            if (this.is_encoding(s) && this._hide.has(s)) {
+                changed = true;
+                this._hide.delete(s);
+            }
+        });
+        if (changed)
+            this.set_hide();
+    }
+    is_hidden(encode) {
+        return this._hide.has(encode);
     }
     update(data, bl = this._bl) {
         this._bl = bl;
-        this.append_elements(this._deci, _encode__WEBPACK_IMPORTED_MODULE_0__.break_line_array(_encode__WEBPACK_IMPORTED_MODULE_0__.to_binary_array_element(data, _encode__WEBPACK_IMPORTED_MODULE_0__.binary_to_decimal(data)), this._bl));
-        this.append_elements(this._hexa, _encode__WEBPACK_IMPORTED_MODULE_0__.break_line_array(_encode__WEBPACK_IMPORTED_MODULE_0__.to_binary_array_element(data, _encode__WEBPACK_IMPORTED_MODULE_0__.binary_to_hexa(data)), this._bl));
-        this.append_elements(this._octal, _encode__WEBPACK_IMPORTED_MODULE_0__.break_line_array(_encode__WEBPACK_IMPORTED_MODULE_0__.to_binary_array_element(data, _encode__WEBPACK_IMPORTED_MODULE_0__.binary_to_octal(data)), this._bl));
-        this.append_elements(this._char, _encode__WEBPACK_IMPORTED_MODULE_0__.break_line_array(_encode__WEBPACK_IMPORTED_MODULE_0__.to_binary_array_element(data, _encode__WEBPACK_IMPORTED_MODULE_0__.binary_to_ascii(data)), this._bl));
-        _encode__WEBPACK_IMPORTED_MODULE_0__.create_break_line_field(this._lc, data.length, this._bl);
+        [
+            [this._binary, 'binary'],
+            [this._decimal, 'decimal'],
+            [this._octal, 'octal'],
+            [this._hexa, 'hexa'],
+        ].forEach(v => {
+            this.append_elements(v[0], break_line_array(to_binary_array_element(data, (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.to_array_string)(data, v[1], '0')), this._bl));
+        });
+        this.append_elements(this._text, break_line_array(to_binary_array_element(data, binary_to_ascii(data)), this._bl));
+        create_break_line_field(this._lc, data.length, this._bl);
     }
     append_elements(container, elements) {
         container.innerHTML = '';
         elements.forEach(el => container.appendChild(el));
     }
+    is_encoding(encode) {
+        return ['binary', 'octal', 'decimal', 'hexa', 'text'].includes(encode);
+    }
+    set_hide() {
+        const new_value = [];
+        [
+            [this._binary, 'binary'],
+            [this._decimal, 'decimal'],
+            [this._hexa, 'hexa'],
+            [this._octal, 'octal'],
+            [this._text, 'text'],
+        ].forEach(v => {
+            if (this._hide.has(v[1])) {
+                v[0].style.display = 'none';
+                new_value.push(v[1]);
+            }
+            else
+                v[0].style.display = 'inline-block';
+        });
+        this.setAttribute('hide', new_value.join(','));
+    }
 }
 customElements.define('binary-dump', BinaryDump);
+/**
+ * Free functions
+ */
+function binary_to_ascii(data) {
+    return data.reduce((acc, v) => {
+        acc.push(!(0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.is_ascii_code_printable)(v) ? '.' : String.fromCharCode(v));
+        return acc;
+    }, []);
+}
+function to_binary_array_element(data, value) {
+    const out = [];
+    data.forEach((v, i) => {
+        const s = document.createElement('span');
+        s.dataset.value = v.toString(10);
+        s.dataset.idx = i.toString(10);
+        s.textContent = value[i];
+        out.push(s);
+    });
+    return out;
+}
+function break_line_array(els, br) {
+    /**
+     * TODO: Add a assert that BR must be positive integer
+     */
+    return els.reduce((acc, v, idx) => {
+        if (idx !== 0 && idx % br === 0)
+            acc.push(document.createElement('br'));
+        acc.push(v);
+        return acc;
+    }, []);
+}
+function create_break_line_field(el, lines, br) {
+    el.innerHTML = '';
+    let i = 0;
+    while (true) {
+        const span = document.createElement('span');
+        span.textContent = i.toString(16).padStart(4, '0');
+        el.appendChild(span);
+        i += br;
+        if (i >= lines)
+            break;
+        el.appendChild(document.createElement('br'));
+    }
+}
 
 
 /***/ }),
 
-/***/ "./src/ts/components/data-display/data-display.ts":
-/*!********************************************************!*\
-  !*** ./src/ts/components/data-display/data-display.ts ***!
-  \********************************************************/
+/***/ "./src/ts/web-components/binary-input/text-binary.ts":
+/*!***********************************************************!*\
+  !*** ./src/ts/web-components/binary-input/text-binary.ts ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   BinaryInput: () => (/* binding */ BinaryInput)
+/* harmony export */ });
+/* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
+
+const template = (function () {
+    const template = document.createElement('template');
+    template.innerHTML = `
+  <style>
+    :host {
+      display: inline-block;
+    }
+    
+    input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+  </style>
+  <input>`;
+    return template;
+})();
+class BinaryInput extends HTMLElement {
+    constructor() {
+        var _a, _b;
+        super();
+        this._encode = 'hexa';
+        this.attachShadow({ mode: 'open' });
+        (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.appendChild(template.content.cloneNode(true));
+        this._input = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('input');
+        this._input.onkeydown = ev => {
+            if (ev.ctrlKey)
+                return;
+            if (['Backspace', 'Delete', 'Tab', 'Home', 'End'].includes(ev.key))
+                return;
+            if (ev.key.startsWith('Arrow'))
+                return;
+            if (ev.key === 'Escape') {
+                this.clear();
+                return;
+            }
+            if (!(0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.is_encode_char)(ev.key, this._encode))
+                ev.preventDefault();
+        };
+        this._input.onkeyup = ev => {
+            const position = this._input.selectionStart;
+            this.format(this._input.value);
+            if (['Delete'].includes(ev.key))
+                this._input.selectionEnd = position;
+        };
+        this._input.onpaste = ev => {
+            var _a, _b;
+            ev.preventDefault();
+            this.format((_b = (_a = ev.clipboardData) === null || _a === void 0 ? void 0 : _a.getData('text')) !== null && _b !== void 0 ? _b : '');
+        };
+    }
+    static get observedAttributes() {
+        return ['placeholder', 'disabled'];
+    }
+    connectedCallback() {
+        if (this.hasAttribute('placeholder')) {
+            this._input.placeholder = this.getAttribute('placeholder');
+        }
+        this._input.disabled = this.hasAttribute('disabled');
+    }
+    set placeholder(name) {
+        this._input.placeholder = name;
+        this.setAttribute('placeholder', name);
+    }
+    get placeholder() {
+        return this._input.placeholder;
+    }
+    get disabled() {
+        return this._input.disabled;
+    }
+    set disabled(disable) {
+        this._input.disabled = disable;
+        if (disable)
+            this.setAttribute('disabled', 'true');
+        else
+            this.removeAttribute('disabled');
+    }
+    focus() {
+        this._input.focus();
+    }
+    attributeChangedCallback(attr, oldVal, newVal) {
+        if (oldVal === newVal)
+            return;
+        switch (attr) {
+            case 'placeholder':
+                this.placeholder = newVal;
+                break;
+            case 'disabled':
+                this.disabled = newVal !== null;
+                break;
+        }
+    }
+    get value() {
+        return this._input.value;
+    }
+    get data() {
+        return (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.to_data)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.split)(this.value, this._encode), this._encode);
+    }
+    set encode(enc) {
+        (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.check_encoding)(enc);
+        if (enc === this._encode)
+            return;
+        this._input.value = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.format)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.convert)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.split)(this.value, this._encode), this._encode, enc), enc, { separator: ' ', pad: '0' });
+        this._encode = enc;
+    }
+    get encode() {
+        return this._encode;
+    }
+    clear() {
+        this._input.value = '';
+    }
+    format(str) {
+        this._input.value = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.format)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.split)(str, this._encode), this._encode);
+    }
+}
+customElements.define('text-binary', BinaryInput);
+
+
+/***/ }),
+
+/***/ "./src/ts/web-components/binary-input/text-select-binary.ts":
+/*!******************************************************************!*\
+  !*** ./src/ts/web-components/binary-input/text-select-binary.ts ***!
+  \******************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   BinaryInputSelect: () => (/* binding */ BinaryInputSelect)
+/* harmony export */ });
+/* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
+
+const template = (function () {
+    const template = document.createElement('template');
+    template.innerHTML = `
+  <style>
+  :host {
+    display: inline-block;
+  }
+  </style>
+  <text-binary id=data></text-binary>
+  <select id=encode></select>`;
+    return template;
+})();
+class BinaryInputSelect extends HTMLElement {
+    constructor(options = {}) {
+        var _a, _b, _c, _d;
+        super();
+        this.attachShadow({ mode: 'open' });
+        (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.appendChild(template.content.cloneNode(true));
+        this._data = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#data');
+        this._select = (_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#encode');
+        _libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.encoding.forEach(enc => {
+            this._select.appendChild(new Option(enc, enc, false, (options === null || options === void 0 ? void 0 : options.selected) === enc));
+        });
+        this.encode = (_d = options === null || options === void 0 ? void 0 : options.selected) !== null && _d !== void 0 ? _d : this._select.value;
+        this._select.onchange = ev => {
+            this.encode = this._select.value;
+        };
+    }
+    static get observedAttributes() {
+        return ['selected', 'placeholder', 'disabled'];
+    }
+    connectedCallback() {
+        if (this.hasAttribute('selected')) {
+            this.encode = this.getAttribute('selected');
+        }
+        if (this.hasAttribute('placeholder')) {
+            this._data.placeholder = this.getAttribute('placeholder');
+        }
+        this.disabled = this.hasAttribute('disabled');
+    }
+    attributeChangedCallback(attr, oldVal, newVal) {
+        if (oldVal === newVal)
+            return;
+        switch (attr) {
+            case 'selected':
+                this.encode = newVal;
+                break;
+            case 'placeholder':
+                this.placeholder = newVal;
+                break;
+            case 'disabled':
+                this.disabled = newVal !== null;
+                break;
+        }
+    }
+    get value() {
+        return this._data.value;
+    }
+    get data() {
+        return this._data.data;
+    }
+    set encode(enc) {
+        if (!_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.encoding.includes(enc))
+            return;
+        this._data.encode = enc;
+        this._select.value = enc;
+        this.setAttribute('selected', enc);
+    }
+    get encode() {
+        return this._data.encode;
+    }
+    clear() {
+        this._data.clear();
+    }
+    set placeholder(name) {
+        this._data.placeholder = name;
+        this.setAttribute('placeholder', name);
+    }
+    get placeholder() {
+        return this._data.placeholder;
+    }
+    get disabled() {
+        return this._data.disabled;
+    }
+    set disabled(disable) {
+        this._data.disabled = disable;
+        this._select.disabled = disable;
+        if (disable)
+            this.setAttribute('disabled', 'true');
+        else
+            this.removeAttribute('disabled');
+    }
+    focus() {
+        this._data.focus();
+    }
+}
+customElements.define('text-select-binary', BinaryInputSelect);
+
+
+/***/ }),
+
+/***/ "./src/ts/web-components/data-display/data-display.ts":
+/*!************************************************************!*\
+  !*** ./src/ts/web-components/data-display/data-display.ts ***!
+  \************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -11167,10 +12981,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ DataDisplay)
 /* harmony export */ });
-/* harmony import */ var _helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../helper */ "./src/ts/helper.ts");
-/* harmony import */ var _encode__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../encode */ "./src/ts/encode.ts");
-/* harmony import */ var _binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../binary-dump/binary-dump */ "./src/ts/components/binary-dump/binary-dump.ts");
-/* harmony import */ var _window__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../window */ "./src/ts/window.ts");
+/* harmony import */ var _helper_time__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../helper/time */ "./src/ts/helper/time.ts");
+/* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
+/* harmony import */ var _binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../binary-dump/binary-dump */ "./src/ts/web-components/binary-dump/binary-dump.ts");
+/* harmony import */ var _helper_window__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../helper/window */ "./src/ts/helper/window.ts");
 
 
 
@@ -11237,17 +13051,20 @@ class DataDisplay extends HTMLElement {
         this.attachShadow({ mode: 'open' });
         (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.appendChild(template_class.content.cloneNode(true));
         this._data = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#data');
-        this._data.onclick = (ev) => {
+        this._data.onclick = ev => {
             const el = ev.composedPath()[0];
             if (!('data' in el.dataset))
                 return;
-            const d = (0,_encode__WEBPACK_IMPORTED_MODULE_1__.string_to_binary)(el.dataset.data);
-            const body = new _binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__.BinaryDump(8, d);
-            const win = (0,_window__WEBPACK_IMPORTED_MODULE_3__.create_window)('Binary Dump', body);
+            const d = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__.parse)(el.dataset.data, 'text');
+            const body = new _binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__.BinaryDump(8, d, { hide: ['octal', 'binary'] });
+            const win = (0,_helper_window__WEBPACK_IMPORTED_MODULE_3__.create_window)('Binary Dump', body);
             document.body.appendChild(win);
             win.center();
             win.addEventListener('undock', () => {
-                window.console_app.layout.createPopout(window.console_app.layout.newComponent('DockDumpComponent', el.dataset.data), {
+                window.console_app.layout.createPopout(window.console_app.layout.newComponent('DockDumpComponent', JSON.stringify({
+                    data: el.dataset.data,
+                    hide: ['octal', 'binary'],
+                })), {
                     width: win.clientWidth,
                     height: win.clientHeight - win.header.clientHeight,
                     left: win.offsetLeft,
@@ -11263,8 +13080,14 @@ class DataDisplay extends HTMLElement {
     send(message, message_size, raw) {
         this.add_message('send', message, message_size, raw);
     }
+    send_binary(message, message_size, raw) {
+        this.add_message('send', (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__.binary_to_ascii)(message), message_size !== null && message_size !== void 0 ? message_size : message.length, new TextDecoder('latin1').decode(message));
+    }
     receive(message, message_size, raw) {
         this.add_message('recv', message, message_size, raw);
+    }
+    receive_binary(message, message_size, raw) {
+        this.add_message('recv', (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__.binary_to_ascii)(message), message_size !== null && message_size !== void 0 ? message_size : message.length, new TextDecoder('latin1').decode(message));
     }
     command(message) {
         this.add_message('comm', message);
@@ -11276,17 +13099,18 @@ class DataDisplay extends HTMLElement {
         this.add_message('warn', message);
     }
     add_message(type, message, message_size, raw) {
+        var _a;
         const p = document.createElement('pre');
         p.classList.add('command-data', type);
-        const size = `${message_size ? message_size : message.length}`.padStart(3, '0');
-        if (raw)
+        const size = `${message_size !== null && message_size !== void 0 ? message_size : message.length}`.padStart(3, '0');
+        if (raw !== undefined)
             p.dataset.data = raw;
-        let out = `${(0,_helper__WEBPACK_IMPORTED_MODULE_0__.time)()} `;
+        let out = `${(0,_helper_time__WEBPACK_IMPORTED_MODULE_0__.time)()} `;
         if (type === 'send')
             out += `<<< [${size}]`;
         else if (type === 'recv')
             out += `>>> [${size}]`;
-        p.textContent += `${out} ${message}`;
+        p.textContent = `${(_a = p.textContent) !== null && _a !== void 0 ? _a : ''}${out} ${message}`;
         this._data.appendChild(p);
         this.go_to_bottom();
     }
@@ -11299,10 +13123,10 @@ customElements.define('display-data', DataDisplay);
 
 /***/ }),
 
-/***/ "./src/ts/components/draggable-popup/draggable-popup.ts":
-/*!**************************************************************!*\
-  !*** ./src/ts/components/draggable-popup/draggable-popup.ts ***!
-  \**************************************************************/
+/***/ "./src/ts/web-components/draggable-popup/draggable-popup.ts":
+/*!******************************************************************!*\
+  !*** ./src/ts/web-components/draggable-popup/draggable-popup.ts ***!
+  \******************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -11310,7 +13134,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   DraggablePopup: () => (/* binding */ DraggablePopup)
 /* harmony export */ });
-const template = function () {
+const template = (function () {
     const template = document.createElement('template');
     template.innerHTML = `
   <style>
@@ -11356,19 +13180,24 @@ const template = function () {
   </div>
   <slot id=body></slot>`;
     return template;
-}();
+})();
 class DraggablePopup extends HTMLElement {
     constructor() {
         var _a, _b, _c, _d;
         super();
-        this._endX = 0;
-        this._endY = 0;
-        this._initX = 0;
-        this._initY = 0;
+        this._init_x = 0;
+        this._init_y = 0;
+        this._end_x = 0;
+        this._end_y = 0;
         this.attachShadow({ mode: 'open' });
         (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.appendChild(template.content.cloneNode(true));
-        ((_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#header')).onmousedown = ev => this.drag_down(ev);
-        ((_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#close')).onclick = () => this.close();
+        ((_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#header')).onmousedown =
+            ev => {
+                this.drag_down(ev);
+            };
+        ((_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#close')).onclick = () => {
+            this.close();
+        };
         ((_d = this.shadowRoot) === null || _d === void 0 ? void 0 : _d.querySelector('#undock')).onclick = () => {
             this.dispatchEvent(new Event('undock'));
         };
@@ -11391,1102 +13220,41 @@ class DraggablePopup extends HTMLElement {
         const node = this.getClientRects();
         const left = parent[0].width / 2 - node[0].width / 2;
         const top = parent[0].height / 2 - node[0].height / 2;
-        this.style.top = top + "px";
-        this.style.left = left + "px";
+        this.style.top = `${top}px`;
+        this.style.left = `${left}px`;
     }
     drag_down(ev) {
-        ev = ev || window.event;
+        // ev = ev ?? window.event;
         ev.preventDefault();
         // get the mouse cursor position at startup:
-        this._initX = ev.clientX;
-        this._initY = ev.clientY;
-        document.onmouseup = () => this.drag_end();
+        this._init_x = ev.clientX;
+        this._init_y = ev.clientY;
+        document.onmouseup = () => {
+            this.drag_end();
+        };
         // call a function whenever the cursor moves:
-        document.onmousemove = ev => this.on_drag(ev);
+        document.onmousemove = ev => {
+            this.on_drag(ev);
+        };
     }
     on_drag(ev) {
-        ev = ev || window.event;
+        // ev = ev || window.event;
         ev.preventDefault();
         // calculate the new cursor position:
-        this._endX = this._initX - ev.clientX;
-        this._endY = this._initY - ev.clientY;
-        this._initX = ev.clientX;
-        this._initY = ev.clientY;
+        this._end_x = this._init_x - ev.clientX;
+        this._end_y = this._init_y - ev.clientY;
+        this._init_x = ev.clientX;
+        this._init_y = ev.clientY;
         // set the element's new position:
-        this.style.top = (this.offsetTop - this._endY) + "px";
-        this.style.left = (this.offsetLeft - this._endX) + "px";
+        this.style.top = `${this.offsetTop - this._end_y}px`;
+        this.style.left = `${this.offsetLeft - this._end_x}px`;
     }
     drag_end() {
         document.onmouseup = null;
         document.onmousemove = null;
     }
 }
-;
 customElements.define('draggable-popup', DraggablePopup);
-
-
-/***/ }),
-
-/***/ "./src/ts/encode.ts":
-/*!**************************!*\
-  !*** ./src/ts/encode.ts ***!
-  \**************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   binary_to_ascii: () => (/* binding */ binary_to_ascii),
-/* harmony export */   binary_to_decimal: () => (/* binding */ binary_to_decimal),
-/* harmony export */   binary_to_hexa: () => (/* binding */ binary_to_hexa),
-/* harmony export */   binary_to_octal: () => (/* binding */ binary_to_octal),
-/* harmony export */   break_line_array: () => (/* binding */ break_line_array),
-/* harmony export */   create_break_line_field: () => (/* binding */ create_break_line_field),
-/* harmony export */   string_to_binary: () => (/* binding */ string_to_binary),
-/* harmony export */   to_binary_array_element: () => (/* binding */ to_binary_array_element)
-/* harmony export */ });
-function binary_to_baseX(data, base, pad, pad_str = '0') {
-    return data.reduce((acc, v) => {
-        acc.push(v.toString(base).padStart(pad, pad_str));
-        return acc;
-    }, []);
-}
-function binary_to_decimal(data) {
-    return binary_to_baseX(data, 10, 3);
-}
-function binary_to_octal(data) {
-    return binary_to_baseX(data, 8, 3);
-}
-function binary_to_hexa(data) {
-    return binary_to_baseX(data, 16, 2);
-}
-function binary_to_ascii(data) {
-    return data.reduce((acc, v) => {
-        acc.push((v < 32 || v > 126) ? '.' : String.fromCharCode(v));
-        return acc;
-    }, []);
-}
-function string_to_binary(data) {
-    const buffer = new ArrayBuffer(data.length);
-    const arr = new Uint8Array(buffer);
-    for (let i = 0; i < data.length; ++i)
-        arr[i] = data.charCodeAt(i);
-    return arr;
-}
-function to_binary_array_element(data, value) {
-    const out = [];
-    data.forEach((v, i) => {
-        const s = document.createElement('span');
-        s.dataset.value = v.toString(10);
-        s.dataset.idx = i.toString(10);
-        s.textContent = value[i];
-        out.push(s);
-    });
-    return out;
-}
-function break_line_array(els, br) {
-    /**
-     * TODO: Add a assert that BR must be positive integer
-     */
-    return els.reduce((acc, v, idx) => {
-        if (idx != 0 && (idx % br) == 0)
-            acc.push(document.createElement('br'));
-        acc.push(v);
-        return acc;
-    }, []);
-}
-function create_break_line_field(el, lines, br) {
-    el.innerHTML = '';
-    let i = 0;
-    while (true) {
-        const span = document.createElement('span');
-        span.textContent = i.toString(16).padStart(4, '0');
-        el.appendChild(span);
-        i += br;
-        if (i >= lines)
-            break;
-        el.appendChild(document.createElement('br'));
-    }
-}
-
-
-/***/ }),
-
-/***/ "./src/ts/event_emitter.ts":
-/*!*********************************!*\
-  !*** ./src/ts/event_emitter.ts ***!
-  \*********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ EventEmitter)
-/* harmony export */ });
-/**
- * https://rjzaworski.com/2019/10/event-emitters-in-typescript
- */
-class EventEmitter {
-    constructor() {
-        this._listeners = {};
-    }
-    on(eventName, fn) {
-        this._listeners[eventName] = (this._listeners[eventName] || []).concat(fn);
-    }
-    off(eventName, fn) {
-        this._listeners[eventName] = (this._listeners[eventName] || []).filter(f => f !== fn);
-    }
-    emit(eventName, params) {
-        (this._listeners[eventName] || []).forEach(function (fn) {
-            fn(params);
-        });
-    }
-    clear_events() {
-        this._listeners = {};
-    }
-}
-
-
-/***/ }),
-
-/***/ "./src/ts/helper.ts":
-/*!**************************!*\
-  !*** ./src/ts/helper.ts ***!
-  \**************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   sleep: () => (/* binding */ sleep),
-/* harmony export */   time: () => (/* binding */ time)
-/* harmony export */ });
-function time() {
-    const d = new Date();
-    return `${d.getHours()}`.padStart(2, '0') + ':' +
-        `${d.getMinutes()}`.padStart(2, '0') + ':' +
-        `${d.getSeconds()}`.padStart(2, '0') + '.' +
-        `${d.getMilliseconds()}`.padStart(3, '0');
-}
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-
-/***/ }),
-
-/***/ "./src/ts/http.ts":
-/*!************************!*\
-  !*** ./src/ts/http.ts ***!
-  \************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   HTTPView: () => (/* binding */ HTTPView)
-/* harmony export */ });
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-const methods = ['GET', 'POST', 'PUT', 'DELETE'];
-class HTTP {
-    static request(url, method = 'GET', body = '') {
-        return __awaiter(this, void 0, void 0, function* () {
-            const options = { method };
-            if (body)
-                options.body = body;
-            const response = yield fetch(url, options);
-            return response;
-        });
-    }
-}
-const template = (function () {
-    const template = document.createElement('template');
-    template.innerHTML = `
-    <div>
-      <select class=http-method></select>
-      <input class=query-url placeholder=query>
-      <input class=body-data placeholder=body>
-      <button class=request-data>Request</button>
-      <button class=clear>Clear</button>
-    </div>
-    <display-data class=data></display-data>`;
-    const sel = template.content.querySelector('.http-method');
-    methods.forEach((v) => sel === null || sel === void 0 ? void 0 : sel.appendChild(new Option(v, v)));
-    return template;
-})();
-class HTTPView {
-    constructor(url) {
-        this._id = 0;
-        this._url = url;
-        this._container = document.createElement('div');
-        this._container.classList.add('golden-content');
-        this._container.appendChild(template.content.cloneNode(true));
-        this._btn_request_data = this._container.querySelector('.request-data');
-        this._data = this._container.querySelector('.data');
-        this._in_query = this._container.querySelector('.query-url');
-        this._in_body = this._container.querySelector('.body-data');
-        this._sel_method = this._container.querySelector('.http-method');
-        this._container.querySelector('.clear').onclick = () => {
-            this._data.clear();
-        };
-        this._btn_request_data.onclick = () => this.request();
-    }
-    get url() {
-        return this._url;
-    }
-    get container() {
-        return this._container;
-    }
-    get method() {
-        return this._sel_method.selectedOptions[0].value;
-    }
-    request() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const id = ++this._id;
-            try {
-                let url = this._url;
-                if (this._in_query.value)
-                    url += `?${this._in_query.value}`;
-                this._data.send(`[${id}] ${this.method} ${url} body:[${this._in_body.value}]`, this._in_body.value.length, this._in_body.value);
-                const response = yield HTTP.request(url, this.method, this._in_body.value);
-                if (response.ok) {
-                    const data = yield response.text();
-                    this._data.receive(`[${id}] ${data}`, data.length, data);
-                }
-            }
-            catch (e) {
-                this._data.error(`[${id}] ${e.message}`);
-            }
-        });
-    }
-}
-
-
-/***/ }),
-
-/***/ "./src/ts/serial.ts":
-/*!**************************!*\
-  !*** ./src/ts/serial.ts ***!
-  \**************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-var _usb_filtered_json__WEBPACK_IMPORTED_MODULE_3___namespace_cache;
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   SerialConn: () => (/* binding */ SerialConn),
-/* harmony export */   SerialList: () => (/* binding */ SerialList),
-/* harmony export */   SerialView: () => (/* binding */ SerialView),
-/* harmony export */   SerialViewConsole: () => (/* binding */ SerialViewConsole),
-/* harmony export */   install_serial_events: () => (/* binding */ install_serial_events),
-/* harmony export */   support_serial: () => (/* binding */ support_serial)
-/* harmony export */ });
-/* harmony import */ var _event_emitter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./event_emitter */ "./src/ts/event_emitter.ts");
-/* harmony import */ var _helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./helper */ "./src/ts/helper.ts");
-/* harmony import */ var _stream_parser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./stream_parser */ "./src/ts/stream_parser.ts");
-/* harmony import */ var _usb_filtered_json__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./usb_filtered.json */ "./src/ts/usb_filtered.json");
-/* harmony import */ var _terminal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./terminal */ "./src/ts/terminal.ts");
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
-
-function support_serial() {
-    return 'serial' in navigator;
-}
-;
-function get_serial_info(port) {
-    var _a, _b;
-    const { usbProductId, usbVendorId } = port.getInfo();
-    const vID = usbVendorId === null || usbVendorId === void 0 ? void 0 : usbVendorId.toString(16);
-    const pID = usbProductId === null || usbProductId === void 0 ? void 0 : usbProductId.toString(16);
-    const vName = (_a = /*#__PURE__*/ (_usb_filtered_json__WEBPACK_IMPORTED_MODULE_3___namespace_cache || (_usb_filtered_json__WEBPACK_IMPORTED_MODULE_3___namespace_cache = __webpack_require__.t(_usb_filtered_json__WEBPACK_IMPORTED_MODULE_3__, 2)))[vID]) === null || _a === void 0 ? void 0 : _a.name;
-    const pName = (_b = /*#__PURE__*/ (_usb_filtered_json__WEBPACK_IMPORTED_MODULE_3___namespace_cache || (_usb_filtered_json__WEBPACK_IMPORTED_MODULE_3___namespace_cache = __webpack_require__.t(_usb_filtered_json__WEBPACK_IMPORTED_MODULE_3__, 2)))[vID]) === null || _b === void 0 ? void 0 : _b.devices[pID];
-    return {
-        vendorID: vID,
-        productID: pID,
-        vendorName: vName,
-        productName: pName
-    };
-}
-function make_serial_name(port) {
-    const info = get_serial_info(port);
-    if (info.productName)
-        return info.productName;
-    if (info.vendorName) {
-        return `${info.vendorName} [${info.productID}]`;
-    }
-    return `Generic [${info.vendorID}/${info.productID}]`;
-}
-const SerialBaurate = [9600, 19200, 38400, 57600, 115200, 230400, 460800, 576000, 921600];
-const SerialDataBits = [7, 8];
-const SerialFlowControl = ['none', 'hardware'];
-const SerialParity = ['none', 'even', 'odd'];
-const SerialStopBits = [1, 2];
-const SerialDefaults = {
-    baudRate: 115200,
-    dataBits: 8,
-    flowControl: 'none',
-    parity: 'none',
-    stopBits: 1
-};
-;
-function esp32_signal_reset(port) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield port.signals({ dataTerminalReady: false, requestToSend: true });
-        yield (0,_helper__WEBPACK_IMPORTED_MODULE_1__.sleep)(100);
-        yield port.signals({ dataTerminalReady: true });
-    });
-}
-class SerialConn extends _event_emitter__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    constructor(port, id) {
-        super();
-        this._port = port;
-        this._id = id;
-        this._input_stream = null;
-        this._reader = null;
-        this._output_stream = null;
-    }
-    open(opt) {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this._port.open(opt);
-            this._input_stream = this._port.readable;
-            this._reader = (_a = this._input_stream) === null || _a === void 0 ? void 0 : _a.getReader();
-            this._output_stream = this._port.writable;
-            this.emit('open', this);
-            return yield this.read();
-        });
-    }
-    close() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.state == 'close')
-                return;
-            if (this._reader) {
-                yield this._reader.cancel();
-                this._input_stream = null;
-                this._reader = null;
-            }
-            if (this._output_stream) {
-                yield this._output_stream.getWriter().close();
-                this._output_stream = null;
-            }
-            yield this._port.close();
-            this.emit('close', this);
-        });
-    }
-    disconnect() {
-        this._input_stream = null;
-        this._reader = null;
-        this._output_stream = null;
-    }
-    read() {
-        return __awaiter(this, void 0, void 0, function* () {
-            while (true) {
-                const { value, done } = yield this._reader.read();
-                if (done)
-                    break;
-                this.emit('data', value);
-            }
-        });
-    }
-    write(data) {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            const writer = (_a = this._output_stream) === null || _a === void 0 ? void 0 : _a.getWriter();
-            yield (writer === null || writer === void 0 ? void 0 : writer.write(new TextEncoder().encode(data)));
-            writer === null || writer === void 0 ? void 0 : writer.releaseLock();
-        });
-    }
-    get id() {
-        return this._id;
-    }
-    get name() {
-        return make_serial_name(this._port);
-    }
-    get port() {
-        return this._port;
-    }
-    get state() {
-        return this._input_stream ? 'open' : 'close';
-    }
-    signals(signals) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this._port.setSignals(signals);
-        });
-    }
-}
-const template = function () {
-    const template = document.createElement('template');
-    template.innerHTML = `
-    <div>
-      <div>
-        <select class='sel-serial-conn serial-baudrate'></select>
-        <select class='sel-serial-conn serial-databits'></select>
-        <select class='sel-serial-conn serial-flowcontrol'></select>
-        <select class='sel-serial-conn serial-parity'></select>
-        <select class='sel-serial-conn serial-stopbits'></select>
-        <button class=serial-connect>Open</button>
-        <button class=serial-data-clear>Clear</button>
-        <button class='serial-console btn-not-pressed'>Console</button>
-      </div>
-      <div>
-        <input class=serial-input placeholder=Data>
-        <button class=serial-send>Send</button>
-        <button class="serial-signal-button serial-DTR">DTR</button>
-        <button class="serial-signal-button serial-RTS">RTS</button>
-        <button class="serial-signal-button serial-BREAK">BREAK</button>
-        <span class='serial-get-signal serial-CTS'>CTS</span>
-        <span class='serial-get-signal serial-DCD'>DCD</span>
-        <span class='serial-get-signal serial-DSR'>DSR</span>
-        <span class='serial-get-signal serial-RI'>RI</span>
-        <button class=serial-btn-signal>&#x27F3;</button>
-        <button class='serial-signal-button serial-signal-reset'>Reset</button>
-      </div>
-    </div>
-    <display-data class=data></display-data>
-  `;
-    function make_select(mclass, values, mdefault) {
-        const el = template.content.querySelector(mclass);
-        values.forEach(v => el === null || el === void 0 ? void 0 : el.appendChild(new Option(`${v}`, `${v}`, v === mdefault)));
-    }
-    make_select('.serial-baudrate', SerialBaurate, SerialDefaults.baudRate);
-    make_select('.serial-databits', SerialDataBits, SerialDefaults.dataBits);
-    make_select('.serial-flowcontrol', SerialFlowControl, SerialDefaults.flowControl);
-    make_select('.serial-parity', SerialParity, SerialDefaults.parity);
-    make_select('.serial-stopbits', SerialStopBits, SerialDefaults.stopBits);
-    return template;
-}();
-;
-class SerialView extends _event_emitter__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    constructor(port) {
-        super();
-        this._port = port;
-        this._container = document.createElement('div');
-        this._container.classList.add('golden-content');
-        this._container.appendChild(template.content.cloneNode(true));
-        this._btn_open = this._container.querySelector('.serial-connect');
-        this._data = this._container.querySelector('.data');
-        this._out_data = this._container.querySelector('.serial-input');
-        this._parser = new _stream_parser__WEBPACK_IMPORTED_MODULE_2__.ParseUntilTimeout(100);
-        this._port.on('open', () => {
-            this.opened();
-            this._parser.start();
-        });
-        this._port.on('close', () => {
-            this.closed();
-            this._parser.stop();
-        });
-        this._port.on('error', error => this.error(error));
-        this._port.on('data', data => {
-            this._parser.process(data);
-        });
-        this._port.on('disconnect', () => this.disconnect());
-        this._parser.on('data', d => this.data(d));
-        this.closed();
-        this._btn_open.onclick = () => __awaiter(this, void 0, void 0, function* () {
-            try {
-                if (this._port.state == 'close') {
-                    yield this._port.open({
-                        baudRate: +this._container.querySelector('.serial-baudrate').value,
-                        dataBits: +this._container.querySelector('.serial-databits').value,
-                        flowControl: this._container.querySelector('.serial-flowcontrol').value,
-                        parity: this._container.querySelector('.serial-parity').value,
-                        stopBits: +this._container.querySelector('.serial-stopbits').value
-                    });
-                }
-                else if (this._port.state == 'open') {
-                    yield this._port.close();
-                }
-            }
-            catch (e) {
-                this._data.error(`${e}`);
-                this.disconnect();
-            }
-        });
-        // Read signal
-        this._container.querySelector('.serial-btn-signal').onclick = () => {
-            function set_signal(s, mclass, property, container) {
-                var _a, _b;
-                if (s[property])
-                    (_a = container.querySelector(mclass)) === null || _a === void 0 ? void 0 : _a.classList.add('signal-set');
-                else
-                    (_b = container.querySelector(mclass)) === null || _b === void 0 ? void 0 : _b.classList.remove('signal-set');
-            }
-            this._port.port.getSignals().then(s => {
-                set_signal(s, '.serial-CTS', 'clearToSend', this._container);
-                set_signal(s, '.serial-DCD', 'dataCarrierDetect', this._container);
-                set_signal(s, '.serial-DSR', 'dataSetReady', this._container);
-                set_signal(s, '.serial-RI', 'ringIndicator', this._container);
-            });
-        };
-        // Send data
-        this._container.querySelector('.serial-send').onclick = () => {
-            if (this._out_data.value.length > 0) {
-                this._port.write(this._out_data.value);
-                this._data.send(this._out_data.value, this._out_data.value.length, this._out_data.value);
-            }
-        };
-        // Clear data
-        this._container.querySelector('.serial-data-clear').onclick = () => {
-            this._data.clear();
-        };
-        // Reset ESP32 device
-        this._container.querySelector('.serial-signal-reset').onclick = () => {
-            esp32_signal_reset(this._port);
-        };
-        // Open/Close serial console
-        const btn_console = this._container.querySelector('.serial-console');
-        this._container.querySelector('.serial-console').onclick = ev => {
-            if (btn_console.classList.contains('btn-pressed')) {
-                this.emit('console', false);
-            }
-            else {
-                btn_console.classList.remove('btn-not-pressed');
-                btn_console.classList.add('btn-pressed');
-                this.emit('console', true);
-            }
-        };
-        this.on('close_console', () => {
-            btn_console.classList.add('btn-not-pressed');
-            btn_console.classList.remove('btn-pressed');
-        });
-    }
-    get container() {
-        return this._container;
-    }
-    get port() {
-        return this._port;
-    }
-    opened(is_open = true) {
-        this.configure_connect(false);
-        this.configure_connected(true);
-        this._btn_open.textContent = 'Close';
-    }
-    closed() {
-        this.configure_connect(true);
-        this.configure_connected(false);
-        this._btn_open.textContent = 'Open';
-    }
-    configure_connect(enable) {
-        this._container.querySelectorAll('.sel-serial-conn').forEach(el => {
-            el.disabled = !enable;
-        });
-    }
-    configure_connected(enable) {
-        this._container.querySelectorAll('.serial-signal-button').forEach(btn => {
-            btn.disabled = !enable;
-        });
-        this._container.querySelector('.serial-input').disabled = !enable;
-        this._container.querySelector('.serial-send').disabled = !enable;
-        this._container.querySelector('.serial-btn-signal').disabled = !enable;
-    }
-    error(message) {
-        this._data.error(message);
-    }
-    data(data) {
-        this._data.receive(data.data, data.size, data.raw);
-    }
-    disconnect() {
-        this._port.disconnect();
-        this._parser.stop();
-        this.configure_connect(false);
-        this.configure_connected(false);
-        this._btn_open.disabled = true;
-        this._data.warning('Disconnected');
-        this.emit('disconnect', undefined);
-    }
-}
-;
-;
-class SerialViewConsole extends _event_emitter__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    constructor(port, container) {
-        super();
-        this._port = port;
-        this._terminal = new _terminal__WEBPACK_IMPORTED_MODULE_4__.DataTerminal(container);
-        this._port.on('data', data => this._terminal.write(data));
-        this._port.on('open', () => this.emit('open', undefined));
-        this._port.on('close', () => this.emit('close', undefined));
-    }
-    get terminal() {
-        return this._terminal;
-    }
-    get port() {
-        return this._port;
-    }
-}
-;
-class SerialList extends _event_emitter__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    constructor() {
-        super();
-        this._id = 0;
-        this._ports = [];
-        navigator.serial.onconnect = ev => {
-            this._ports.push(new SerialConn(ev.target, ++this._id));
-            this.emit('connect', this._ports);
-        };
-        navigator.serial.ondisconnect = ev => {
-            const port = this._ports.find(p => p.port === ev.target);
-            if (port) {
-                port.emit('disconnect', undefined);
-                this._ports = this._ports.filter(p => p.port !== ev.target);
-            }
-            this.emit('disconnect', this._ports);
-        };
-        this.get_ports();
-    }
-    get ports() {
-        return this._ports;
-    }
-    port_by_id(id) {
-        return this._ports.find(p => p.id == id);
-    }
-    request() {
-        navigator.serial.requestPort()
-            .then(() => {
-            this.get_ports();
-        })
-            .catch(() => { });
-    }
-    get_ports() {
-        navigator.serial.getPorts()
-            .then(ports => {
-            this._ports = ports.reduce((acc, port) => {
-                acc.push(new SerialConn(port, ++this._id));
-                return acc;
-            }, Array());
-            this.emit('get_ports', this._ports);
-        })
-            .catch(() => { });
-    }
-}
-;
-function update_ports(ports, select) {
-    select.innerHTML = '';
-    if (ports.length == 0) {
-        select.appendChild(new Option('No ports', '0'));
-        select.disabled = true;
-        return;
-    }
-    select.disabled = false;
-    ports.forEach(port => select.appendChild(new Option(make_serial_name(port.port), port.id.toString())));
-}
-function install_serial_events(list, select) {
-    list.on('connect', () => update_ports(list.ports, select));
-    list.on('disconnect', () => update_ports(list.ports, select));
-    list.on('get_ports', () => update_ports(list.ports, select));
-}
-
-
-/***/ }),
-
-/***/ "./src/ts/stream_parser.ts":
-/*!*********************************!*\
-  !*** ./src/ts/stream_parser.ts ***!
-  \*********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   CheckTimeout: () => (/* binding */ CheckTimeout),
-/* harmony export */   ParseUntilTimeout: () => (/* binding */ ParseUntilTimeout),
-/* harmony export */   ascii_decoder: () => (/* binding */ ascii_decoder)
-/* harmony export */ });
-/* harmony import */ var _event_emitter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./event_emitter */ "./src/ts/event_emitter.ts");
-
-;
-class ParseUntil {
-    constructor(br, chunk) {
-        this._chunk = chunk !== null && chunk !== void 0 ? chunk : "";
-        this._break = br !== null && br !== void 0 ? br : /\r\n|\n|\r(?=.)/; // Match if \r\n, \n or if is a \r with something ahead
-    }
-    get chunk() {
-        return this._chunk;
-    }
-    clear_chunk() {
-        this._chunk = "";
-    }
-    add_chunk(chunk) {
-        this._chunk += chunk;
-    }
-    parse_once() {
-        let result = this._break.exec(this._chunk);
-        if (!result)
-            return null;
-        const data = this._chunk.substring(0, result.index);
-        this._chunk = this._chunk.substring(result.index + result[0].length);
-        return {
-            data,
-            result
-        };
-    }
-    parse() {
-        const res = [];
-        while (true) {
-            let ans = this.parse_once();
-            if (!ans)
-                break;
-            res.push(ans);
-        }
-        return res;
-    }
-}
-;
-class CheckTimeout {
-    constructor(interval, fn, ...args) {
-        this._fn = fn;
-        this._interval = interval;
-        this._args = args;
-        this._token = 0;
-    }
-    start() {
-        this._token = window.setInterval(this._fn, this._interval, ...this._args);
-    }
-    stop() {
-        clearInterval(this._token);
-    }
-    reset() {
-        this.stop();
-        this.start();
-    }
-}
-;
-;
-class ParseUntilTimeout extends _event_emitter__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    constructor(interval) {
-        super();
-        this._decoder = new TextDecoder('latin1');
-        this._parser = new ParseUntil();
-        this._timeout = new CheckTimeout(interval, () => {
-            if (this._parser.chunk.length > 0) {
-                const data = this._parser.chunk;
-                this.emit('data', { data: ascii_decoder(data), size: data.length, raw: data });
-                this._parser.clear_chunk();
-            }
-            ;
-        });
-    }
-    process(data) {
-        this._parser.add_chunk(this._decoder.decode(data, { stream: true }));
-        const result = this._parser.parse();
-        for (const d of result) {
-            this.emit('data', { data: `${ascii_decoder(d.data)}[${ascii_decoder(d.result[0])}]`,
-                size: d.data.length + d.result[0].length,
-                raw: d.data });
-            this._timeout.reset();
-        }
-    }
-    start() {
-        this._timeout.start();
-    }
-    stop() {
-        this._timeout.stop();
-    }
-}
-;
-const special_chars_list = {
-    '\0': '\\0',
-    '\n': '\\n',
-    '\r': '\\r'
-};
-function ascii_decoder(chunk, chars = special_chars_list) {
-    let out = "";
-    for (const c of chunk) {
-        if (c in chars) {
-            out += chars[c];
-            continue;
-        }
-        const code = c.charCodeAt(0);
-        if (code <= 31 || code >= 127) {
-            out += '\\x' + code.toString(16).padStart(2, '0');
-        }
-        else
-            out += c;
-    }
-    return out;
-}
-
-
-/***/ }),
-
-/***/ "./src/ts/terminal.ts":
-/*!****************************!*\
-  !*** ./src/ts/terminal.ts ***!
-  \****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   DataTerminal: () => (/* binding */ DataTerminal)
-/* harmony export */ });
-/* harmony import */ var xterm__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! xterm */ "./node_modules/xterm/lib/xterm.js");
-/* harmony import */ var xterm__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(xterm__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var xterm_addon_fit__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! xterm-addon-fit */ "./node_modules/xterm-addon-fit/lib/xterm-addon-fit.js");
-/* harmony import */ var xterm_addon_fit__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(xterm_addon_fit__WEBPACK_IMPORTED_MODULE_1__);
-
-
-class DataTerminal {
-    constructor(container) {
-        this._terminal = new xterm__WEBPACK_IMPORTED_MODULE_0__.Terminal();
-        this._fit = new xterm_addon_fit__WEBPACK_IMPORTED_MODULE_1__.FitAddon();
-        this._terminal.loadAddon(this._fit);
-        if (container)
-            this.open(container);
-    }
-    open(container) {
-        this._terminal.open(container);
-        this._fit.fit();
-    }
-    write(data) {
-        this._terminal.write(data);
-    }
-    get terminal() {
-        return this._terminal;
-    }
-    fit() {
-        this._fit.fit();
-    }
-}
-
-
-/***/ }),
-
-/***/ "./src/ts/websocket.ts":
-/*!*****************************!*\
-  !*** ./src/ts/websocket.ts ***!
-  \*****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   Websocket: () => (/* binding */ Websocket),
-/* harmony export */   WebsocketView: () => (/* binding */ WebsocketView)
-/* harmony export */ });
-/* harmony import */ var _event_emitter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./event_emitter */ "./src/ts/event_emitter.ts");
-
-/**
- * https://www.rfc-editor.org/rfc/rfc6455.html#section-11.7
- */
-const WebsocketErrors = {
-    1000: 'Normal Closure',
-    1001: 'Going Away',
-    1002: 'Protocol error',
-    1003: 'Unsupported Data',
-    1005: 'No Status Rcvd',
-    1006: 'Abnormal Closure',
-    1007: 'Invalid frame',
-    1008: 'Policy Violation',
-    1009: 'Message Too Big',
-    1010: 'Mandatory Ext.',
-    1011: 'Internal Server Error',
-    1015: 'TLS handshake'
-};
-const WebsocketState = {
-    0: 'CONNECTING',
-    1: 'OPEN',
-    2: 'CLOSING',
-    3: 'CLOSE',
-};
-function ws_error_name(code) {
-    if (code in WebsocketErrors)
-        return WebsocketErrors[code];
-    return 'Undefined';
-}
-class Websocket extends _event_emitter__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    constructor(url, protocol = []) {
-        super();
-        this._socket = new WebSocket(url, protocol);
-        this._socket.onopen = ev => this.on_open(ev);
-        this._socket.onmessage = ev => this.on_message(ev);
-        this._socket.onclose = ev => this.on_close(ev);
-        this._socket.onerror = ev => this.on_error(ev);
-    }
-    get state_number() {
-        return this._socket.readyState;
-    }
-    get state() {
-        return WebsocketState[this._socket.readyState];
-    }
-    get url() {
-        return this._socket.url;
-    }
-    send(message) {
-        var _a;
-        (_a = this._socket) === null || _a === void 0 ? void 0 : _a.send(message);
-    }
-    close(code = 1000, reason = "") {
-        if (this.state === 'CLOSING' || this.state === 'CLOSED')
-            throw "Invalid socket";
-        this._socket.close(code, reason);
-    }
-    on_open(ev) {
-        this.emit('open', ev);
-    }
-    on_message(ev) {
-        this.emit('message', ev);
-    }
-    on_close(ev) {
-        this.emit('close', ev);
-        this.clear_events();
-    }
-    on_error(ev) {
-        this.emit('error', ev);
-    }
-}
-const template = function () {
-    const template = document.createElement('template');
-    template.innerHTML = `
-  <div>
-    <input class=input_data disabled>
-    <button class=send_data disabled>Send</button>
-    <button class=close_conn disabled>Close</button>
-    <button class=clear>Clear</button>
-  </div>
-  <display-data class=data></display-data>
-`;
-    return template;
-}();
-class WebsocketView extends _event_emitter__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    constructor(socket) {
-        super();
-        this._socket = socket;
-        this._container = document.createElement('div');
-        this._container.classList.add('golden-content');
-        this._container.appendChild(template.content.cloneNode(true));
-        this._in_data = this._container.querySelector('.input_data');
-        this._btn_send_data = this._container.querySelector('.send_data');
-        this._btn_close = this._container.querySelector('.close_conn');
-        this._data = this._container.querySelector('.data');
-        this._btn_send_data.onclick = () => this._send_data();
-        this._btn_close.onclick = () => this.close();
-        this._in_data.onkeyup = ev => {
-            if (ev.code == 'Enter') {
-                ev.preventDefault();
-                this._send_data();
-            }
-        };
-        this._container.querySelector('.clear').onclick = () => this._data.clear();
-        this.config_socket();
-    }
-    get container() {
-        return this._container;
-    }
-    get socket() {
-        return this._socket;
-    }
-    set socket(s) {
-        this._socket = s;
-        this.config_socket();
-    }
-    config_socket() {
-        // Workaround...
-        customElements.whenDefined('display-data').then(() => {
-            this._data.command(`Connecting to ${this._socket.url}`);
-        });
-        this._socket.on('open', ev => this._on_open(ev));
-        this._socket.on('message', ev => this._on_message(ev));
-        this._socket.on('close', ev => this._on_close(ev));
-        this._socket.on('error', ev => this._on_error(ev));
-    }
-    close(reason = '') {
-        if (this._socket.state == 'CLOSING' || this._socket.state == 'CLOSED')
-            return;
-        this._socket.close(1000, reason);
-    }
-    _on_open(ev) {
-        this._error('');
-        this._data.command(`Connected to ${ev.currentTarget.url}`);
-        this._in_data.removeAttribute('disabled');
-        this._btn_send_data.removeAttribute('disabled');
-        this._btn_close.removeAttribute('disabled');
-        this._in_data.focus();
-        this.emit('open', ev);
-    }
-    _on_message(ev) {
-        this._data.receive(ev.data, ev.data.length, ev.data);
-    }
-    _on_close(ev) {
-        this._to_close(ev.code);
-        this.emit('close', ev);
-    }
-    _to_close(code = 1000) {
-        this._data.command(`Closed [${code}:${ws_error_name(code)}]`);
-        this._in_data.setAttribute('disabled', '');
-        this._btn_send_data.setAttribute('disabled', '');
-        this._btn_close.setAttribute('disabled', '');
-    }
-    _on_error(ev) {
-        this._error("Error ocurred");
-    }
-    _error(message = "") {
-        if (message.length > 0) {
-            this._data.error(message);
-        }
-    }
-    error(message = "") {
-        this._error(message);
-    }
-    _send_data() {
-        if (this._socket.state == 'CLOSING' || this._socket.state == 'CLOSED') {
-            this._to_close(1006);
-            this.emit('close', new CloseEvent('Close'));
-            return;
-        }
-        if (this._in_data.value == '')
-            return;
-        this._socket.send(this._in_data.value);
-        this._data.send(this._in_data.value, this._in_data.value.length, this._in_data.value);
-    }
-}
-
-
-/***/ }),
-
-/***/ "./src/ts/window.ts":
-/*!**************************!*\
-  !*** ./src/ts/window.ts ***!
-  \**************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   create_window: () => (/* binding */ create_window)
-/* harmony export */ });
-/* harmony import */ var _components_draggable_popup_draggable_popup__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/draggable-popup/draggable-popup */ "./src/ts/components/draggable-popup/draggable-popup.ts");
-
-function create_window(title, body) {
-    const dp = new _components_draggable_popup_draggable_popup__WEBPACK_IMPORTED_MODULE_0__.DraggablePopup();
-    dp.classList.add('window');
-    const header = document.createElement('div');
-    header.slot = 'header';
-    header.classList.add('window-header');
-    header.textContent = title;
-    dp.appendChild(header);
-    body.classList.add('window-body');
-    dp.appendChild(body);
-    return dp;
-}
 
 
 /***/ }),
@@ -12546,10 +13314,10 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACN
 
 /***/ }),
 
-/***/ "./src/ts/usb_filtered.json":
-/*!**********************************!*\
-  !*** ./src/ts/usb_filtered.json ***!
-  \**********************************/
+/***/ "./src/ts/apps/serial/usb_filtered.json":
+/*!**********************************************!*\
+  !*** ./src/ts/apps/serial/usb_filtered.json ***!
+  \**********************************************/
 /***/ ((module) => {
 
 "use strict";
@@ -12697,30 +13465,41 @@ var __webpack_exports__ = {};
   !*** ./src/ts/main.ts ***!
   \************************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _components_data_display_data_display__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/data-display/data-display */ "./src/ts/components/data-display/data-display.ts");
-/* harmony import */ var _components_draggable_popup_draggable_popup__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/draggable-popup/draggable-popup */ "./src/ts/components/draggable-popup/draggable-popup.ts");
-/* harmony import */ var _components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/binary-dump/binary-dump */ "./src/ts/components/binary-dump/binary-dump.ts");
-/* harmony import */ var _css_style_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../css/style.css */ "./src/css/style.css");
-/* harmony import */ var _css_serial_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../css/serial.css */ "./src/css/serial.css");
-/* harmony import */ var _css_window_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../css/window.css */ "./src/css/window.css");
-/* harmony import */ var _node_modules_xterm_css_xterm_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../node_modules/xterm/css/xterm.css */ "./node_modules/xterm/css/xterm.css");
-/* harmony import */ var _css_golden_layout_less__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../css/golden-layout.less */ "./src/css/golden-layout.less");
-/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./app */ "./src/ts/app.ts");
+/* harmony import */ var _web_components_data_display_data_display__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./web-components/data-display/data-display */ "./src/ts/web-components/data-display/data-display.ts");
+/* harmony import */ var _web_components_draggable_popup_draggable_popup__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./web-components/draggable-popup/draggable-popup */ "./src/ts/web-components/draggable-popup/draggable-popup.ts");
+/* harmony import */ var _web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./web-components/binary-dump/binary-dump */ "./src/ts/web-components/binary-dump/binary-dump.ts");
+/* harmony import */ var _web_components_binary_input_text_binary__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./web-components/binary-input/text-binary */ "./src/ts/web-components/binary-input/text-binary.ts");
+/* harmony import */ var _web_components_binary_input_text_select_binary__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./web-components/binary-input/text-select-binary */ "./src/ts/web-components/binary-input/text-select-binary.ts");
+/* harmony import */ var _css_style_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../css/style.css */ "./src/css/style.css");
+/* harmony import */ var _css_serial_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../css/serial.css */ "./src/css/serial.css");
+/* harmony import */ var _css_window_css__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../css/window.css */ "./src/css/window.css");
+/* harmony import */ var _node_modules_xterm_css_xterm_css__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../node_modules/xterm/css/xterm.css */ "./node_modules/xterm/css/xterm.css");
+/* harmony import */ var _css_golden_layout_less__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../css/golden-layout.less */ "./src/css/golden-layout.less");
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./app */ "./src/ts/app.ts");
+// Importing HTML components
 
 
 
 
 
+// Importing style
 
 
 
+// Importing third party library style
 
-if (document.readyState !== "loading")
+
+// Importing app
+
+if (document.readyState !== 'loading')
     run();
 else
-    document.addEventListener("DOMContentLoaded", () => run(), { passive: true });
+    document.addEventListener('DOMContentLoaded', () => {
+        run();
+    }, { passive: true });
 function run() {
-    new _app__WEBPACK_IMPORTED_MODULE_8__.App();
+    // eslint-disable-next-line no-new
+    new _app__WEBPACK_IMPORTED_MODULE_10__.App();
 }
 
 })();

@@ -2,26 +2,26 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./node_modules/css-loader/dist/cjs.js!./src/css/input.css":
-/*!*****************************************************************!*\
-  !*** ./node_modules/css-loader/dist/cjs.js!./src/css/input.css ***!
-  \*****************************************************************/
+/***/ "./node_modules/css-loader/dist/cjs.js!./src/tools/input/input.css":
+/*!*************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./src/tools/input/input.css ***!
+  \*************************************************************************/
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../node_modules/css-loader/dist/runtime/sourceMaps.js */ "./node_modules/css-loader/dist/runtime/sourceMaps.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../node_modules/css-loader/dist/runtime/sourceMaps.js */ "./node_modules/css-loader/dist/runtime/sourceMaps.js");
 /* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 /* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
 // Imports
 
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "html, body{\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\n#input {\n  width: 100%;\n}\n\n", "",{"version":3,"sources":["webpack://./src/css/input.css"],"names":[],"mappings":"AAAA;EACE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,WAAW;AACb","sourcesContent":["html, body{\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\n#input {\n  width: 100%;\n}\n\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\n#input-binary {\n  /* display: inline-block; */\n  width: 50%;\n}\n", "",{"version":3,"sources":["webpack://./src/tools/input/input.css"],"names":[],"mappings":"AAAA;;EAEE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,2BAA2B;EAC3B,UAAU;AACZ","sourcesContent":["html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\n#input-binary {\n  /* display: inline-block; */\n  width: 50%;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -414,29 +414,29 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
-/***/ "./src/css/input.css":
-/*!***************************!*\
-  !*** ./src/css/input.css ***!
-  \***************************/
+/***/ "./src/tools/input/input.css":
+/*!***********************************!*\
+  !*** ./src/tools/input/input.css ***!
+  \***********************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
 /* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/styleDomAPI.js */ "./node_modules/style-loader/dist/runtime/styleDomAPI.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !../../../node_modules/style-loader/dist/runtime/styleDomAPI.js */ "./node_modules/style-loader/dist/runtime/styleDomAPI.js");
 /* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/insertBySelector.js */ "./node_modules/style-loader/dist/runtime/insertBySelector.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../../node_modules/style-loader/dist/runtime/insertBySelector.js */ "./node_modules/style-loader/dist/runtime/insertBySelector.js");
 /* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js */ "./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js */ "./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js");
 /* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/insertStyleElement.js */ "./node_modules/style-loader/dist/runtime/insertStyleElement.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! !../../../node_modules/style-loader/dist/runtime/insertStyleElement.js */ "./node_modules/style-loader/dist/runtime/insertStyleElement.js");
 /* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/styleTagTransform.js */ "./node_modules/style-loader/dist/runtime/styleTagTransform.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! !../../../node_modules/style-loader/dist/runtime/styleTagTransform.js */ "./node_modules/style-loader/dist/runtime/styleTagTransform.js");
 /* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _node_modules_css_loader_dist_cjs_js_input_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! !!../../node_modules/css-loader/dist/cjs.js!./input.css */ "./node_modules/css-loader/dist/cjs.js!./src/css/input.css");
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_input_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! !!../../../node_modules/css-loader/dist/cjs.js!./input.css */ "./node_modules/css-loader/dist/cjs.js!./src/tools/input/input.css");
 
       
       
@@ -468,19 +468,274 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 /***/ }),
 
-/***/ "./src/ts/components/binary-dump/binary-dump.ts":
-/*!******************************************************!*\
-  !*** ./src/ts/components/binary-dump/binary-dump.ts ***!
-  \******************************************************/
+/***/ "./src/ts/libs/binary-dump.ts":
+/*!************************************!*\
+  !*** ./src/ts/libs/binary-dump.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   binary_to_ascii: () => (/* binding */ binary_to_ascii),
+/* harmony export */   binary_to_ascii_array: () => (/* binding */ binary_to_ascii_array),
+/* harmony export */   check_encoding: () => (/* binding */ check_encoding),
+/* harmony export */   clear_string: () => (/* binding */ clear_string),
+/* harmony export */   convert: () => (/* binding */ convert),
+/* harmony export */   encoding: () => (/* binding */ encoding),
+/* harmony export */   format: () => (/* binding */ format),
+/* harmony export */   is_ascii_code_printable: () => (/* binding */ is_ascii_code_printable),
+/* harmony export */   is_ascii_printable: () => (/* binding */ is_ascii_printable),
+/* harmony export */   is_encode_char: () => (/* binding */ is_encode_char),
+/* harmony export */   is_valid: () => (/* binding */ is_valid),
+/* harmony export */   parse: () => (/* binding */ parse),
+/* harmony export */   split: () => (/* binding */ split),
+/* harmony export */   string_to_ascii: () => (/* binding */ string_to_ascii),
+/* harmony export */   string_to_ascii_array: () => (/* binding */ string_to_ascii_array),
+/* harmony export */   to_array_string: () => (/* binding */ to_array_string),
+/* harmony export */   to_data: () => (/* binding */ to_data)
+/* harmony export */ });
+// Decimal match
+//
+// Octal match
+//
+/**
+ * Encoding
+ */
+const encoding = ['binary', 'octal', 'decimal', 'hexa', 'text'];
+function is_encoding(encode) {
+    return encoding.includes(encode);
+}
+function check_encoding(encode) {
+    if (!is_encoding(encode))
+        throw new Error('Invalid Encoding');
+}
+/**
+ * Check valid characters
+ */
+function is_binary(char) {
+    const c = char.charAt(0);
+    return c === '0' || c === '1';
+}
+function is_octal(char) {
+    const c = char.charAt(0);
+    return c >= '0' && c <= '7';
+}
+function is_hexa(char) {
+    const c = char.charAt(0);
+    return ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
+}
+function is_decimal(char) {
+    const c = char.charAt(0);
+    return c >= '0' && c <= '9';
+}
+function is_ascii(char) {
+    return char.charCodeAt(0) <= 255;
+}
+function is_ascii_printable(char) {
+    return is_ascii_code_printable(char.charCodeAt(0));
+}
+function is_ascii_code_printable(code) {
+    return code >= 32 && code <= 126;
+}
+/**
+ * Separate function
+ * This functions assume that all characters are valid based on the encoding
+ */
+function split_binary(str) {
+    var _a;
+    return (_a = str.match(/[01]{1,8}/g)) !== null && _a !== void 0 ? _a : [];
+}
+function split_octal(str) {
+    var _a;
+    return (_a = str.match(/[0-3]?[0-7]{1,2}/g)) !== null && _a !== void 0 ? _a : [];
+}
+function split_decimal(str) {
+    var _a;
+    return (_a = str.match(/25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2}/g)) !== null && _a !== void 0 ? _a : [];
+}
+function split_hexa(str) {
+    var _a;
+    return (_a = str.match(/[0-9a-fA-F]{1,2}/g)) !== null && _a !== void 0 ? _a : [];
+}
+function split_text(str) {
+    var _a;
+    return (_a = str.match(/\\x[0-9a-fA-F]{1,2}|\\n|\\r|\\0|[ -~]/g)) !== null && _a !== void 0 ? _a : [];
+}
+/**
+ * Type definitions
+ */
+const dataType = {
+    binary: {
+        base: 2,
+        char_byte_size: 8,
+        check_char: is_binary,
+        split: split_binary,
+    },
+    octal: {
+        base: 8,
+        char_byte_size: 3,
+        check_char: is_octal,
+        split: split_octal,
+    },
+    decimal: {
+        base: 10,
+        char_byte_size: 3,
+        check_char: is_decimal,
+        split: split_decimal,
+    },
+    hexa: {
+        base: 16,
+        char_byte_size: 2,
+        check_char: is_hexa,
+        split: split_hexa,
+    },
+    text: {
+        base: 1,
+        char_byte_size: 1,
+        check_char: is_ascii,
+        split: split_text,
+    },
+};
+/**
+ * Encoding functions
+ */
+function is_encode_char(char, enc) {
+    check_encoding(enc);
+    return dataType[enc].check_char(char);
+}
+function clear_string(str, enc) {
+    check_encoding(enc);
+    return Array.from(str)
+        .filter(c => dataType[enc].check_char(c))
+        .join('');
+}
+function format(str, encode, opt = {}) {
+    check_encoding(encode);
+    if (encode === 'text')
+        return str.join('');
+    const fmt = Object.assign({ separator: ' ', pad: '' }, opt);
+    if (fmt.pad.length > 0)
+        str = str.map(v => v.padStart(dataType[encode].char_byte_size, fmt.pad));
+    return str.join(fmt.separator);
+}
+function split(str, encode) {
+    check_encoding(encode);
+    return dataType[encode].split(str);
+}
+function string_to_binary(str) {
+    return string_array_to_binary(split_text(str));
+}
+function string_array_to_binary(str) {
+    return Uint8Array.from(str.map(c => {
+        switch (c) {
+            case '\\n':
+                return 10;
+            case '\\r':
+                return 13;
+            case '\\0':
+                return 0;
+            default:
+                break;
+        }
+        const cc = c.match(/(?<=\x)[0-9a-fA-F]{1,2}/g);
+        if (cc !== null && cc.length > 0) {
+            return parseInt(cc[0], 16);
+        }
+        return c.charCodeAt(0);
+    }));
+}
+function parse(str, encode) {
+    check_encoding(encode);
+    str = clear_string(str, encode);
+    if (encode === 'text')
+        return string_to_binary(str);
+    return Uint8Array.from(dataType[encode]
+        .split(str)
+        .map((s) => parseInt(s, dataType[encode].base)));
+}
+function to_data(str, encode) {
+    check_encoding(encode);
+    if (encode === 'text')
+        return string_array_to_binary(str);
+    return Uint8Array.from(str.map((s) => parseInt(s, dataType[encode].base)));
+}
+function to_array_string(data, encode, pad = '') {
+    check_encoding(encode);
+    if (encode === 'text')
+        return binary_to_ascii_array(data);
+    const { base, char_byte_size } = dataType[encode];
+    if (pad.length > 0)
+        return Array.from(data).map(n => n.toString(base).padStart(char_byte_size, pad));
+    return Array.from(data).map(n => n.toString(base));
+}
+function convert(input, from, to) {
+    if (from === to)
+        return input;
+    const d = to_data(input, from);
+    return to_array_string(d, to);
+}
+function is_valid(str, encode) {
+    return Array.from(str).every(c => is_encode_char(c, encode));
+}
+const specialChars = {
+    '\0': '\\0',
+    '\n': '\\n',
+    '\r': '\\r',
+};
+function string_to_ascii_array(chunk, chars = specialChars) {
+    const out = [];
+    for (const c of chunk) {
+        if (c in chars) {
+            out.push(chars[c]);
+            continue;
+        }
+        if (!is_ascii_printable(c)) {
+            out.push('\\x' + c.charCodeAt(0).toString(16).padStart(2, '0'));
+        }
+        else
+            out.push(c);
+    }
+    return out;
+}
+function string_to_ascii(chunk, chars = specialChars) {
+    return string_to_ascii_array(chunk, chars).join('');
+}
+function binary_to_ascii_array(chunk, chars = specialChars) {
+    const out = [];
+    for (const code of chunk) {
+        const c = String.fromCharCode(code);
+        if (c in chars) {
+            out.push(chars[c]);
+            continue;
+        }
+        if (!is_ascii_code_printable(code)) {
+            out.push('\\x' + code.toString(16).padStart(2, '0'));
+        }
+        else
+            out.push(c);
+    }
+    return out;
+}
+function binary_to_ascii(chunk, chars = specialChars) {
+    return binary_to_ascii_array(chunk, chars).join('');
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/web-components/binary-dump/binary-dump.ts":
+/*!**********************************************************!*\
+  !*** ./src/ts/web-components/binary-dump/binary-dump.ts ***!
+  \**********************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   BinaryDump: () => (/* binding */ BinaryDump)
 /* harmony export */ });
-/* harmony import */ var _encode__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../encode */ "./src/ts/encode.ts");
+/* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
 
-const template = function () {
+const template = (function () {
     const template = document.createElement('template');
     template.innerHTML = `
     <style>
@@ -488,7 +743,7 @@ const template = function () {
         width: fit-content;
         overflow: hidden;
         display: grid;
-        grid-template: ". . . . ."
+        grid-template: ". . . . . ."
       }
       
       .field {
@@ -508,8 +763,12 @@ const template = function () {
         background-color: blue;
       }
 
-      #char {
+      #text {
         background-color: red;
+      }
+
+      #binary {
+        background-color: grey;
       }
 
       #octal {
@@ -530,110 +789,148 @@ const template = function () {
       
       #decimal span[data-value],
       #octal span[data-value],
-      #hexa span[data-value] {
+      #hexa span[data-value],
+      #binary span[data-value] {
         padding: 2px 4px;
       }
     </style>
     <pre id="line-count" class="field"></pre>
+    <pre id="binary" class="field"></pre>
+    <pre id="octal" class="field"></pre>
     <pre id="decimal" class="field"></pre>
     <pre id="hexa" class="field"></pre>
-    <pre id="octal" class="field"></pre>
-    <pre id="char" class="field"></pre>`;
+    <pre id="text" class="field"></pre>`;
     return template;
-}();
+})();
 class BinaryDump extends HTMLElement {
-    constructor(bl = 16, data) {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+    constructor(bl = 16, data, option) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         super();
         this.attachShadow({ mode: 'open' });
         (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.appendChild(template.content.cloneNode(true));
-        this._deci = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#decimal');
-        this._hexa = (_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#hexa');
-        this._octal = (_d = this.shadowRoot) === null || _d === void 0 ? void 0 : _d.querySelector('#octal');
-        this._char = (_e = this.shadowRoot) === null || _e === void 0 ? void 0 : _e.querySelector('#char');
-        this._lc = (_f = this.shadowRoot) === null || _f === void 0 ? void 0 : _f.querySelector('#line-count');
+        this._hide = new Set(option === null || option === void 0 ? void 0 : option.hide);
+        this._binary = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#binary');
+        this._octal = (_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#octal');
+        this._decimal = (_d = this.shadowRoot) === null || _d === void 0 ? void 0 : _d.querySelector('#decimal');
+        this._hexa = (_e = this.shadowRoot) === null || _e === void 0 ? void 0 : _e.querySelector('#hexa');
+        this._text = (_f = this.shadowRoot) === null || _f === void 0 ? void 0 : _f.querySelector('#text');
+        this._lc = (_g = this.shadowRoot) === null || _g === void 0 ? void 0 : _g.querySelector('#line-count');
         this._bl = bl;
-        (_g = this.shadowRoot) === null || _g === void 0 ? void 0 : _g.addEventListener('mouseover', ev => {
+        (_h = this.shadowRoot) === null || _h === void 0 ? void 0 : _h.addEventListener('mouseover', ev => {
             var _a, _b;
             const el = ev.target;
             if ('value' in el.dataset) {
-                (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll(`[data-value='${el.dataset.value}']`).forEach(e => e.classList.add('hovered'));
-                (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelectorAll(`[data-idx='${el.dataset.idx}']`).forEach(e => e.classList.add('selected'));
+                (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll(`[data-value='${el.dataset.value}']`).forEach(e => {
+                    e.classList.add('hovered');
+                });
+                (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelectorAll(`[data-idx='${el.dataset.idx}']`).forEach(e => {
+                    e.classList.add('selected');
+                });
             }
         });
-        (_h = this.shadowRoot) === null || _h === void 0 ? void 0 : _h.addEventListener('mouseout', ev => {
+        (_j = this.shadowRoot) === null || _j === void 0 ? void 0 : _j.addEventListener('mouseout', ev => {
             var _a, _b;
             const el = ev.target;
             if ('value' in el.dataset) {
-                (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll(`[data-value='${el.dataset.value}']`).forEach(e => e.classList.remove('hovered'));
-                (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelectorAll(`[data-idx='${el.dataset.idx}']`).forEach(e => e.classList.remove('selected'));
+                (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll(`[data-value='${el.dataset.value}']`).forEach(e => {
+                    e.classList.remove('hovered');
+                });
+                (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelectorAll(`[data-idx='${el.dataset.idx}']`).forEach(e => {
+                    e.classList.remove('selected');
+                });
             }
         });
-        if (data)
+        if (data !== undefined)
             this.update(data);
+        this.set_hide();
+    }
+    connectedCallback() {
+        var _a;
+        if (this.hasAttribute('hide'))
+            this.hide(...(_a = this.getAttribute('hide')) === null || _a === void 0 ? void 0 : _a.split(','));
+    }
+    attributeChangedCallback(attr, oldVal, newVal) {
+        if (oldVal === newVal)
+            return;
+        this._hide.clear();
+        this.hide(...newVal.split(','));
+    }
+    static get observedAttributes() {
+        return ['hide'];
+    }
+    hide(...args) {
+        let changed = false;
+        args.forEach((s) => {
+            if (this.is_encoding(s) && !this._hide.has(s)) {
+                changed = true;
+                this._hide.add(s);
+            }
+        });
+        if (changed)
+            this.set_hide();
+    }
+    show(...args) {
+        let changed = false;
+        args.forEach((s) => {
+            if (this.is_encoding(s) && this._hide.has(s)) {
+                changed = true;
+                this._hide.delete(s);
+            }
+        });
+        if (changed)
+            this.set_hide();
+    }
+    is_hidden(encode) {
+        return this._hide.has(encode);
     }
     update(data, bl = this._bl) {
         this._bl = bl;
-        this.append_elements(this._deci, _encode__WEBPACK_IMPORTED_MODULE_0__.break_line_array(_encode__WEBPACK_IMPORTED_MODULE_0__.to_binary_array_element(data, _encode__WEBPACK_IMPORTED_MODULE_0__.binary_to_decimal(data)), this._bl));
-        this.append_elements(this._hexa, _encode__WEBPACK_IMPORTED_MODULE_0__.break_line_array(_encode__WEBPACK_IMPORTED_MODULE_0__.to_binary_array_element(data, _encode__WEBPACK_IMPORTED_MODULE_0__.binary_to_hexa(data)), this._bl));
-        this.append_elements(this._octal, _encode__WEBPACK_IMPORTED_MODULE_0__.break_line_array(_encode__WEBPACK_IMPORTED_MODULE_0__.to_binary_array_element(data, _encode__WEBPACK_IMPORTED_MODULE_0__.binary_to_octal(data)), this._bl));
-        this.append_elements(this._char, _encode__WEBPACK_IMPORTED_MODULE_0__.break_line_array(_encode__WEBPACK_IMPORTED_MODULE_0__.to_binary_array_element(data, _encode__WEBPACK_IMPORTED_MODULE_0__.binary_to_ascii(data)), this._bl));
-        _encode__WEBPACK_IMPORTED_MODULE_0__.create_break_line_field(this._lc, data.length, this._bl);
+        [
+            [this._binary, 'binary'],
+            [this._decimal, 'decimal'],
+            [this._octal, 'octal'],
+            [this._hexa, 'hexa'],
+        ].forEach(v => {
+            this.append_elements(v[0], break_line_array(to_binary_array_element(data, (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.to_array_string)(data, v[1], '0')), this._bl));
+        });
+        this.append_elements(this._text, break_line_array(to_binary_array_element(data, binary_to_ascii(data)), this._bl));
+        create_break_line_field(this._lc, data.length, this._bl);
     }
     append_elements(container, elements) {
         container.innerHTML = '';
         elements.forEach(el => container.appendChild(el));
     }
+    is_encoding(encode) {
+        return ['binary', 'octal', 'decimal', 'hexa', 'text'].includes(encode);
+    }
+    set_hide() {
+        const new_value = [];
+        [
+            [this._binary, 'binary'],
+            [this._decimal, 'decimal'],
+            [this._hexa, 'hexa'],
+            [this._octal, 'octal'],
+            [this._text, 'text'],
+        ].forEach(v => {
+            if (this._hide.has(v[1])) {
+                v[0].style.display = 'none';
+                new_value.push(v[1]);
+            }
+            else
+                v[0].style.display = 'inline-block';
+        });
+        this.setAttribute('hide', new_value.join(','));
+    }
 }
 customElements.define('binary-dump', BinaryDump);
-
-
-/***/ }),
-
-/***/ "./src/ts/encode.ts":
-/*!**************************!*\
-  !*** ./src/ts/encode.ts ***!
-  \**************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   binary_to_ascii: () => (/* binding */ binary_to_ascii),
-/* harmony export */   binary_to_decimal: () => (/* binding */ binary_to_decimal),
-/* harmony export */   binary_to_hexa: () => (/* binding */ binary_to_hexa),
-/* harmony export */   binary_to_octal: () => (/* binding */ binary_to_octal),
-/* harmony export */   break_line_array: () => (/* binding */ break_line_array),
-/* harmony export */   create_break_line_field: () => (/* binding */ create_break_line_field),
-/* harmony export */   string_to_binary: () => (/* binding */ string_to_binary),
-/* harmony export */   to_binary_array_element: () => (/* binding */ to_binary_array_element)
-/* harmony export */ });
-function binary_to_baseX(data, base, pad, pad_str = '0') {
-    return data.reduce((acc, v) => {
-        acc.push(v.toString(base).padStart(pad, pad_str));
-        return acc;
-    }, []);
-}
-function binary_to_decimal(data) {
-    return binary_to_baseX(data, 10, 3);
-}
-function binary_to_octal(data) {
-    return binary_to_baseX(data, 8, 3);
-}
-function binary_to_hexa(data) {
-    return binary_to_baseX(data, 16, 2);
-}
+/**
+ * Free functions
+ */
 function binary_to_ascii(data) {
     return data.reduce((acc, v) => {
-        acc.push((v < 32 || v > 126) ? '.' : String.fromCharCode(v));
+        acc.push(!(0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.is_ascii_code_printable)(v) ? '.' : String.fromCharCode(v));
         return acc;
     }, []);
-}
-function string_to_binary(data) {
-    const buffer = new ArrayBuffer(data.length);
-    const arr = new Uint8Array(buffer);
-    for (let i = 0; i < data.length; ++i)
-        arr[i] = data.charCodeAt(i);
-    return arr;
 }
 function to_binary_array_element(data, value) {
     const out = [];
@@ -651,7 +948,7 @@ function break_line_array(els, br) {
      * TODO: Add a assert that BR must be positive integer
      */
     return els.reduce((acc, v, idx) => {
-        if (idx != 0 && (idx % br) == 0)
+        if (idx !== 0 && idx % br === 0)
             acc.push(document.createElement('br'));
         acc.push(v);
         return acc;
@@ -670,6 +967,250 @@ function create_break_line_field(el, lines, br) {
         el.appendChild(document.createElement('br'));
     }
 }
+
+
+/***/ }),
+
+/***/ "./src/ts/web-components/binary-input/text-binary.ts":
+/*!***********************************************************!*\
+  !*** ./src/ts/web-components/binary-input/text-binary.ts ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   BinaryInput: () => (/* binding */ BinaryInput)
+/* harmony export */ });
+/* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
+
+const template = (function () {
+    const template = document.createElement('template');
+    template.innerHTML = `
+  <style>
+    :host {
+      display: inline-block;
+    }
+    
+    input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+  </style>
+  <input>`;
+    return template;
+})();
+class BinaryInput extends HTMLElement {
+    constructor() {
+        var _a, _b;
+        super();
+        this._encode = 'hexa';
+        this.attachShadow({ mode: 'open' });
+        (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.appendChild(template.content.cloneNode(true));
+        this._input = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('input');
+        this._input.onkeydown = ev => {
+            if (ev.ctrlKey)
+                return;
+            if (['Backspace', 'Delete', 'Tab', 'Home', 'End'].includes(ev.key))
+                return;
+            if (ev.key.startsWith('Arrow'))
+                return;
+            if (ev.key === 'Escape') {
+                this.clear();
+                return;
+            }
+            if (!(0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.is_encode_char)(ev.key, this._encode))
+                ev.preventDefault();
+        };
+        this._input.onkeyup = ev => {
+            const position = this._input.selectionStart;
+            this.format(this._input.value);
+            if (['Delete'].includes(ev.key))
+                this._input.selectionEnd = position;
+        };
+        this._input.onpaste = ev => {
+            var _a, _b;
+            ev.preventDefault();
+            this.format((_b = (_a = ev.clipboardData) === null || _a === void 0 ? void 0 : _a.getData('text')) !== null && _b !== void 0 ? _b : '');
+        };
+    }
+    static get observedAttributes() {
+        return ['placeholder', 'disabled'];
+    }
+    connectedCallback() {
+        if (this.hasAttribute('placeholder')) {
+            this._input.placeholder = this.getAttribute('placeholder');
+        }
+        this._input.disabled = this.hasAttribute('disabled');
+    }
+    set placeholder(name) {
+        this._input.placeholder = name;
+        this.setAttribute('placeholder', name);
+    }
+    get placeholder() {
+        return this._input.placeholder;
+    }
+    get disabled() {
+        return this._input.disabled;
+    }
+    set disabled(disable) {
+        this._input.disabled = disable;
+        if (disable)
+            this.setAttribute('disabled', 'true');
+        else
+            this.removeAttribute('disabled');
+    }
+    focus() {
+        this._input.focus();
+    }
+    attributeChangedCallback(attr, oldVal, newVal) {
+        if (oldVal === newVal)
+            return;
+        switch (attr) {
+            case 'placeholder':
+                this.placeholder = newVal;
+                break;
+            case 'disabled':
+                this.disabled = newVal !== null;
+                break;
+        }
+    }
+    get value() {
+        return this._input.value;
+    }
+    get data() {
+        return (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.to_data)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.split)(this.value, this._encode), this._encode);
+    }
+    set encode(enc) {
+        (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.check_encoding)(enc);
+        if (enc === this._encode)
+            return;
+        this._input.value = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.format)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.convert)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.split)(this.value, this._encode), this._encode, enc), enc, { separator: ' ', pad: '0' });
+        this._encode = enc;
+    }
+    get encode() {
+        return this._encode;
+    }
+    clear() {
+        this._input.value = '';
+    }
+    format(str) {
+        this._input.value = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.format)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.split)(str, this._encode), this._encode);
+    }
+}
+customElements.define('text-binary', BinaryInput);
+
+
+/***/ }),
+
+/***/ "./src/ts/web-components/binary-input/text-select-binary.ts":
+/*!******************************************************************!*\
+  !*** ./src/ts/web-components/binary-input/text-select-binary.ts ***!
+  \******************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   BinaryInputSelect: () => (/* binding */ BinaryInputSelect)
+/* harmony export */ });
+/* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
+
+const template = (function () {
+    const template = document.createElement('template');
+    template.innerHTML = `
+  <style>
+  :host {
+    display: inline-block;
+  }
+  </style>
+  <text-binary id=data></text-binary>
+  <select id=encode></select>`;
+    return template;
+})();
+class BinaryInputSelect extends HTMLElement {
+    constructor(options = {}) {
+        var _a, _b, _c, _d;
+        super();
+        this.attachShadow({ mode: 'open' });
+        (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.appendChild(template.content.cloneNode(true));
+        this._data = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#data');
+        this._select = (_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#encode');
+        _libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.encoding.forEach(enc => {
+            this._select.appendChild(new Option(enc, enc, false, (options === null || options === void 0 ? void 0 : options.selected) === enc));
+        });
+        this.encode = (_d = options === null || options === void 0 ? void 0 : options.selected) !== null && _d !== void 0 ? _d : this._select.value;
+        this._select.onchange = ev => {
+            this.encode = this._select.value;
+        };
+    }
+    static get observedAttributes() {
+        return ['selected', 'placeholder', 'disabled'];
+    }
+    connectedCallback() {
+        if (this.hasAttribute('selected')) {
+            this.encode = this.getAttribute('selected');
+        }
+        if (this.hasAttribute('placeholder')) {
+            this._data.placeholder = this.getAttribute('placeholder');
+        }
+        this.disabled = this.hasAttribute('disabled');
+    }
+    attributeChangedCallback(attr, oldVal, newVal) {
+        if (oldVal === newVal)
+            return;
+        switch (attr) {
+            case 'selected':
+                this.encode = newVal;
+                break;
+            case 'placeholder':
+                this.placeholder = newVal;
+                break;
+            case 'disabled':
+                this.disabled = newVal !== null;
+                break;
+        }
+    }
+    get value() {
+        return this._data.value;
+    }
+    get data() {
+        return this._data.data;
+    }
+    set encode(enc) {
+        if (!_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.encoding.includes(enc))
+            return;
+        this._data.encode = enc;
+        this._select.value = enc;
+        this.setAttribute('selected', enc);
+    }
+    get encode() {
+        return this._data.encode;
+    }
+    clear() {
+        this._data.clear();
+    }
+    set placeholder(name) {
+        this._data.placeholder = name;
+        this.setAttribute('placeholder', name);
+    }
+    get placeholder() {
+        return this._data.placeholder;
+    }
+    get disabled() {
+        return this._data.disabled;
+    }
+    set disabled(disable) {
+        this._data.disabled = disable;
+        this._select.disabled = disable;
+        if (disable)
+            this.setAttribute('disabled', 'true');
+        else
+            this.removeAttribute('disabled');
+    }
+    focus() {
+        this._data.focus();
+    }
+}
+customElements.define('text-select-binary', BinaryInputSelect);
 
 
 /***/ })
@@ -750,21 +1291,52 @@ function create_break_line_field(el, lines, br) {
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-/*!*************************!*\
-  !*** ./src/ts/input.ts ***!
-  \*************************/
+/*!**********************************!*\
+  !*** ./src/tools/input/input.ts ***!
+  \**********************************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _css_input_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../css/input.css */ "./src/css/input.css");
-/* harmony import */ var _components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/binary-dump/binary-dump */ "./src/ts/components/binary-dump/binary-dump.ts");
+/* harmony import */ var _input_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./input.css */ "./src/tools/input/input.css");
+/* harmony import */ var _ts_web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../ts/web-components/binary-dump/binary-dump */ "./src/ts/web-components/binary-dump/binary-dump.ts");
+/* harmony import */ var _ts_web_components_binary_input_text_binary__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../ts/web-components/binary-input/text-binary */ "./src/ts/web-components/binary-input/text-binary.ts");
+/* harmony import */ var _ts_web_components_binary_input_text_select_binary__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../ts/web-components/binary-input/text-select-binary */ "./src/ts/web-components/binary-input/text-select-binary.ts");
 
 
-const input = document.querySelector('#input');
+
+
 const bl = document.querySelector('#breakline');
 const bd = document.querySelector('#data-dump');
-const encoder = new TextEncoder();
-bl.onchange = () => bd.update(encoder.encode(input.value), +bl.value);
-input.onkeyup = () => bd.update(encoder.encode(input.value), +bl.value);
-input.dispatchEvent(new Event('keyup'));
+const input_binary = document.querySelector('#input-binary');
+input_binary.encode = 'text';
+const input_select = document.querySelector('#data-input-select');
+bl.onchange = () => update();
+input_binary.onkeyup = () => update();
+document.querySelectorAll('input[name=encode]').forEach(v => {
+    const i = v;
+    i.onclick = () => {
+        input_binary.encode = i.value;
+        update();
+    };
+});
+function update() {
+    bd.update(input_binary.data, +bl.value);
+}
+document.querySelectorAll('input[name=binary-hide]').forEach(v => {
+    const i = v;
+    i.onclick = () => {
+        if (i.checked)
+            bd.hide(i.value);
+        else
+            bd.show(i.value);
+    };
+    if (bd.is_hidden(i.value))
+        i.checked = true;
+});
+const dump2 = document.querySelector('#data-dump-select');
+input_select.onkeyup = () => update2();
+input_select.onchange = () => update2();
+function update2() {
+    dump2.update(input_select.data, +bl.value);
+}
 
 })();
 
