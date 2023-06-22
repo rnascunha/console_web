@@ -115,7 +115,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "html, body{\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\nbody {\n  display: grid;\n  grid-template: \n    \"header\" min-content\n    \"body\" auto\n    \"footer\" 2px\n}\n\n#header {\n  display: flex;\n  align-items: center;\n}\n\n#title {\n  margin: 0px;\n  flex-grow: 1;\n  order: 2;\n  text-align: center;\n}\n\n#error {\n  background-color: red;\n  color: white;\n  padding: 2px;\n  border-radius: 2px;\n}\n\n#error:empty {\n  display: none;\n}\n\n.btn-pressed{\n  border-style: inset;\n  background-color: darkgray;\n}\n\n.btn-not-pressed {\n  border-style: outset;\n}\n\n/**\n *\n */\n#golden {\n  overflow: hidden;\n  height: 100%;\n}\n\n.golden-content {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  overflow: hidden;\n  padding: 0px;\n  margin: 0px;\n}\n\n", "",{"version":3,"sources":["webpack://./src/css/style.css"],"names":[],"mappings":"AAAA;EACE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb;;;;AAIF;;AAEA;EACE,aAAa;EACb,mBAAmB;AACrB;;AAEA;EACE,WAAW;EACX,YAAY;EACZ,QAAQ;EACR,kBAAkB;AACpB;;AAEA;EACE,qBAAqB;EACrB,YAAY;EACZ,YAAY;EACZ,kBAAkB;AACpB;;AAEA;EACE,aAAa;AACf;;AAEA;EACE,mBAAmB;EACnB,0BAA0B;AAC5B;;AAEA;EACE,oBAAoB;AACtB;;AAEA;;EAEE;AACF;EACE,gBAAgB;EAChB,YAAY;AACd;;AAEA;EACE,aAAa;EACb,sBAAsB;EACtB,YAAY;EACZ,gBAAgB;EAChB,YAAY;EACZ,WAAW;AACb","sourcesContent":["html, body{\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\nbody {\n  display: grid;\n  grid-template: \n    \"header\" min-content\n    \"body\" auto\n    \"footer\" 2px\n}\n\n#header {\n  display: flex;\n  align-items: center;\n}\n\n#title {\n  margin: 0px;\n  flex-grow: 1;\n  order: 2;\n  text-align: center;\n}\n\n#error {\n  background-color: red;\n  color: white;\n  padding: 2px;\n  border-radius: 2px;\n}\n\n#error:empty {\n  display: none;\n}\n\n.btn-pressed{\n  border-style: inset;\n  background-color: darkgray;\n}\n\n.btn-not-pressed {\n  border-style: outset;\n}\n\n/**\n *\n */\n#golden {\n  overflow: hidden;\n  height: 100%;\n}\n\n.golden-content {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  overflow: hidden;\n  padding: 0px;\n  margin: 0px;\n}\n\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\nbody {\n  display: grid;\n  grid-template:\n    'header' min-content\n    'body' auto\n    'footer' 2px;\n}\n\n#header {\n  display: flex;\n  align-items: center;\n}\n\n#title {\n  margin: 0px;\n  flex-grow: 1;\n  text-align: center;\n}\n\n#setup {\n  cursor: pointer;\n}\n\n#setup:hover {\n  background-color: black;\n  color: white;\n}\n\n.setup-body {\n  padding: 5px;\n  background-color: lightgrey;\n}\n\n#error {\n  background-color: red;\n  color: white;\n  padding: 2px;\n  border-radius: 2px;\n}\n\n#error:empty {\n  display: none;\n}\n\n.btn-pressed {\n  border-style: inset;\n  background-color: darkgray;\n}\n\n.btn-not-pressed {\n  border-style: outset;\n}\n\n/**\n *\n */\n#golden {\n  overflow: hidden;\n  height: 100%;\n}\n\n.golden-content {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  overflow: hidden;\n  padding: 0px;\n  margin: 0px;\n}\n", "",{"version":3,"sources":["webpack://./src/css/style.css"],"names":[],"mappings":"AAAA;;EAEE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb;;;gBAGc;AAChB;;AAEA;EACE,aAAa;EACb,mBAAmB;AACrB;;AAEA;EACE,WAAW;EACX,YAAY;EACZ,kBAAkB;AACpB;;AAEA;EACE,eAAe;AACjB;;AAEA;EACE,uBAAuB;EACvB,YAAY;AACd;;AAEA;EACE,YAAY;EACZ,2BAA2B;AAC7B;;AAEA;EACE,qBAAqB;EACrB,YAAY;EACZ,YAAY;EACZ,kBAAkB;AACpB;;AAEA;EACE,aAAa;AACf;;AAEA;EACE,mBAAmB;EACnB,0BAA0B;AAC5B;;AAEA;EACE,oBAAoB;AACtB;;AAEA;;EAEE;AACF;EACE,gBAAgB;EAChB,YAAY;AACd;;AAEA;EACE,aAAa;EACb,sBAAsB;EACtB,YAAY;EACZ,gBAAgB;EAChB,YAAY;EACZ,WAAW;AACb","sourcesContent":["html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\nbody {\n  display: grid;\n  grid-template:\n    'header' min-content\n    'body' auto\n    'footer' 2px;\n}\n\n#header {\n  display: flex;\n  align-items: center;\n}\n\n#title {\n  margin: 0px;\n  flex-grow: 1;\n  text-align: center;\n}\n\n#setup {\n  cursor: pointer;\n}\n\n#setup:hover {\n  background-color: black;\n  color: white;\n}\n\n.setup-body {\n  padding: 5px;\n  background-color: lightgrey;\n}\n\n#error {\n  background-color: red;\n  color: white;\n  padding: 2px;\n  border-radius: 2px;\n}\n\n#error:empty {\n  display: none;\n}\n\n.btn-pressed {\n  border-style: inset;\n  background-color: darkgray;\n}\n\n.btn-not-pressed {\n  border-style: outset;\n}\n\n/**\n *\n */\n#golden {\n  overflow: hidden;\n  height: 100%;\n}\n\n.golden-content {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  overflow: hidden;\n  padding: 0px;\n  margin: 0px;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -10600,6 +10600,7 @@ const components = {
         protocols: ['serial'],
     },
 };
+const onlySecureConnectionsProtocols = ['wss', 'https', 'serial'];
 const other_components = {
     SerialConsoleComponent: {
         name: 'SerialConsoleComponent',
@@ -10621,7 +10622,9 @@ const protocols = (function () {
     const protocols = {};
     Object.values(components).forEach(comp => {
         comp.protocols.forEach(proto => {
-            protocols[proto] = { protocol: proto, component: comp.component };
+            if (window.location.protocol === 'http:' ||
+                onlySecureConnectionsProtocols.includes(window.location.protocol))
+                protocols[proto] = { protocol: proto, component: comp.component };
         });
     });
     return protocols;
@@ -10657,7 +10660,7 @@ class App {
         this._el_error = container.querySelector('#error');
         this._serial_container = container.querySelector('#serial-container');
         this._sel_serial = container.querySelector('#sel-serial-port');
-        Object.values(proto).forEach((v) => this._sel_protocols.appendChild(new Option(v.protocol, v.protocol, undefined, v.protocol === 'http')));
+        Object.values(proto).forEach((v) => this._sel_protocols.appendChild(new Option(v.protocol, v.protocol, undefined, v.protocol === 'serial')));
         this._btn_connect.onclick = () => {
             this.open();
         };
@@ -11263,11 +11266,6 @@ class SerialConn extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_1__["defau
             }
         });
     }
-    // public async write(data: string): Promise<void> {
-    //   const writer = this._output_stream?.getWriter();
-    //   await writer?.write(new TextEncoder().encode(data));
-    //   writer?.releaseLock();
-    // }
     write(data) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
@@ -11305,10 +11303,8 @@ class SerialList extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_1__["defau
         };
         navigator.serial.ondisconnect = ev => {
             const port = this._ports.find(p => p.port === ev.target);
-            if (port !== undefined) {
-                port.emit('disconnect', undefined);
+            if (port !== undefined)
                 this._ports = this._ports.filter(p => p.port !== ev.target);
-            }
             this.emit('disconnect', this._ports);
         };
         this.get_ports();
@@ -12009,7 +12005,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _web_components_draggable_popup_draggable_popup__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../web-components/draggable-popup/draggable-popup */ "./src/ts/web-components/draggable-popup/draggable-popup.ts");
 
-function create_window(title, body) {
+function create_window(title, body, options = {}) {
     const dp = new _web_components_draggable_popup_draggable_popup__WEBPACK_IMPORTED_MODULE_0__.DraggablePopup();
     dp.classList.add('window');
     const header = document.createElement('div');
@@ -12019,6 +12015,14 @@ function create_window(title, body) {
     dp.appendChild(header);
     body.classList.add('window-body');
     dp.appendChild(body);
+    if ((options === null || options === void 0 ? void 0 : options.hide_undock) === true) {
+        dp.hide_undock();
+    }
+    if ((options === null || options === void 0 ? void 0 : options.append) === true) {
+        document.body.appendChild(dp);
+        if ((options === null || options === void 0 ? void 0 : options.center) === true)
+            dp.center();
+    }
     return dp;
 }
 
@@ -12475,6 +12479,31 @@ class DataTerminal {
 
 /***/ }),
 
+/***/ "./src/ts/setup.ts":
+/*!*************************!*\
+  !*** ./src/ts/setup.ts ***!
+  \*************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _helper_window__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./helper/window */ "./src/ts/helper/window.ts");
+var _a;
+
+(_a = document.querySelector('#setup')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+    const body = document.createElement('div');
+    body.innerHTML = `Version: <b>${"69f51a0"}</b>`;
+    body.classList.add('setup-body');
+    (0,_helper_window__WEBPACK_IMPORTED_MODULE_0__.create_window)('Setup', body, {
+        hide_undock: true,
+        append: true,
+        center: true,
+    });
+});
+
+
+/***/ }),
+
 /***/ "./src/ts/web-components/binary-dump/binary-dump.ts":
 /*!**********************************************************!*\
   !*** ./src/ts/web-components/binary-dump/binary-dump.ts ***!
@@ -12833,6 +12862,12 @@ class BinaryInput extends HTMLElement {
     }
     get data() {
         return (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.to_data)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.split)(this.value, this._encode), this._encode);
+    }
+    set data(d) {
+        this._input.value = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.format)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.to_array_string)(d, this._encode), this._encode, {
+            separator: ' ',
+            pad: '0',
+        });
     }
     set encode(enc) {
         (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.check_encoding)(enc);
@@ -13223,6 +13258,16 @@ class DraggablePopup extends HTMLElement {
         this.style.top = `${top}px`;
         this.style.left = `${left}px`;
     }
+    hide_undock() {
+        var _a;
+        ((_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#undock')).style.display =
+            'none';
+    }
+    show_undock() {
+        var _a;
+        ((_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#undock')).style.display =
+            'inline-block';
+    }
     drag_down(ev) {
         // ev = ev ?? window.event;
         ev.preventDefault();
@@ -13476,6 +13521,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_xterm_css_xterm_css__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../node_modules/xterm/css/xterm.css */ "./node_modules/xterm/css/xterm.css");
 /* harmony import */ var _css_golden_layout_less__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../css/golden-layout.less */ "./src/css/golden-layout.less");
 /* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./app */ "./src/ts/app.ts");
+/* harmony import */ var _setup__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./setup */ "./src/ts/setup.ts");
 // Importing HTML components
 
 
@@ -13491,6 +13537,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // Importing app
 
+
 if (document.readyState !== 'loading')
     run();
 else
@@ -13498,8 +13545,7 @@ else
         run();
     }, { passive: true });
 function run() {
-    // eslint-disable-next-line no-new
-    new _app__WEBPACK_IMPORTED_MODULE_10__.App();
+    new _app__WEBPACK_IMPORTED_MODULE_10__.App(); // eslint-disable-line no-new
 }
 
 })();

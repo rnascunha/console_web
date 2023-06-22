@@ -2,6 +2,32 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./node_modules/css-loader/dist/cjs.js!./src/css/window.css":
+/*!******************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./src/css/window.css ***!
+  \******************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../node_modules/css-loader/dist/runtime/sourceMaps.js */ "./node_modules/css-loader/dist/runtime/sourceMaps.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+// Imports
+
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, "\n.window {\n  background-color: white;\n  margin: 0px;\n  padding: 0px;\n  box-shadow: 3px 2px 2px black;\n  border: 1px black solid;\n  border-radius: 5px;\n}\n\n.window-header {\n  background-color: blue;\n  font-weight: bold;\n  width: 100%;\n  text-align: center;\n  padding: 3px 0px;\n  border-top-left-radius: 4px;\n}\n\n.window-body {\n  border-bottom-right-radius: 4px;\n}", "",{"version":3,"sources":["webpack://./src/css/window.css"],"names":[],"mappings":";AACA;EACE,uBAAuB;EACvB,WAAW;EACX,YAAY;EACZ,6BAA6B;EAC7B,uBAAuB;EACvB,kBAAkB;AACpB;;AAEA;EACE,sBAAsB;EACtB,iBAAiB;EACjB,WAAW;EACX,kBAAkB;EAClB,gBAAgB;EAChB,2BAA2B;AAC7B;;AAEA;EACE,+BAA+B;AACjC","sourcesContent":["\n.window {\n  background-color: white;\n  margin: 0px;\n  padding: 0px;\n  box-shadow: 3px 2px 2px black;\n  border: 1px black solid;\n  border-radius: 5px;\n}\n\n.window-header {\n  background-color: blue;\n  font-weight: bold;\n  width: 100%;\n  text-align: center;\n  padding: 3px 0px;\n  border-top-left-radius: 4px;\n}\n\n.window-body {\n  border-bottom-right-radius: 4px;\n}"],"sourceRoot":""}]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/dist/cjs.js!./src/tools/input/input.css":
 /*!*************************************************************************!*\
   !*** ./node_modules/css-loader/dist/cjs.js!./src/tools/input/input.css ***!
@@ -21,7 +47,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\n#input-binary {\n  /* display: inline-block; */\n  width: 50%;\n}\n", "",{"version":3,"sources":["webpack://./src/tools/input/input.css"],"names":[],"mappings":"AAAA;;EAEE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,2BAA2B;EAC3B,UAAU;AACZ","sourcesContent":["html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\n#input-binary {\n  /* display: inline-block; */\n  width: 50%;\n}\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\n#header {\n  display: flex;\n  width: 100%;\n  align-items: center;\n  justify-content: space-between;\n}\n\n#options {\n  width: fit-content;\n}\n\n#share {\n  font-size: xx-large;\n  cursor: pointer;\n}\n\n#share:hover {\n  background-color: black;\n  color: white;\n}\n\n.link {\n  cursor: text;\n  width: 500px;\n}\n\n.copy {\n  padding: 2px;\n  cursor: pointer;\n}\n\n.copy:hover {\n  background-color: black;\n  color: white;\n}\n\n#input-binary {\n  width: 50%;\n}\n", "",{"version":3,"sources":["webpack://./src/tools/input/input.css"],"names":[],"mappings":"AAAA;;EAEE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb,WAAW;EACX,mBAAmB;EACnB,8BAA8B;AAChC;;AAEA;EACE,kBAAkB;AACpB;;AAEA;EACE,mBAAmB;EACnB,eAAe;AACjB;;AAEA;EACE,uBAAuB;EACvB,YAAY;AACd;;AAEA;EACE,YAAY;EACZ,YAAY;AACd;;AAEA;EACE,YAAY;EACZ,eAAe;AACjB;;AAEA;EACE,uBAAuB;EACvB,YAAY;AACd;;AAEA;EACE,UAAU;AACZ","sourcesContent":["html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\n#header {\n  display: flex;\n  width: 100%;\n  align-items: center;\n  justify-content: space-between;\n}\n\n#options {\n  width: fit-content;\n}\n\n#share {\n  font-size: xx-large;\n  cursor: pointer;\n}\n\n#share:hover {\n  background-color: black;\n  color: white;\n}\n\n.link {\n  cursor: text;\n  width: 500px;\n}\n\n.copy {\n  padding: 2px;\n  cursor: pointer;\n}\n\n.copy:hover {\n  background-color: black;\n  color: white;\n}\n\n#input-binary {\n  width: 50%;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -414,6 +440,60 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
+/***/ "./src/css/window.css":
+/*!****************************!*\
+  !*** ./src/css/window.css ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/styleDomAPI.js */ "./node_modules/style-loader/dist/runtime/styleDomAPI.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/insertBySelector.js */ "./node_modules/style-loader/dist/runtime/insertBySelector.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js */ "./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/insertStyleElement.js */ "./node_modules/style-loader/dist/runtime/insertStyleElement.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/styleTagTransform.js */ "./node_modules/style-loader/dist/runtime/styleTagTransform.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_window_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! !!../../node_modules/css-loader/dist/cjs.js!./window.css */ "./node_modules/css-loader/dist/cjs.js!./src/css/window.css");
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var options = {};
+
+options.styleTagTransform = (_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default());
+options.setAttributes = (_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default());
+
+      options.insert = _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default().bind(null, "head");
+    
+options.domAPI = (_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default());
+options.insertStyleElement = (_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default());
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_window_css__WEBPACK_IMPORTED_MODULE_6__["default"], options);
+
+
+
+
+       /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_window_css__WEBPACK_IMPORTED_MODULE_6__["default"] && _node_modules_css_loader_dist_cjs_js_window_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals ? _node_modules_css_loader_dist_cjs_js_window_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals : undefined);
+
+
+/***/ }),
+
 /***/ "./src/tools/input/input.css":
 /*!***********************************!*\
   !*** ./src/tools/input/input.css ***!
@@ -464,6 +544,178 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 
        /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_input_css__WEBPACK_IMPORTED_MODULE_6__["default"] && _node_modules_css_loader_dist_cjs_js_input_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals ? _node_modules_css_loader_dist_cjs_js_input_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals : undefined);
+
+
+/***/ }),
+
+/***/ "./src/tools/input/db.ts":
+/*!*******************************!*\
+  !*** ./src/tools/input/db.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   open_db: () => (/* binding */ open_db),
+/* harmony export */   read_db: () => (/* binding */ read_db),
+/* harmony export */   write_db: () => (/* binding */ write_db)
+/* harmony export */ });
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+const dbName = 'input-binary';
+const dbVersion = 1;
+const objectStoreName = 'binary-data';
+function open_db() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield new Promise(function (resolve, reject) {
+            const openRequest = window.indexedDB.open(dbName, dbVersion);
+            openRequest.onerror = ev => {
+                reject(ev);
+            };
+            openRequest.onsuccess = ev => {
+                resolve(ev.target.result);
+            };
+            openRequest.onupgradeneeded = ev => {
+                const db = ev.target.result;
+                const store = db.createObjectStore(objectStoreName);
+                store.transaction.oncomplete = () => {
+                    console.log('Object store create');
+                };
+            };
+        });
+    });
+}
+function read_db(db) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield new Promise(function (resolve, reject) {
+            const request = db
+                .transaction(objectStoreName, 'readonly')
+                .objectStore(objectStoreName)
+                .get('data');
+            request.onsuccess = ev => {
+                resolve(ev.target.result);
+            };
+            request.onerror = ev => {
+                reject(ev);
+            };
+        });
+    });
+}
+function write_db(db, data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield new Promise(function (resolve, reject) {
+            const request = db
+                .transaction(objectStoreName, 'readwrite')
+                .objectStore(objectStoreName)
+                .put(data, 'data');
+            request.onsuccess = () => {
+                resolve();
+            };
+            request.onerror = ev => {
+                reject(ev);
+            };
+        });
+    });
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/libs/base64.ts":
+/*!*******************************!*\
+  !*** ./src/ts/libs/base64.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   base64_decode: () => (/* binding */ base64_decode),
+/* harmony export */   base64_encode: () => (/* binding */ base64_encode)
+/* harmony export */ });
+/**
+ * @see https://developer.mozilla.org/en-US/docs/Glossary/Base64
+ */
+// Array of bytes to Base64 string decoding
+function b64_to_uint6(nChr) {
+    return nChr > 64 && nChr < 91
+        ? nChr - 65
+        : nChr > 96 && nChr < 123
+            ? nChr - 71
+            : nChr > 47 && nChr < 58
+                ? nChr + 4
+                : nChr === 43
+                    ? 62
+                    : nChr === 47
+                        ? 63
+                        : 0;
+}
+function base64_decode(sBase64, nBlocksSize = 0) {
+    const sB64Enc = sBase64.replace(/[^A-Za-z0-9+/]/g, ''); // Remove any non-base64 characters, such as trailing "=", whitespace, and more.
+    const nInLen = sB64Enc.length;
+    const nOutLen = nBlocksSize !== 0
+        ? Math.ceil(((nInLen * 3 + 1) >> 2) / nBlocksSize) * nBlocksSize
+        : (nInLen * 3 + 1) >> 2;
+    const taBytes = new Uint8Array(nOutLen);
+    let nMod3;
+    let nMod4;
+    let nUint24 = 0;
+    let nOutIdx = 0;
+    for (let nInIdx = 0; nInIdx < nInLen; nInIdx++) {
+        nMod4 = nInIdx & 3;
+        nUint24 |= b64_to_uint6(sB64Enc.charCodeAt(nInIdx)) << (6 * (3 - nMod4));
+        if (nMod4 === 3 || nInLen - nInIdx === 1) {
+            nMod3 = 0;
+            while (nMod3 < 3 && nOutIdx < nOutLen) {
+                taBytes[nOutIdx] = (nUint24 >>> ((16 >>> nMod3) & 24)) & 255;
+                nMod3++;
+                nOutIdx++;
+            }
+            nUint24 = 0;
+        }
+    }
+    return taBytes;
+}
+/* Base64 string to array encoding */
+function uint6_to_b64(nUint6) {
+    return nUint6 < 26
+        ? nUint6 + 65
+        : nUint6 < 52
+            ? nUint6 + 71
+            : nUint6 < 62
+                ? nUint6 - 4
+                : nUint6 === 62
+                    ? 43
+                    : nUint6 === 63
+                        ? 47
+                        : 65;
+}
+function base64_encode(aBytes) {
+    let nMod3 = 2;
+    let sB64Enc = '';
+    const nLen = aBytes.length;
+    let nUint24 = 0;
+    for (let nIdx = 0; nIdx < nLen; nIdx++) {
+        nMod3 = nIdx % 3;
+        // To break your base64 into several 80-character lines, add:
+        //   if (nIdx > 0 && ((nIdx * 4) / 3) % 76 === 0) {
+        //      sB64Enc += "\r\n";
+        //    }
+        nUint24 |= aBytes[nIdx] << ((16 >>> nMod3) & 24);
+        if (nMod3 === 2 || aBytes.length - nIdx === 1) {
+            sB64Enc += String.fromCodePoint(uint6_to_b64((nUint24 >>> 18) & 63), uint6_to_b64((nUint24 >>> 12) & 63), uint6_to_b64((nUint24 >>> 6) & 63), uint6_to_b64(nUint24 & 63));
+            nUint24 = 0;
+        }
+    }
+    return (sB64Enc.substring(0, sB64Enc.length - 2 + nMod3) +
+        (nMod3 === 2 ? '' : nMod3 === 1 ? '=' : '=='));
+}
 
 
 /***/ }),
@@ -1080,6 +1332,12 @@ class BinaryInput extends HTMLElement {
     get data() {
         return (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.to_data)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.split)(this.value, this._encode), this._encode);
     }
+    set data(d) {
+        this._input.value = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.format)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.to_array_string)(d, this._encode), this._encode, {
+            separator: ' ',
+            pad: '0',
+        });
+    }
     set encode(enc) {
         (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.check_encoding)(enc);
         if (enc === this._encode)
@@ -1296,9 +1554,17 @@ var __webpack_exports__ = {};
   \**********************************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _input_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./input.css */ "./src/tools/input/input.css");
-/* harmony import */ var _ts_web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../ts/web-components/binary-dump/binary-dump */ "./src/ts/web-components/binary-dump/binary-dump.ts");
-/* harmony import */ var _ts_web_components_binary_input_text_binary__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../ts/web-components/binary-input/text-binary */ "./src/ts/web-components/binary-input/text-binary.ts");
-/* harmony import */ var _ts_web_components_binary_input_text_select_binary__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../ts/web-components/binary-input/text-select-binary */ "./src/ts/web-components/binary-input/text-select-binary.ts");
+/* harmony import */ var _css_window_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../css/window.css */ "./src/css/window.css");
+/* harmony import */ var _ts_web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../ts/web-components/binary-dump/binary-dump */ "./src/ts/web-components/binary-dump/binary-dump.ts");
+/* harmony import */ var _ts_web_components_binary_input_text_binary__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../ts/web-components/binary-input/text-binary */ "./src/ts/web-components/binary-input/text-binary.ts");
+/* harmony import */ var _ts_web_components_binary_input_text_select_binary__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../ts/web-components/binary-input/text-select-binary */ "./src/ts/web-components/binary-input/text-select-binary.ts");
+/* harmony import */ var _ts_libs_binary_dump__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../ts/libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
+/* harmony import */ var _ts_libs_base64__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../ts/libs/base64 */ "./src/ts/libs/base64.ts");
+/* harmony import */ var _db__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./db */ "./src/tools/input/db.ts");
+
+
+
+
 
 
 
@@ -1307,36 +1573,138 @@ const bl = document.querySelector('#breakline');
 const bd = document.querySelector('#data-dump');
 const input_binary = document.querySelector('#input-binary');
 input_binary.encode = 'text';
-const input_select = document.querySelector('#data-input-select');
-bl.onchange = () => update();
-input_binary.onkeyup = () => update();
-document.querySelectorAll('input[name=encode]').forEach(v => {
-    const i = v;
-    i.onclick = () => {
-        input_binary.encode = i.value;
-        update();
-    };
+let db;
+(0,_db__WEBPACK_IMPORTED_MODULE_7__.open_db)()
+    .then(mdb => {
+    db = mdb;
+    read().then(() => {
+        init();
+    });
+})
+    .catch(err => {
+    console.log('error', err);
 });
+function init() {
+    var _a;
+    read_link();
+    bl.onchange = () => update();
+    input_binary.onkeyup = () => update();
+    document.querySelectorAll('input[name=encode]').forEach(v => {
+        const i = v;
+        i.onclick = () => {
+            input_binary.encode = i.value;
+            update();
+        };
+    });
+    document.querySelectorAll('input[name=binary-hide]').forEach(v => {
+        const i = v;
+        i.onclick = () => {
+            if (i.checked)
+                bd.hide(i.value);
+            else
+                bd.show(i.value);
+        };
+        if (bd.is_hidden(i.value))
+            i.checked = true;
+    });
+    (_a = document.querySelector('#share')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+        navigator.clipboard.writeText(make_link());
+    });
+}
 function update() {
     bd.update(input_binary.data, +bl.value);
+    write();
 }
-document.querySelectorAll('input[name=binary-hide]').forEach(v => {
-    const i = v;
-    i.onclick = () => {
-        if (i.checked)
-            bd.hide(i.value);
-        else
-            bd.show(i.value);
-    };
-    if (bd.is_hidden(i.value))
-        i.checked = true;
-});
-const dump2 = document.querySelector('#data-dump-select');
-input_select.onkeyup = () => update2();
-input_select.onchange = () => update2();
-function update2() {
-    dump2.update(input_select.data, +bl.value);
+function make_link() {
+    let link = `${window.location.origin}${window.location.pathname}?encode=${input_binary.encode}&bl=${+bl.value}`;
+    const hide = [];
+    _ts_libs_binary_dump__WEBPACK_IMPORTED_MODULE_5__.encoding.forEach(e => {
+        if (bd.is_hidden(e))
+            hide.push(e);
+    });
+    if (hide.length > 0)
+        link += `&hide=${hide.join(',')}`;
+    const data = input_binary.data;
+    if (data.length > 0)
+        link += `&data=${(0,_ts_libs_base64__WEBPACK_IMPORTED_MODULE_6__.base64_encode)(data)}`;
+    return link;
 }
+function read_link() {
+    const url = new URL(window.location.href);
+    url.searchParams.forEach((value, key) => {
+        switch (key) {
+            case 'bl':
+                bl.value = value;
+                break;
+            case 'data':
+                input_binary.data = (0,_ts_libs_base64__WEBPACK_IMPORTED_MODULE_6__.base64_decode)(value);
+                break;
+            case 'hide':
+                bd.hide(...value.split(','));
+                set_hide();
+                break;
+            case 'encode':
+                input_binary.encode = value;
+                break;
+        }
+    });
+    set_encode();
+    update();
+}
+function write() {
+    if (db === undefined)
+        return Promise.resolve();
+    return (0,_db__WEBPACK_IMPORTED_MODULE_7__.write_db)(db, {
+        breakline: +bl.value,
+        data: input_binary.data,
+        hide: _ts_libs_binary_dump__WEBPACK_IMPORTED_MODULE_5__.encoding.reduce((acc, v) => {
+            if (bd.is_hidden(v))
+                acc.push(v);
+            return acc;
+        }, []),
+        encode: input_binary.encode,
+    });
+}
+function read() {
+    if (db === undefined)
+        return Promise.resolve();
+    return (0,_db__WEBPACK_IMPORTED_MODULE_7__.read_db)(db).then(data => {
+        if (data === undefined)
+            return;
+        bl.value = data.breakline.toString();
+        input_binary.encode = data.encode;
+        bd.hide(...data.hide);
+        input_binary.data = data.data;
+        set_hide();
+        set_encode();
+        update();
+    });
+}
+function set_hide() {
+    document.querySelectorAll('input[name=binary-hide]').forEach(v => {
+        const i = v;
+        i.checked = bd.is_hidden(i.value);
+    });
+}
+function set_encode() {
+    document.querySelectorAll('input[name=encode]').forEach(v => {
+        const i = v;
+        i.checked = i.value === input_binary.encode;
+    });
+}
+/**
+ *
+ */
+// import { BinaryInputSelect } from '../../ts/web-components/binary-input/text-select-binary';
+// const input_select = document.querySelector(
+//   '#data-input-select'
+// ) as BinaryInputSelect;
+// const dump2 = document.querySelector('#data-dump-select') as BinaryDump;
+// input_select.onkeyup = () => update2();
+// input_select.onchange = () => update2();
+// function update2() {
+//   dump2.update(input_select.data, +bl.value);
+// }
 
 })();
 
