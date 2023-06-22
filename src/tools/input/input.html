@@ -7,16 +7,19 @@
     <title>Binary Dump</title>
   </head>
   <body>
-    <h1>Binary Dump</h1>
+    <div id="header">
+      <h1 id="title">Binary Dump</h1>
+      <div id="options">
+        <span id="share">&#x279A;</span>
+      </div>
+    </div>
     <div>
       <text-binary id="input-binary" placeholder="Data"></text-binary>
       <label><input type="radio" name="encode" value="binary" />Binary</label>
       <label><input type="radio" name="encode" value="octal" />Octal</label>
       <label><input type="radio" name="encode" value="decimal" />Decimal</label>
       <label><input type="radio" name="encode" value="hexa" />Hexa</label>
-      <label
-        ><input type="radio" name="encode" value="text" checked />Text</label
-      >
+      <label><input type="radio" name="encode" value="text" />Text</label>
     </div>
     <div>
       <b>Hide:</b>
@@ -51,13 +54,13 @@
     <div style="overflow: auto">
       <binary-dump id="data-dump"></binary-dump>
     </div>
-    <text-select-binary
+    <!-- <text-select-binary
       id="data-input-select"
       selected="text"
       placeholder="Data"
     ></text-select-binary>
     <div style="overflow: auto">
       <binary-dump id="data-dump-select"></binary-dump>
-    </div>
+    </div> -->
   </body>
 </html>

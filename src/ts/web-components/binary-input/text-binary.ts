@@ -6,6 +6,7 @@ import {
   convert,
   to_data,
   check_encoding,
+  to_array_string,
 } from '../../libs/binary-dump';
 
 const template = (function () {
@@ -113,6 +114,13 @@ export class BinaryInput extends HTMLElement {
 
   get data(): Uint8Array {
     return to_data(split(this.value, this._encode), this._encode);
+  }
+
+  set data(d: Uint8Array) {
+    this._input.value = format(to_array_string(d, this._encode), this._encode, {
+      separator: ' ',
+      pad: '0',
+    });
   }
 
   set encode(enc: Encoding) {

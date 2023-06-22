@@ -16,8 +16,10 @@ import '../css/golden-layout.less';
 
 // Importing app
 import { App } from './app';
+import './setup';
 
 declare global {
+  const __COMMIT_HASH__: string; // eslint-disable-line
   interface Window {
     console_app: App;
   }
@@ -34,6 +36,5 @@ else
   );
 
 function run(): void {
-  // eslint-disable-next-line no-new
-  new App();
+  new App(); // eslint-disable-line no-new
 }

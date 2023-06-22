@@ -1,6 +1,10 @@
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+let commit_hash = require('child_process')
+  .execSync('git rev-parse --short HEAD')
+  .toString()
+  .trim();
 
 module.exports = {
   entry: {
@@ -69,6 +73,9 @@ module.exports = {
       chunks: ['input'],
       filename: 'input.html',
       template: path.resolve(__dirname, './src/tools/input/input.html'),
+    }),
+    new webpack.DefinePlugin({
+      __COMMIT_HASH__: JSON.stringify(commit_hash),
     }),
   ],
 };

@@ -94,6 +94,16 @@ export class DraggablePopup extends HTMLElement {
     this.style.left = `${left}px`;
   }
 
+  public hide_undock(): void {
+    (this.shadowRoot?.querySelector('#undock') as HTMLElement).style.display =
+      'none';
+  }
+
+  public show_undock(): void {
+    (this.shadowRoot?.querySelector('#undock') as HTMLElement).style.display =
+      'inline-block';
+  }
+
   private drag_down(ev: MouseEvent): void {
     // ev = ev ?? window.event;
     ev.preventDefault();

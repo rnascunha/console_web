@@ -7,7 +7,42 @@ body {
   overflow: hidden;
 }
 
+#header {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#options {
+  width: fit-content;
+}
+
+#share {
+  font-size: xx-large;
+  cursor: pointer;
+}
+
+#share:hover {
+  background-color: black;
+  color: white;
+}
+
+.link {
+  cursor: text;
+  width: 500px;
+}
+
+.copy {
+  padding: 2px;
+  cursor: pointer;
+}
+
+.copy:hover {
+  background-color: black;
+  color: white;
+}
+
 #input-binary {
-  /* display: inline-block; */
   width: 50%;
 }

@@ -45,6 +45,8 @@ const components: Record<string, Component> = {
   },
 };
 
+const onlySecureConnectionsProtocols: string[] = ['wss', 'https', 'serial'];
+
 interface OtherComponent {
   name: string;
   component: any;
@@ -77,7 +79,11 @@ const protocols: Record<string, Protocol> = (function () {
   const protocols: Record<string, Protocol> = {};
   Object.values(components).forEach(comp => {
     comp.protocols.forEach(proto => {
-      protocols[proto] = { protocol: proto, component: comp.component };
+      if (
+        window.location.protocol === 'http:' ||
+        onlySecureConnectionsProtocols.includes(window.location.protocol)
+      )
+        protocols[proto] = { protocol: proto, component: comp.component };
     });
   });
   return protocols;
@@ -142,7 +148,7 @@ export class App {
 
     Object.values(proto).forEach((v: Protocol) =>
       this._sel_protocols.appendChild(
-        new Option(v.protocol, v.protocol, undefined, v.protocol === 'http')
+        new Option(v.protocol, v.protocol, undefined, v.protocol === 'serial')
       )
     );
 

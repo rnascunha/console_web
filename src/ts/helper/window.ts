@@ -1,8 +1,15 @@
 import { DraggablePopup } from '../web-components/draggable-popup/draggable-popup';
 
+interface WindowOptions {
+  hide_undock?: boolean;
+  append?: boolean;
+  center?: boolean;
+}
+
 export function create_window(
   title: string,
-  body: HTMLElement
+  body: HTMLElement,
+  options: WindowOptions = {}
 ): DraggablePopup {
   const dp = new DraggablePopup();
   dp.classList.add('window');
@@ -16,6 +23,15 @@ export function create_window(
 
   body.classList.add('window-body');
   dp.appendChild(body);
+
+  if (options?.hide_undock === true) {
+    dp.hide_undock();
+  }
+
+  if (options?.append === true) {
+    document.body.appendChild(dp);
+    if (options?.center === true) dp.center();
+  }
 
   return dp;
 }

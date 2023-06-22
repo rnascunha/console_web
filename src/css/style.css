@@ -1,4 +1,5 @@
-html, body{
+html,
+body {
   height: 100%;
   width: 100%;
   margin: 0;
@@ -8,10 +9,10 @@ html, body{
 
 body {
   display: grid;
-  grid-template: 
-    "header" min-content
-    "body" auto
-    "footer" 2px
+  grid-template:
+    'header' min-content
+    'body' auto
+    'footer' 2px;
 }
 
 #header {
@@ -22,8 +23,21 @@ body {
 #title {
   margin: 0px;
   flex-grow: 1;
-  order: 2;
   text-align: center;
+}
+
+#setup {
+  cursor: pointer;
+}
+
+#setup:hover {
+  background-color: black;
+  color: white;
+}
+
+.setup-body {
+  padding: 5px;
+  background-color: lightgrey;
 }
 
 #error {
@@ -37,7 +51,7 @@ body {
   display: none;
 }
 
-.btn-pressed{
+.btn-pressed {
   border-style: inset;
   background-color: darkgray;
 }
@@ -62,4 +76,3 @@ body {
   padding: 0px;
   margin: 0px;
 }
-

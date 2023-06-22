@@ -74,12 +74,6 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
     }
   }
 
-  // public async write(data: string): Promise<void> {
-  //   const writer = this._output_stream?.getWriter();
-  //   await writer?.write(new TextEncoder().encode(data));
-  //   writer?.releaseLock();
-  // }
-
   public async write(data: Uint8Array): Promise<void> {
     const writer = this._output_stream?.getWriter();
     await writer?.write(data);
@@ -128,10 +122,8 @@ export class SerialList extends EventEmitter<SerialListEvents> {
 
     navigator.serial.ondisconnect = ev => {
       const port = this._ports.find(p => p.port === ev.target);
-      if (port !== undefined) {
-        port.emit('disconnect', undefined);
+      if (port !== undefined)
         this._ports = this._ports.filter(p => p.port !== ev.target);
-      }
       this.emit('disconnect', this._ports);
     };
 
