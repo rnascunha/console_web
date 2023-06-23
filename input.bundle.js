@@ -1603,6 +1603,7 @@ function init() {
                 bd.hide(i.value);
             else
                 bd.show(i.value);
+            write();
         };
         if (bd.is_hidden(i.value))
             i.checked = true;

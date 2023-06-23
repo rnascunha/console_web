@@ -10623,7 +10623,7 @@ const protocols = (function () {
     Object.values(components).forEach(comp => {
         comp.protocols.forEach(proto => {
             if (window.location.protocol === 'http:' ||
-                onlySecureConnectionsProtocols.includes(window.location.protocol))
+                onlySecureConnectionsProtocols.includes(proto))
                 protocols[proto] = { protocol: proto, component: comp.component };
         });
     });
@@ -12492,7 +12492,7 @@ var _a;
 
 (_a = document.querySelector('#setup')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
     const body = document.createElement('div');
-    body.innerHTML = `Version: <b>${"69f51a0"}</b>`;
+    body.innerHTML = `Version: <b>${"4550d67"}</b>`;
     body.classList.add('setup-body');
     (0,_helper_window__WEBPACK_IMPORTED_MODULE_0__.create_window)('Setup', body, {
         hide_undock: true,
