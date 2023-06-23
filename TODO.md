@@ -15,7 +15,8 @@
 - [x] Github Actions auto publish tool
 - [x] change project name (Console Web?)
 - [ ] Save output data to file. Make it loadable inside de application.
-- [ ] Document it :|
+- [ ] Add persistent data.
+- [ ] Document it :| (code and manual)
 
 ## Tools
 

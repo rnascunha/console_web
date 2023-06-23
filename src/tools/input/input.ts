@@ -9,6 +9,8 @@ import { BinaryDump } from '../../ts/web-components/binary-dump/binary-dump';
 import { BinaryInput } from '../../ts/web-components/binary-input/text-binary';
 import { encoding, type Encoding } from '../../ts/libs/binary-dump';
 import { base64_decode, base64_encode } from '../../ts/libs/base64';
+import { AlertMessage } from '../../ts/web-components/alert-message/alert-message';
+import { fade_out } from '../../ts/helper/fade';
 
 import { open_db, write_db, read_db } from './db';
 
@@ -55,6 +57,10 @@ function init() {
 
   document.querySelector('#share')?.addEventListener('click', () => {
     navigator.clipboard.writeText(make_link());
+
+    const el = new AlertMessage('Link copied');
+    document.body.appendChild(el);
+    fade_out(el).then(el => el.close());
   });
 }
 

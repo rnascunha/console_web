@@ -27,7 +27,8 @@ const template = (function () {
   template.innerHTML = `
     <div>
       <div>
-        <select class='sel-serial-conn serial-baudrate'></select>
+        <input type=number min=0 class='sel-serial-conn serial-baudrate' list=serial-baudrate-list>
+        <datalist id=serial-baudrate-list></datalist>
         <select class='sel-serial-conn serial-databits'></select>
         <select class='sel-serial-conn serial-flowcontrol'></select>
         <select class='sel-serial-conn serial-parity'></select>
@@ -63,7 +64,15 @@ const template = (function () {
       el?.appendChild(new Option(`${v}`, `${v}`, v === mdefault))
     );
   }
-  make_select('.serial-baudrate', serialBaudrate, serialDefaults.baudRate);
+
+  const list = template.content.querySelector('#serial-baudrate-list');
+  (
+    template.content.querySelector('.serial-baudrate') as HTMLInputElement
+  ).value = `${serialDefaults.baudRate}`;
+  serialBaudrate.forEach(bd => {
+    list?.appendChild(new Option(`${bd}`));
+  });
+
   make_select('.serial-databits', serialDataBits, serialDefaults.dataBits);
   make_select(
     '.serial-flowcontrol',

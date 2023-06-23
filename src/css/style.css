@@ -28,6 +28,8 @@ body {
 
 #setup {
   cursor: pointer;
+  font-size: x-large;
+  border-radius: 15px;
 }
 
 #setup:hover {
