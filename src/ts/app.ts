@@ -81,7 +81,7 @@ const protocols: Record<string, Protocol> = (function () {
     comp.protocols.forEach(proto => {
       if (
         window.location.protocol === 'http:' ||
-        onlySecureConnectionsProtocols.includes(window.location.protocol)
+        onlySecureConnectionsProtocols.includes(proto)
       )
         protocols[proto] = { protocol: proto, component: comp.component };
     });

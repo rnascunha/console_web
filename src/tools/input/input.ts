@@ -47,6 +47,7 @@ function init() {
     i.onclick = () => {
       if (i.checked) bd.hide(i.value as Encoding);
       else bd.show(i.value as Encoding);
+      write();
     };
 
     if (bd.is_hidden(i.value as Encoding)) i.checked = true;
