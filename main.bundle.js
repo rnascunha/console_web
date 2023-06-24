@@ -115,7 +115,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\nbody {\n  display: grid;\n  grid-template:\n    'header' min-content\n    'body' auto\n    'footer' 2px;\n}\n\n#header {\n  display: flex;\n  align-items: center;\n}\n\n#title {\n  margin: 0px;\n  flex-grow: 1;\n  text-align: center;\n}\n\n#setup {\n  cursor: pointer;\n}\n\n#setup:hover {\n  background-color: black;\n  color: white;\n}\n\n.setup-body {\n  padding: 5px;\n  background-color: lightgrey;\n}\n\n#error {\n  background-color: red;\n  color: white;\n  padding: 2px;\n  border-radius: 2px;\n}\n\n#error:empty {\n  display: none;\n}\n\n.btn-pressed {\n  border-style: inset;\n  background-color: darkgray;\n}\n\n.btn-not-pressed {\n  border-style: outset;\n}\n\n/**\n *\n */\n#golden {\n  overflow: hidden;\n  height: 100%;\n}\n\n.golden-content {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  overflow: hidden;\n  padding: 0px;\n  margin: 0px;\n}\n", "",{"version":3,"sources":["webpack://./src/css/style.css"],"names":[],"mappings":"AAAA;;EAEE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb;;;gBAGc;AAChB;;AAEA;EACE,aAAa;EACb,mBAAmB;AACrB;;AAEA;EACE,WAAW;EACX,YAAY;EACZ,kBAAkB;AACpB;;AAEA;EACE,eAAe;AACjB;;AAEA;EACE,uBAAuB;EACvB,YAAY;AACd;;AAEA;EACE,YAAY;EACZ,2BAA2B;AAC7B;;AAEA;EACE,qBAAqB;EACrB,YAAY;EACZ,YAAY;EACZ,kBAAkB;AACpB;;AAEA;EACE,aAAa;AACf;;AAEA;EACE,mBAAmB;EACnB,0BAA0B;AAC5B;;AAEA;EACE,oBAAoB;AACtB;;AAEA;;EAEE;AACF;EACE,gBAAgB;EAChB,YAAY;AACd;;AAEA;EACE,aAAa;EACb,sBAAsB;EACtB,YAAY;EACZ,gBAAgB;EAChB,YAAY;EACZ,WAAW;AACb","sourcesContent":["html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\nbody {\n  display: grid;\n  grid-template:\n    'header' min-content\n    'body' auto\n    'footer' 2px;\n}\n\n#header {\n  display: flex;\n  align-items: center;\n}\n\n#title {\n  margin: 0px;\n  flex-grow: 1;\n  text-align: center;\n}\n\n#setup {\n  cursor: pointer;\n}\n\n#setup:hover {\n  background-color: black;\n  color: white;\n}\n\n.setup-body {\n  padding: 5px;\n  background-color: lightgrey;\n}\n\n#error {\n  background-color: red;\n  color: white;\n  padding: 2px;\n  border-radius: 2px;\n}\n\n#error:empty {\n  display: none;\n}\n\n.btn-pressed {\n  border-style: inset;\n  background-color: darkgray;\n}\n\n.btn-not-pressed {\n  border-style: outset;\n}\n\n/**\n *\n */\n#golden {\n  overflow: hidden;\n  height: 100%;\n}\n\n.golden-content {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  overflow: hidden;\n  padding: 0px;\n  margin: 0px;\n}\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\nbody {\n  display: grid;\n  grid-template:\n    'header' min-content\n    'body' auto\n    'footer' 2px;\n}\n\n#header {\n  display: flex;\n  align-items: center;\n}\n\n#title {\n  margin: 0px;\n  flex-grow: 1;\n  text-align: center;\n}\n\n#setup {\n  cursor: pointer;\n  font-size: x-large;\n  border-radius: 15px;\n}\n\n#setup:hover {\n  background-color: black;\n  color: white;\n}\n\n.setup-body {\n  padding: 5px;\n  background-color: lightgrey;\n}\n\n#error {\n  background-color: red;\n  color: white;\n  padding: 2px;\n  border-radius: 2px;\n}\n\n#error:empty {\n  display: none;\n}\n\n.btn-pressed {\n  border-style: inset;\n  background-color: darkgray;\n}\n\n.btn-not-pressed {\n  border-style: outset;\n}\n\n/**\n *\n */\n#golden {\n  overflow: hidden;\n  height: 100%;\n}\n\n.golden-content {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  overflow: hidden;\n  padding: 0px;\n  margin: 0px;\n}\n", "",{"version":3,"sources":["webpack://./src/css/style.css"],"names":[],"mappings":"AAAA;;EAEE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb;;;gBAGc;AAChB;;AAEA;EACE,aAAa;EACb,mBAAmB;AACrB;;AAEA;EACE,WAAW;EACX,YAAY;EACZ,kBAAkB;AACpB;;AAEA;EACE,eAAe;EACf,kBAAkB;EAClB,mBAAmB;AACrB;;AAEA;EACE,uBAAuB;EACvB,YAAY;AACd;;AAEA;EACE,YAAY;EACZ,2BAA2B;AAC7B;;AAEA;EACE,qBAAqB;EACrB,YAAY;EACZ,YAAY;EACZ,kBAAkB;AACpB;;AAEA;EACE,aAAa;AACf;;AAEA;EACE,mBAAmB;EACnB,0BAA0B;AAC5B;;AAEA;EACE,oBAAoB;AACtB;;AAEA;;EAEE;AACF;EACE,gBAAgB;EAChB,YAAY;AACd;;AAEA;EACE,aAAa;EACb,sBAAsB;EACtB,YAAY;EACZ,gBAAgB;EAChB,YAAY;EACZ,WAAW;AACb","sourcesContent":["html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\nbody {\n  display: grid;\n  grid-template:\n    'header' min-content\n    'body' auto\n    'footer' 2px;\n}\n\n#header {\n  display: flex;\n  align-items: center;\n}\n\n#title {\n  margin: 0px;\n  flex-grow: 1;\n  text-align: center;\n}\n\n#setup {\n  cursor: pointer;\n  font-size: x-large;\n  border-radius: 15px;\n}\n\n#setup:hover {\n  background-color: black;\n  color: white;\n}\n\n.setup-body {\n  padding: 5px;\n  background-color: lightgrey;\n}\n\n#error {\n  background-color: red;\n  color: white;\n  padding: 2px;\n  border-radius: 2px;\n}\n\n#error:empty {\n  display: none;\n}\n\n.btn-pressed {\n  border-style: inset;\n  background-color: darkgray;\n}\n\n.btn-not-pressed {\n  border-style: outset;\n}\n\n/**\n *\n */\n#golden {\n  overflow: hidden;\n  height: 100%;\n}\n\n.golden-content {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  overflow: hidden;\n  padding: 0px;\n  margin: 0px;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -10554,295 +10554,120 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 /***/ }),
 
-/***/ "./src/ts/app.ts":
-/*!***********************!*\
-  !*** ./src/ts/app.ts ***!
-  \***********************/
+/***/ "./src/ts/apps/app.ts":
+/*!****************************!*\
+  !*** ./src/ts/apps/app.ts ***!
+  \****************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   App: () => (/* binding */ App)
+/* harmony export */   App: () => (/* binding */ App),
+/* harmony export */   AppList: () => (/* binding */ AppList),
+/* harmony export */   SerialApp: () => (/* binding */ SerialApp),
+/* harmony export */   URLApp: () => (/* binding */ URLApp)
 /* harmony export */ });
-/* harmony import */ var _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./golden-components/component-base */ "./src/ts/golden-components/component-base.ts");
-/* harmony import */ var _golden_components_component_utility__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./golden-components/component-utility */ "./src/ts/golden-components/component-utility.ts");
-/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/utils/types.js");
-/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/golden-layout.js");
-/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/config/resolved-config.js");
-/* harmony import */ var _apps_http_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./apps/http/component */ "./src/ts/apps/http/component.ts");
-/* harmony import */ var _apps_websocket_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./apps/websocket/component */ "./src/ts/apps/websocket/component.ts");
-/* harmony import */ var _apps_serial_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./apps/serial/component */ "./src/ts/apps/serial/component.ts");
-/* harmony import */ var _apps_serial_serial__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./apps/serial/serial */ "./src/ts/apps/serial/serial.ts");
-/* harmony import */ var _apps_serial_functions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./apps/serial/functions */ "./src/ts/apps/serial/functions.ts");
+/* harmony import */ var _serial_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./serial/component */ "./src/ts/apps/serial/component.ts");
+/* harmony import */ var _serial_serial__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./serial/serial */ "./src/ts/apps/serial/serial.ts");
+/* harmony import */ var _serial_functions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./serial/functions */ "./src/ts/apps/serial/functions.ts");
 
 
 
-
-
-
-
-
-const components = {
-    WSComponent: {
-        name: 'WSComponent',
-        component: _apps_websocket_component__WEBPACK_IMPORTED_MODULE_3__.WSComponent,
-        protocols: ['ws', 'wss'],
-    },
-    HTTPComponent: {
-        name: 'HTTPComponent',
-        component: _apps_http_component__WEBPACK_IMPORTED_MODULE_2__.HTTPComponent,
-        protocols: ['http', 'https'],
-    },
-    SerialComponent: {
-        name: 'SerialComponent',
-        component: _apps_serial_component__WEBPACK_IMPORTED_MODULE_4__.SerialComponent,
-        protocols: ['serial'],
-    },
-};
-const onlySecureConnectionsProtocols = ['wss', 'https', 'serial'];
-const other_components = {
-    SerialConsoleComponent: {
-        name: 'SerialConsoleComponent',
-        component: _apps_serial_component__WEBPACK_IMPORTED_MODULE_4__.SerialConsoleComponent,
-    },
-    DockDumpComponent: {
-        name: 'DockDumpComponent',
-        component: _golden_components_component_utility__WEBPACK_IMPORTED_MODULE_1__.DockDumpComponent,
-    },
-};
-function get_component(name) {
-    if (name in components)
-        return components[name].component;
-    if (name in other_components)
-        return other_components[name].component;
-    return undefined;
-}
-const protocols = (function () {
-    const protocols = {};
-    Object.values(components).forEach(comp => {
-        comp.protocols.forEach(proto => {
-            if (window.location.protocol === 'http:' ||
-                onlySecureConnectionsProtocols.includes(proto))
-                protocols[proto] = { protocol: proto, component: comp.component };
-        });
-    });
-    return protocols;
-})();
-const console_layout = {
-    settings: {
-        responsiveMode: 'always',
-        // showPopoutIcon: false,
-        // tabOverlapAllowance: 25,
-        // reorderOnTabMenuClick: false,
-        // tabControlOffset: 5,
-        // popoutWholeStack: true,
-        // popInOnClose: true,
-    },
-    root: {
-        type: golden_layout__WEBPACK_IMPORTED_MODULE_7__.ItemType.row,
-        content: [],
-    },
-};
 class App {
-    constructor(container = document.body, proto = protocols) {
-        this._serial_list = new _apps_serial_serial__WEBPACK_IMPORTED_MODULE_5__.SerialList();
-        window.console_app = this;
-        this._layout = new golden_layout__WEBPACK_IMPORTED_MODULE_8__.GoldenLayout(container.querySelector('#golden'), this.bind_component.bind(this));
-        this._layout.resizeWithContainerAutomatically = true;
-        this._layout.beforeVirtualRectingEvent = count => {
-            console.log('before rect', count);
-        };
-        this.register_components();
-        this._sel_protocols = container.querySelector('#protocols');
-        this._btn_connect = container.querySelector('#connect');
-        this._in_url = container.querySelector('#url');
-        this._el_error = container.querySelector('#error');
-        this._serial_container = container.querySelector('#serial-container');
-        this._sel_serial = container.querySelector('#sel-serial-port');
-        Object.values(proto).forEach((v) => this._sel_protocols.appendChild(new Option(v.protocol, v.protocol, undefined, v.protocol === 'serial')));
-        this._btn_connect.onclick = () => {
-            this.open();
-        };
-        this._sel_protocols.onchange = () => {
-            if (this.protocol === 'serial') {
-                this._serial_container.style.display = 'inline-block';
-                this._in_url.style.display = 'none';
-            }
-            else {
-                this._serial_container.style.display = 'none';
-                this._in_url.style.display = 'inline-block';
-            }
-        };
-        this._sel_protocols.dispatchEvent(new Event('change'));
-        (0,_apps_serial_functions__WEBPACK_IMPORTED_MODULE_6__.install_serial_events)(this._serial_list, this._sel_serial);
-        container.querySelector('#serial-request').onclick =
-            () => {
-                this._serial_list.request();
-            };
-        if (this._layout.isSubWindow) {
-            container.style.gridTemplate = `"header" 0px
-                                      "body" auto
-                                      "footer" 0px`;
-            this._layout.checkAddDefaultPopinButton();
-        }
-        else
-            this._layout.loadLayout(console_layout);
-    }
-    bind_component(container, itemConfig) {
-        const comp_name = golden_layout__WEBPACK_IMPORTED_MODULE_9__.ResolvedComponentItemConfig.resolveComponentTypeName(itemConfig);
-        if (comp_name === undefined)
-            throw new Error('Component name not found');
-        const comp_type = get_component(comp_name);
-        if (comp_type === undefined)
-            throw new Error('Component not found');
-        const use_virtual = false;
-        const component = new comp_type(// eslint-disable-line
-        container, container.initialState, use_virtual);
-        if (use_virtual) {
-            //   const componentRootElement = component.0rootHtmlElement;
-            //   this._container.appendChild(componentRootElement);
-            container.virtualRectingRequiredEvent = (container, width, height) => {
-                this.handleContainerVirtualRectingRequiredEvent(container, width, height);
-            };
-            // container.virtualVisibilityChangeRequiredEvent =
-            //     (container, visible) => this.handleContainerVirtualVisibilityChangeRequiredEvent(container, visible);
-            // container.virtualZIndexChangeRequiredEvent =
-            //     (container, logicalZIndex, defaultZIndex) =>
-            //         this.handleContainerVirtualZIndexChangeRequiredEvent(container, logicalZIndex, defaultZIndex);
-        }
-        return {
-            component,
-            virtual: use_virtual,
-        };
-    }
-    // private handleContainerVirtualZIndexChangeRequiredEvent(container: ComponentContainer, logicalZIndex: LogicalZIndex, defaultZIndex: string) {
-    // const component = this._boundComponentMap.get(container);
-    // if (component === undefined) {
-    //     throw new Error('handleContainerVirtualZIndexChangeRequiredEvent: Component not found');
-    // }
-    // const componentRootElement = component.rootHtmlElement;
-    // if (componentRootElement === undefined) {
-    //     throw new Error('handleContainerVirtualZIndexChangeRequiredEvent: Component does not have a root HTML element');
-    // }
-    // componentRootElement.style.zIndex = defaultZIndex;
-    // container.element.style.zIndex = defaultZIndex;
-    // }
-    // private handleContainerVirtualVisibilityChangeRequiredEvent(container: ComponentContainer, visible: boolean) {
-    //   const component = this._boundComponentMap.get(container);
-    //   if (component === undefined) {
-    //       throw new Error('handleContainerVisibilityChangeRequiredEvent: Component not found');
-    //   }
-    //   const componentRootElement = component.rootHtmlElement;
-    //   if (componentRootElement === undefined) {
-    //       throw new Error('handleContainerVisibilityChangeRequiredEvent: Component does not have a root HTML element');
-    //   }
-    //   if (visible) {
-    //       componentRootElement.style.display = '';
-    //   } else {
-    //       componentRootElement.style.display = 'none';
-    //   }
-    // }
-    handleContainerVirtualRectingRequiredEvent(container, width, height) {
-        // console.log(width, height);
-        // const component = this._boundComponentMap.get(container);
-        // if (component === undefined) {
-        //     throw new Error('handleContainerVirtualRectingRequiredEvent: Component not found');
-        // }
-        // const rootElement = component.rootHtmlElement;
-        // if (rootElement === undefined) {
-        //     throw new Error('handleContainerVirtualRectingRequiredEvent: Component does not have a root HTML element');
-        // }
-        // const rootElement = container.element;
-        // const containerBoundingClientRect = container.element.getBoundingClientRect();
-        // const left = containerBoundingClientRect.left - this._goldenLayoutBoundingClientRect.left;
-        // rootElement.style.left = this.numberToPixels(left);
-        // const top = containerBoundingClientRect.top - this._goldenLayoutBoundingClientRect.top;
-        // rootElement.style.top = this.numberToPixels(top);
-        // rootElement.style.width = this.numberToPixels(500);
-        // rootElement.style.height = this.numberToPixels(20);
-        // this._container.style.width = this.numberToPixels(500);
-        // this._container.style.height = this.numberToPixels(50);
-    }
-    // private numberToPixels(value: number): string {
-    //   return value.toString(10) + 'px';
-    // }
-    // private unbind_component(container: ComponentContainer) {
-    // }
-    get serial_list() {
-        return this._serial_list;
-    }
-    get layout() {
-        return this._layout;
+    constructor(protocol, el, component) {
+        this._el = document.createElement('span');
+        this._proto = protocol;
+        this._el.appendChild(el);
+        this._component = component;
     }
     get protocol() {
-        return this._sel_protocols.value;
+        return this._proto;
+    }
+    get element() {
+        return this._el;
+    }
+    get component() {
+        return this._component;
+    }
+    update(value) { }
+}
+const serial_template = (function () {
+    const template = document.createElement('template');
+    template.innerHTML = `<span id="serial-container">
+    <select id="sel-serial-port"></select>
+    <button id="serial-request">&#128279;</button>
+  </span>`;
+    return template;
+})();
+const url_template = (function () {
+    const template = document.createElement('template');
+    template.innerHTML = `<input id="url" placeholder="url" />`;
+    return template;
+})();
+class SerialApp extends App {
+    constructor() {
+        super('serial', serial_template.content.cloneNode(true), _serial_component__WEBPACK_IMPORTED_MODULE_0__.SerialComponent);
+        this._serial_list = new _serial_serial__WEBPACK_IMPORTED_MODULE_1__.SerialList();
+        this._sel_serial = this.element.querySelector('#sel-serial-port');
+        this.element.querySelector('#serial-request').onclick = () => {
+            this._serial_list.request();
+        };
+        (0,_serial_functions__WEBPACK_IMPORTED_MODULE_2__.install_serial_events)(this._serial_list, this._sel_serial);
     }
     open() {
-        this.error();
-        if (this.protocol === 'serial')
-            this.open_serial();
-        else
-            this.open_url();
-    }
-    open_serial() {
-        var _a;
-        try {
-            const serial_id = +this._sel_serial.value;
-            if (serial_id === 0) {
-                this.error('No port avaiable');
-                return;
-            }
-            if (this.find_component(`serial://${serial_id}`, this._layout.rootItem) !==
-                undefined)
-                return;
-            this._layout.addComponent(protocols[this.protocol].component.name, serial_id, (_a = this._serial_list.port_by_id(serial_id)) === null || _a === void 0 ? void 0 : _a.name);
+        const serial_id = +this._sel_serial.value;
+        if (serial_id === 0) {
+            throw new Error('No port avaiable');
         }
-        catch (e) {
-            this.error(e);
-        }
+        return {
+            find: `serial://${serial_id}`,
+            protocol: this.protocol,
+            state: serial_id,
+        };
     }
-    open_url() {
+    get list() {
+        return this._serial_list;
+    }
+}
+class URLApp extends App {
+    constructor(protocol, component) {
+        super(protocol, url_template.content.cloneNode(true), component);
+        this._in_url = this.element.querySelector('#url');
+    }
+    open() {
         try {
             const url = `${this.protocol}://${this._in_url.value}`;
-            if (this.find_component(url, this._layout.rootItem) !== undefined)
-                return;
-            this._layout.addComponent(protocols[this.protocol].component.name, url, url);
+            return {
+                protocol: this.protocol,
+                find: url,
+                state: url,
+                title: url,
+            };
         }
         catch (e) {
-            this.error(e.message);
+            throw new Error(e.message);
         }
     }
-    error(message = '') {
-        this._el_error.textContent = message;
+    update(value) {
+        this._in_url.value = value.split('://')[1];
     }
-    find_component(url, item) {
-        let res;
-        item === null || item === void 0 ? void 0 : item.contentItems.some(comp => {
-            if (!comp.isComponent) {
-                res = this.find_component(url, comp);
-                if (res === undefined)
-                    return true;
-            }
-            const temp = comp.component;
-            if (!(temp instanceof _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__.AppComponent))
-                return false;
-            if (temp === null || temp === void 0 ? void 0 : temp.reused(url)) {
-                res = temp;
-                return true;
-            }
-            return false;
+}
+class AppList {
+    constructor(apps = []) {
+        this._list = {};
+        apps.forEach(app => {
+            this._list[app.protocol] = app;
         });
-        return res;
     }
-    register_components() {
-        // Registering components
-        Object.values(components).forEach(v => {
-            this._layout.registerComponentConstructor(v.name, v.component);
-        });
-        Object.values(other_components).forEach(v => {
-            this._layout.registerComponentConstructor(v.name, v.component);
-        });
+    get protocols() {
+        return Object.keys(this._list);
+    }
+    get apps() {
+        return Object.values(this._list);
+    }
+    protocol(name) {
+        return this._list[name];
     }
 }
 
@@ -11011,11 +10836,12 @@ __webpack_require__.r(__webpack_exports__);
 class SerialComponent extends _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__.AppComponent {
     constructor(container, state, virtual) {
         super(container, virtual);
-        const port = window.console_app.serial_list.port_by_id(state);
+        const port = window.console_app.list.protocol('serial').list.port_by_id(state);
         if (port === undefined)
             throw new Error(`Failed to find port [${state}]`);
         this._view = new _view__WEBPACK_IMPORTED_MODULE_1__.SerialView(port);
         this.rootHtmlElement.appendChild(this._view.container);
+        this.container.setTitle(`${this._view.port.name}`);
         this._view.on('disconnect', () => {
             this.container.setTitle(`${this._view.port.name} (disconnected)`);
         });
@@ -11068,7 +10894,7 @@ class SerialConsoleComponent extends _golden_components_component_base__WEBPACK_
          * (event open didn't work)
          */
         setTimeout(() => {
-            const port = window.console_app.serial_list.port_by_id(this._id);
+            const port = window.console_app.list.protocol('serial').list.port_by_id(this._id);
             this._console = new _view__WEBPACK_IMPORTED_MODULE_1__.SerialViewConsole(port, this.rootHtmlElement);
             this.set_name();
             this.container.on('resize', () => { var _a; return (_a = this._console) === null || _a === void 0 ? void 0 : _a.terminal.fit(); });
@@ -11115,8 +10941,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   esp32_signal_reset: () => (/* binding */ esp32_signal_reset),
 /* harmony export */   get_serial_info: () => (/* binding */ get_serial_info),
 /* harmony export */   install_serial_events: () => (/* binding */ install_serial_events),
-/* harmony export */   make_serial_name: () => (/* binding */ make_serial_name),
-/* harmony export */   support_serial: () => (/* binding */ support_serial)
+/* harmony export */   is_serial_supported: () => (/* binding */ is_serial_supported),
+/* harmony export */   make_serial_name: () => (/* binding */ make_serial_name)
 /* harmony export */ });
 /* harmony import */ var _usb_filtered_json__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./usb_filtered.json */ "./src/ts/apps/serial/usb_filtered.json");
 /* harmony import */ var _helper_time__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../helper/time */ "./src/ts/helper/time.ts");
@@ -11131,7 +10957,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 };
 
 
-function support_serial() {
+function is_serial_supported() {
     return 'serial' in navigator;
 }
 function get_serial_info(port) {
@@ -11388,7 +11214,8 @@ const template = (function () {
     template.innerHTML = `
     <div>
       <div>
-        <select class='sel-serial-conn serial-baudrate'></select>
+        <input type=number min=0 class='sel-serial-conn serial-baudrate' list=serial-baudrate-list>
+        <datalist id=serial-baudrate-list></datalist>
         <select class='sel-serial-conn serial-databits'></select>
         <select class='sel-serial-conn serial-flowcontrol'></select>
         <select class='sel-serial-conn serial-parity'></select>
@@ -11417,7 +11244,11 @@ const template = (function () {
         const el = template.content.querySelector(mclass);
         values.forEach(v => el === null || el === void 0 ? void 0 : el.appendChild(new Option(`${v}`, `${v}`, v === mdefault)));
     }
-    make_select('.serial-baudrate', serialBaudrate, serialDefaults.baudRate);
+    const list = template.content.querySelector('#serial-baudrate-list');
+    template.content.querySelector('.serial-baudrate').value = `${serialDefaults.baudRate}`;
+    serialBaudrate.forEach(bd => {
+        list === null || list === void 0 ? void 0 : list.appendChild(new Option(`${bd}`));
+    });
     make_select('.serial-databits', serialDataBits, serialDefaults.dataBits);
     make_select('.serial-flowcontrol', serialFlowControl, serialDefaults.flowControl);
     make_select('.serial-parity', serialParity, serialDefaults.parity);
@@ -11880,6 +11711,227 @@ class WebsocketView extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__["de
 
 /***/ }),
 
+/***/ "./src/ts/components.ts":
+/*!******************************!*\
+  !*** ./src/ts/components.ts ***!
+  \******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   other_components: () => (/* binding */ other_components)
+/* harmony export */ });
+/* harmony import */ var _golden_components_component_utility__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./golden-components/component-utility */ "./src/ts/golden-components/component-utility.ts");
+/* harmony import */ var _apps_serial_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./apps/serial/component */ "./src/ts/apps/serial/component.ts");
+
+
+const other_components = {
+    SerialConsoleComponent: {
+        name: 'SerialConsoleComponent',
+        component: _apps_serial_component__WEBPACK_IMPORTED_MODULE_1__.SerialConsoleComponent,
+    },
+    DockDumpComponent: {
+        name: 'DockDumpComponent',
+        component: _golden_components_component_utility__WEBPACK_IMPORTED_MODULE_0__.DockDumpComponent,
+    },
+};
+
+
+/***/ }),
+
+/***/ "./src/ts/console_app.ts":
+/*!*******************************!*\
+  !*** ./src/ts/console_app.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ConsoleApp: () => (/* binding */ ConsoleApp)
+/* harmony export */ });
+/* harmony import */ var _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./golden-components/component-base */ "./src/ts/golden-components/component-base.ts");
+/* harmony import */ var _components__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components */ "./src/ts/components.ts");
+/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/utils/types.js");
+/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/golden-layout.js");
+/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/config/resolved-config.js");
+/* harmony import */ var _apps_app__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./apps/app */ "./src/ts/apps/app.ts");
+/* harmony import */ var _libs_db__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./libs/db */ "./src/ts/libs/db.ts");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+const console_layout = {
+    settings: {
+        responsiveMode: 'always',
+    },
+    root: {
+        type: golden_layout__WEBPACK_IMPORTED_MODULE_4__.ItemType.row,
+        content: [],
+    },
+};
+const dbName = 'console_web';
+const dbVersion = 1;
+class ConsoleApp {
+    constructor(app_list, container = document.body) {
+        window.console_app = this;
+        this._app_list = new _apps_app__WEBPACK_IMPORTED_MODULE_2__.AppList(app_list);
+        (0,_libs_db__WEBPACK_IMPORTED_MODULE_3__.open)(dbName, dbVersion)
+            .then((db) => __awaiter(this, void 0, void 0, function* () {
+            this._db = db;
+            return yield this._db.read_iterator('protocol');
+        }))
+            .then(v => {
+            if ('current' in v)
+                this._sel_protocols.value = v.current;
+            this._app_list.apps.forEach(app => {
+                if (app.protocol in v) {
+                    app.update(v[app.protocol]);
+                }
+            });
+        })
+            .catch(() => {
+            this._db = undefined;
+        })
+            .finally(() => {
+            this._sel_protocols.dispatchEvent(new Event('change'));
+        });
+        this._layout = new golden_layout__WEBPACK_IMPORTED_MODULE_5__.GoldenLayout(container.querySelector('#golden'), this.bind_component.bind(this));
+        this._layout.resizeWithContainerAutomatically = true;
+        this.register_components();
+        this._sel_protocols = container.querySelector('#protocols');
+        this._btn_connect = container.querySelector('#connect');
+        this._el_error = container.querySelector('#error');
+        const proto_container = container.querySelector('#protocol-container');
+        this._app_list.apps.forEach((app) => {
+            this._sel_protocols.appendChild(new Option(app.protocol, app.protocol));
+            proto_container.appendChild(app.element);
+        });
+        this._sel_protocols.onchange = () => {
+            var _a;
+            const el = (_a = this._app_list.protocol(this._sel_protocols.value)) === null || _a === void 0 ? void 0 : _a.element;
+            if (el === undefined)
+                throw new Error('Protocol not found');
+            this._app_list.apps.forEach(app => {
+                const app_el = app.element;
+                if (app_el === el)
+                    app_el.style.display = 'inline-block';
+                else
+                    app_el.style.display = 'none';
+            });
+        };
+        this._btn_connect.onclick = () => {
+            this.open();
+        };
+        if (this._layout.isSubWindow) {
+            container.style.gridTemplate = `"header" 0px
+                                      "body" auto
+                                      "footer" 0px`;
+            this._layout.checkAddDefaultPopinButton();
+        }
+        else
+            this._layout.loadLayout(console_layout);
+    }
+    bind_component(container, itemConfig) {
+        const comp_name = golden_layout__WEBPACK_IMPORTED_MODULE_6__.ResolvedComponentItemConfig.resolveComponentTypeName(itemConfig);
+        if (comp_name === undefined)
+            throw new Error('Component name not found');
+        const comp_type = this.get_component(comp_name);
+        if (comp_type === undefined)
+            throw new Error('Component not found');
+        const use_virtual = false;
+        const component = new comp_type(// eslint-disable-line
+        container, container.initialState, use_virtual);
+        if (use_virtual) {
+            // Somthing here
+        }
+        return {
+            component,
+            virtual: use_virtual,
+        };
+    }
+    get list() {
+        return this._app_list;
+    }
+    get layout() {
+        return this._layout;
+    }
+    get protocol() {
+        return this._sel_protocols.value;
+    }
+    open() {
+        var _a, _b;
+        this.error();
+        try {
+            const app = this._app_list.protocol(this.protocol);
+            if (app === undefined)
+                throw new Error(`Protocol not found [${this.protocol}]`);
+            const parameter = app.open();
+            if (!('find' in parameter) ||
+                this.find_component(parameter.find) === undefined) {
+                this._layout.addComponent(parameter.protocol, parameter.state, parameter.title);
+            }
+            (_a = this._db) === null || _a === void 0 ? void 0 : _a.write('protocol', 'current', this.protocol).finally(() => { });
+            (_b = this._db) === null || _b === void 0 ? void 0 : _b.write('protocol', this.protocol, parameter.state).finally(() => { });
+        }
+        catch (e) {
+            this.error(e.message);
+        }
+    }
+    error(message = '') {
+        this._el_error.textContent = message;
+    }
+    find_component(url, item = this._layout.rootItem) {
+        let res;
+        item === null || item === void 0 ? void 0 : item.contentItems.some(comp => {
+            if (!comp.isComponent) {
+                res = this.find_component(url, comp);
+                if (res === undefined)
+                    return true;
+            }
+            const temp = comp.component;
+            if (!(temp instanceof _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__.AppComponent))
+                return false;
+            if (temp === null || temp === void 0 ? void 0 : temp.reused(url)) {
+                res = temp;
+                return true;
+            }
+            return false;
+        });
+        return res;
+    }
+    register_components() {
+        this._app_list.apps.forEach(app => {
+            this._layout.registerComponentConstructor(app.protocol, app.component);
+        });
+        Object.values(_components__WEBPACK_IMPORTED_MODULE_1__.other_components).forEach(v => {
+            this._layout.registerComponentConstructor(v.name, v.component);
+        });
+    }
+    get_component(name) {
+        const app = this._app_list.protocol(name);
+        if (app !== undefined)
+            return app.component;
+        if (name in _components__WEBPACK_IMPORTED_MODULE_1__.other_components)
+            return _components__WEBPACK_IMPORTED_MODULE_1__.other_components[name].component;
+        return undefined;
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/ts/golden-components/component-base.ts":
 /*!****************************************************!*\
   !*** ./src/ts/golden-components/component-base.ts ***!
@@ -12285,6 +12337,125 @@ function binary_to_ascii(chunk, chars = specialChars) {
 
 /***/ }),
 
+/***/ "./src/ts/libs/db.ts":
+/*!***************************!*\
+  !*** ./src/ts/libs/db.ts ***!
+  \***************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   DB: () => (/* binding */ DB),
+/* harmony export */   open: () => (/* binding */ open)
+/* harmony export */ });
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+function open(db_name, db_version = 1) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield new Promise(function (resolve, reject) {
+            const openRequest = window.indexedDB.open(db_name, db_version);
+            openRequest.onerror = ev => {
+                reject(ev);
+            };
+            openRequest.onsuccess = ev => {
+                resolve(new DB(ev.target.result));
+            };
+            openRequest.onupgradeneeded = ev => {
+                const db = ev.target.result;
+                const store = db.createObjectStore('protocol');
+                store.transaction.oncomplete = () => { };
+            };
+        });
+    });
+}
+class DB {
+    constructor(instance) {
+        this._db = instance;
+    }
+    read(obj_store, attr) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield new Promise((resolve, reject) => {
+                const request = this._db
+                    .transaction(obj_store, 'readonly')
+                    .objectStore(obj_store)
+                    .get(attr);
+                request.onsuccess = ev => {
+                    resolve(ev.target.result);
+                };
+                request.onerror = ev => {
+                    reject(ev);
+                };
+            });
+        });
+    }
+    read_all(obj_store) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield new Promise((resolve, reject) => {
+                const request = this._db
+                    .transaction(obj_store, 'readonly')
+                    .objectStore(obj_store)
+                    .getAll();
+                request.onsuccess = ev => {
+                    resolve(ev.target.result);
+                };
+                request.onerror = ev => {
+                    reject(ev);
+                };
+            });
+        });
+    }
+    read_iterator(obj_store) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield new Promise((resolve, reject) => {
+                const request = this._db
+                    .transaction(obj_store, 'readonly')
+                    .objectStore(obj_store)
+                    .openCursor();
+                const ret = {};
+                request.onsuccess = ev => {
+                    const cursor = ev.target.result;
+                    if (cursor !== null) {
+                        ret[cursor.key] = cursor.value;
+                        cursor.continue();
+                    }
+                    else
+                        resolve(ret);
+                };
+                request.onerror = ev => {
+                    reject(ev);
+                };
+            });
+        });
+    }
+    write(obj_store, attr, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield new Promise((resolve, reject) => {
+                const request = this._db
+                    .transaction(obj_store, 'readwrite')
+                    .objectStore(obj_store)
+                    .put(data, attr);
+                request.onsuccess = () => {
+                    resolve();
+                };
+                request.onerror = ev => {
+                    reject(ev);
+                };
+            });
+        });
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/ts/libs/event_emitter.ts":
 /*!**************************************!*\
   !*** ./src/ts/libs/event_emitter.ts ***!
@@ -12492,7 +12663,7 @@ var _a;
 
 (_a = document.querySelector('#setup')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
     const body = document.createElement('div');
-    body.innerHTML = `Version: <b>${"4550d67"}</b>`;
+    body.innerHTML = `Version: <b>${"8fa25ec"}</b>`;
     body.classList.add('setup-body');
     (0,_helper_window__WEBPACK_IMPORTED_MODULE_0__.create_window)('Setup', body, {
         hide_undock: true,
@@ -13520,8 +13691,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _css_window_css__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../css/window.css */ "./src/css/window.css");
 /* harmony import */ var _node_modules_xterm_css_xterm_css__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../node_modules/xterm/css/xterm.css */ "./node_modules/xterm/css/xterm.css");
 /* harmony import */ var _css_golden_layout_less__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../css/golden-layout.less */ "./src/css/golden-layout.less");
-/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./app */ "./src/ts/app.ts");
-/* harmony import */ var _setup__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./setup */ "./src/ts/setup.ts");
+/* harmony import */ var _apps_websocket_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./apps/websocket/component */ "./src/ts/apps/websocket/component.ts");
+/* harmony import */ var _apps_http_component__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./apps/http/component */ "./src/ts/apps/http/component.ts");
+/* harmony import */ var _apps_app__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./apps/app */ "./src/ts/apps/app.ts");
+/* harmony import */ var _apps_serial_functions__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./apps/serial/functions */ "./src/ts/apps/serial/functions.ts");
+/* harmony import */ var _console_app__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./console_app */ "./src/ts/console_app.ts");
+/* harmony import */ var _setup__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./setup */ "./src/ts/setup.ts");
 // Importing HTML components
 
 
@@ -13538,14 +13713,33 @@ __webpack_require__.r(__webpack_exports__);
 // Importing app
 
 
+
+
+
+
 if (document.readyState !== 'loading')
     run();
 else
     document.addEventListener('DOMContentLoaded', () => {
         run();
     }, { passive: true });
+function is_secure_connection() {
+    return window.location.protocol === 'https:';
+}
+function get_app_list() {
+    const apps = [];
+    if (!is_secure_connection())
+        apps.push(new _apps_app__WEBPACK_IMPORTED_MODULE_12__.URLApp('ws', _apps_websocket_component__WEBPACK_IMPORTED_MODULE_10__.WSComponent));
+    apps.push(new _apps_app__WEBPACK_IMPORTED_MODULE_12__.URLApp('wss', _apps_websocket_component__WEBPACK_IMPORTED_MODULE_10__.WSComponent));
+    if (!is_secure_connection())
+        apps.push(new _apps_app__WEBPACK_IMPORTED_MODULE_12__.URLApp('http', _apps_http_component__WEBPACK_IMPORTED_MODULE_11__.HTTPComponent));
+    apps.push(new _apps_app__WEBPACK_IMPORTED_MODULE_12__.URLApp('https', _apps_http_component__WEBPACK_IMPORTED_MODULE_11__.HTTPComponent));
+    if ((0,_apps_serial_functions__WEBPACK_IMPORTED_MODULE_13__.is_serial_supported)())
+        apps.push(new _apps_app__WEBPACK_IMPORTED_MODULE_12__.SerialApp());
+    return apps;
+}
 function run() {
-    new _app__WEBPACK_IMPORTED_MODULE_10__.App(); // eslint-disable-line no-new
+    new _console_app__WEBPACK_IMPORTED_MODULE_14__.ConsoleApp(get_app_list()); // eslint-disable-line no-new
 }
 
 })();

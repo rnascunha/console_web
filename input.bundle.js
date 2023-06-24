@@ -585,9 +585,7 @@ function open_db() {
             openRequest.onupgradeneeded = ev => {
                 const db = ev.target.result;
                 const store = db.createObjectStore(objectStoreName);
-                store.transaction.oncomplete = () => {
-                    console.log('Object store create');
-                };
+                store.transaction.oncomplete = () => { };
             };
         });
     });
@@ -621,6 +619,48 @@ function write_db(db, data) {
             request.onerror = ev => {
                 reject(ev);
             };
+        });
+    });
+}
+
+
+/***/ }),
+
+/***/ "./src/ts/helper/fade.ts":
+/*!*******************************!*\
+  !*** ./src/ts/helper/fade.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   fade_out: () => (/* binding */ fade_out)
+/* harmony export */ });
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+function fade_out(el, pace = 0.005) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!(el instanceof HTMLElement))
+            throw new Error('Wrong type');
+        return yield new Promise(function (resolve) {
+            el.style.opacity = '1';
+            (function fade() {
+                const opacity = parseFloat(el.style.opacity) - pace;
+                el.style.opacity = `${opacity}`;
+                if (opacity <= 0) {
+                    resolve(el);
+                }
+                else {
+                    requestAnimationFrame(fade);
+                }
+            })();
         });
     });
 }
@@ -971,6 +1011,77 @@ function binary_to_ascii_array(chunk, chars = specialChars) {
 function binary_to_ascii(chunk, chars = specialChars) {
     return binary_to_ascii_array(chunk, chars).join('');
 }
+
+
+/***/ }),
+
+/***/ "./src/ts/web-components/alert-message/alert-message.ts":
+/*!**************************************************************!*\
+  !*** ./src/ts/web-components/alert-message/alert-message.ts ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   AlertMessage: () => (/* binding */ AlertMessage)
+/* harmony export */ });
+const template = (function () {
+    const template = document.createElement('template');
+    template.innerHTML = `
+  <style>
+    :host {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
+      background-color: lightgreen;
+      padding: 5px;
+      border-radius: 10px;
+      min-width: 200px;
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    #message {
+      text-align: center;
+      width: 100%;
+      display: inline-block;
+    }
+
+    #close {
+      cursor: pointer;
+    }
+
+    #close:hover {
+      background-color: black;
+      color: white;
+    }
+  </style>
+  <slot id=message></slot>
+  <span id=close>&#10006;</span>`;
+    return template;
+})();
+class AlertMessage extends HTMLElement {
+    constructor(message = '') {
+        var _a, _b, _c, _d;
+        super();
+        this.attachShadow({ mode: 'open' });
+        (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.appendChild(template.content.cloneNode(true));
+        if (message.length > 0)
+            ((_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#message')).textContent =
+                message;
+        (_d = (_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#close')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => {
+            this.close();
+        });
+    }
+    close() {
+        var _a;
+        (_a = this.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(this);
+    }
+}
+customElements.define('fade-message', AlertMessage);
 
 
 /***/ }),
@@ -1560,7 +1671,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ts_web_components_binary_input_text_select_binary__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../ts/web-components/binary-input/text-select-binary */ "./src/ts/web-components/binary-input/text-select-binary.ts");
 /* harmony import */ var _ts_libs_binary_dump__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../ts/libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
 /* harmony import */ var _ts_libs_base64__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../ts/libs/base64 */ "./src/ts/libs/base64.ts");
-/* harmony import */ var _db__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./db */ "./src/tools/input/db.ts");
+/* harmony import */ var _ts_web_components_alert_message_alert_message__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../ts/web-components/alert-message/alert-message */ "./src/ts/web-components/alert-message/alert-message.ts");
+/* harmony import */ var _ts_helper_fade__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../ts/helper/fade */ "./src/ts/helper/fade.ts");
+/* harmony import */ var _db__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./db */ "./src/tools/input/db.ts");
+
+
 
 
 
@@ -1574,7 +1689,7 @@ const bd = document.querySelector('#data-dump');
 const input_binary = document.querySelector('#input-binary');
 input_binary.encode = 'text';
 let db;
-(0,_db__WEBPACK_IMPORTED_MODULE_7__.open_db)()
+(0,_db__WEBPACK_IMPORTED_MODULE_9__.open_db)()
     .then(mdb => {
     db = mdb;
     read().then(() => {
@@ -1610,6 +1725,9 @@ function init() {
     });
     (_a = document.querySelector('#share')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
         navigator.clipboard.writeText(make_link());
+        const el = new _ts_web_components_alert_message_alert_message__WEBPACK_IMPORTED_MODULE_7__.AlertMessage('Link copied');
+        document.body.appendChild(el);
+        (0,_ts_helper_fade__WEBPACK_IMPORTED_MODULE_8__.fade_out)(el).then(el => el.close());
     });
 }
 function update() {
@@ -1655,7 +1773,7 @@ function read_link() {
 function write() {
     if (db === undefined)
         return Promise.resolve();
-    return (0,_db__WEBPACK_IMPORTED_MODULE_7__.write_db)(db, {
+    return (0,_db__WEBPACK_IMPORTED_MODULE_9__.write_db)(db, {
         breakline: +bl.value,
         data: input_binary.data,
         hide: _ts_libs_binary_dump__WEBPACK_IMPORTED_MODULE_5__.encoding.reduce((acc, v) => {
@@ -1669,7 +1787,7 @@ function write() {
 function read() {
     if (db === undefined)
         return Promise.resolve();
-    return (0,_db__WEBPACK_IMPORTED_MODULE_7__.read_db)(db).then(data => {
+    return (0,_db__WEBPACK_IMPORTED_MODULE_9__.read_db)(db).then(data => {
         if (data === undefined)
             return;
         bl.value = data.breakline.toString();
