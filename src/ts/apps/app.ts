@@ -34,6 +34,7 @@ export abstract class App {
   }
 
   abstract open(): AppOpenParameters;
+  public update(value: JsonValue): void {}
 }
 
 const serial_template = (function () {
@@ -112,6 +113,10 @@ export class URLApp extends App {
     } catch (e) {
       throw new Error((e as DOMException).message);
     }
+  }
+
+  public override update(value: JsonValue): void {
+    this._in_url.value = (value as string).split('://')[1];
   }
 }
 

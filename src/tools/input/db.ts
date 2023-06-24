@@ -25,9 +25,7 @@ export async function open_db(): Promise<IDBDatabase> {
     openRequest.onupgradeneeded = ev => {
       const db: IDBDatabase = (ev.target as IDBOpenDBRequest).result;
       const store = db.createObjectStore(objectStoreName);
-      store.transaction.oncomplete = () => {
-        console.log('Object store create');
-      };
+      store.transaction.oncomplete = () => {};
     };
   });
 }

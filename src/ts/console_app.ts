@@ -12,17 +12,8 @@ import {
   GoldenLayout,
   ResolvedComponentItemConfig,
 } from 'golden-layout';
-import type { SerialList } from './apps/serial/serial';
-
-import {
-  type AppOpenParameters,
-  type App,
-  SerialApp,
-  URLApp,
-  AppList,
-} from './apps/app';
-import { WSComponent } from './apps/websocket/component';
-import { HTTPComponent } from './apps/http/component';
+import { type AppOpenParameters, type App, AppList } from './apps/app';
+import { open as open_db, type DB } from './libs/db';
 
 const console_layout: LayoutConfig = {
   settings: {
@@ -34,6 +25,9 @@ const console_layout: LayoutConfig = {
   },
 };
 
+const dbName = 'console_web';
+const dbVersion = 1;
+
 export class ConsoleApp {
   private readonly _layout: GoldenLayout;
   private readonly _sel_protocols: HTMLSelectElement;
@@ -41,17 +35,31 @@ export class ConsoleApp {
   private readonly _el_error: HTMLElement;
 
   private readonly _app_list: AppList;
+  private _db: DB | undefined;
 
-  constructor(container = document.body) {
+  constructor(app_list: App[], container: HTMLElement = document.body) {
     window.console_app = this;
 
-    this._app_list = new AppList([
-      new URLApp('ws', WSComponent),
-      new URLApp('wss', WSComponent),
-      new URLApp('http', HTTPComponent),
-      new URLApp('https', HTTPComponent),
-      new SerialApp(),
-    ]);
+    this._app_list = new AppList(app_list);
+    open_db(dbName, dbVersion)
+      .then(async (db: DB) => {
+        this._db = db;
+        return await this._db.read_iterator('protocol');
+      })
+      .then(v => {
+        if ('current' in v) this._sel_protocols.value = v.current;
+        this._app_list.apps.forEach(app => {
+          if (app.protocol in v) {
+            app.update(v[app.protocol]);
+          }
+        });
+      })
+      .catch(() => {
+        this._db = undefined;
+      })
+      .finally(() => {
+        this._sel_protocols.dispatchEvent(new Event('change'));
+      });
 
     this._layout = new GoldenLayout(
       container.querySelector('#golden') as HTMLElement,
@@ -76,7 +84,7 @@ export class ConsoleApp {
       proto_container.appendChild(app.element);
     });
 
-    this._sel_protocols.onchange = ev => {
+    this._sel_protocols.onchange = () => {
       const el = this._app_list.protocol(this._sel_protocols.value)?.element;
       if (el === undefined) throw new Error('Protocol not found');
       this._app_list.apps.forEach(app => {
@@ -86,7 +94,6 @@ export class ConsoleApp {
         else (app_el as HTMLElement).style.display = 'none';
       });
     };
-    this._sel_protocols.dispatchEvent(new Event('change'));
 
     this._btn_connect.onclick = () => {
       this.open();
@@ -126,8 +133,8 @@ export class ConsoleApp {
     };
   }
 
-  public get serial_list(): SerialList {
-    return (this._app_list.protocol('serial') as SerialApp).list;
+  public get list(): AppList {
+    return this._app_list;
   }
 
   public get layout(): GoldenLayout {
@@ -145,15 +152,20 @@ export class ConsoleApp {
       if (app === undefined)
         throw new Error(`Protocol not found [${this.protocol}]`);
       const parameter: AppOpenParameters = app.open();
-      if ('find' in parameter) {
-        if (this.find_component(parameter.find as string) !== undefined) return;
+      if (
+        !('find' in parameter) ||
+        this.find_component(parameter.find as string) === undefined
+      ) {
+        this._layout.addComponent(
+          parameter.protocol,
+          parameter.state,
+          parameter.title
+        );
       }
-
-      this._layout.addComponent(
-        parameter.protocol,
-        parameter.state,
-        parameter.title
-      );
+      this._db?.write('protocol', 'current', this.protocol).finally(() => {});
+      this._db
+        ?.write('protocol', this.protocol, parameter.state)
+        .finally(() => {});
     } catch (e) {
       this.error((e as Error).message);
     }

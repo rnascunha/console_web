@@ -2,6 +2,7 @@ import {
   AppComponent,
   ComponentBase,
 } from '../../golden-components/component-base';
+import type { SerialApp } from '../app';
 import type { SerialConn } from './serial';
 import { SerialView, SerialViewConsole } from './view';
 import type {
@@ -22,13 +23,16 @@ export class SerialComponent extends AppComponent {
   ) {
     super(container, virtual);
 
-    const port = window.console_app.serial_list.port_by_id(state as number);
+    const port = (
+      window.console_app.list.protocol('serial') as SerialApp
+    ).list.port_by_id(state as number);
     if (port === undefined)
       throw new Error(`Failed to find port [${state as string}]`);
 
     this._view = new SerialView(port);
     this.rootHtmlElement.appendChild(this._view.container);
 
+    this.container.setTitle(`${this._view.port.name}`);
     this._view.on('disconnect', () => {
       this.container.setTitle(`${this._view.port.name} (disconnected)`);
     });
@@ -94,9 +98,9 @@ export class SerialConsoleComponent extends ComponentBase {
      * (event open didn't work)
      */
     setTimeout(() => {
-      const port = window.console_app.serial_list.port_by_id(
-        this._id
-      ) as SerialConn;
+      const port = (
+        window.console_app.list.protocol('serial') as SerialApp
+      ).list.port_by_id(this._id) as SerialConn;
       this._console = new SerialViewConsole(port, this.rootHtmlElement);
       this.set_name();
       this.container.on('resize', () => this._console?.terminal.fit());

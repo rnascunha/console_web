@@ -9,7 +9,7 @@ export interface SerialPortInfo {
   productName: string | undefined;
 }
 
-export function support_serial(): boolean {
+export function is_serial_supported(): boolean {
   return 'serial' in navigator;
 }
 

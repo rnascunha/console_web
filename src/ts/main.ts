@@ -15,7 +15,12 @@ import '../../node_modules/xterm/css/xterm.css';
 import '../css/golden-layout.less';
 
 // Importing app
-import { ConsoleApp } from './app';
+import { WSComponent } from './apps/websocket/component';
+import { HTTPComponent } from './apps/http/component';
+import { type App, SerialApp, URLApp } from './apps/app';
+import { is_serial_supported } from './apps/serial/functions';
+
+import { ConsoleApp } from './console_app';
 import './setup';
 
 declare global {
@@ -35,6 +40,20 @@ else
     { passive: true }
   );
 
+function is_secure_connection(): boolean {
+  return window.location.protocol === 'https:';
+}
+
+function get_app_list(): App[] {
+  const apps: App[] = [];
+  if (!is_secure_connection()) apps.push(new URLApp('ws', WSComponent));
+  apps.push(new URLApp('wss', WSComponent));
+  if (!is_secure_connection()) apps.push(new URLApp('http', HTTPComponent));
+  apps.push(new URLApp('https', HTTPComponent));
+  if (is_serial_supported()) apps.push(new SerialApp());
+  return apps;
+}
+
 function run(): void {
-  new ConsoleApp(); // eslint-disable-line no-new
+  new ConsoleApp(get_app_list()); // eslint-disable-line no-new
 }
