@@ -15,13 +15,13 @@ import '../../node_modules/xterm/css/xterm.css';
 import '../css/golden-layout.less';
 
 // Importing app
-import { App } from './app';
+import { ConsoleApp } from './app';
 import './setup';
 
 declare global {
   const __COMMIT_HASH__: string; // eslint-disable-line
   interface Window {
-    console_app: App;
+    console_app: ConsoleApp;
   }
 }
 
@@ -36,5 +36,5 @@ else
   );
 
 function run(): void {
-  new App(); // eslint-disable-line no-new
+  new ConsoleApp(); // eslint-disable-line no-new
 }

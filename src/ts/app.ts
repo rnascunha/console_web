@@ -2,34 +2,31 @@ import {
   type ComponentBase,
   AppComponent,
 } from './golden-components/component-base';
-import {
-  get_component,
-  protocols,
-  components,
-  other_components,
-  type Protocol,
-} from './protocols';
+import { other_components } from './components';
 import {
   type ComponentItem,
   type ContentItem,
   type LayoutConfig,
+  type ComponentContainer,
   ItemType,
   GoldenLayout,
-  type ComponentContainer,
   ResolvedComponentItemConfig,
 } from 'golden-layout';
-import { SerialList } from './apps/serial/serial';
-import { install_serial_events } from './apps/serial/functions';
+import type { SerialList } from './apps/serial/serial';
+
+import {
+  type AppOpenParameters,
+  type App,
+  SerialApp,
+  URLApp,
+  AppList,
+} from './apps/app';
+import { WSComponent } from './apps/websocket/component';
+import { HTTPComponent } from './apps/http/component';
 
 const console_layout: LayoutConfig = {
   settings: {
     responsiveMode: 'always',
-    // showPopoutIcon: false,
-    // tabOverlapAllowance: 25,
-    // reorderOnTabMenuClick: false,
-    // tabControlOffset: 5,
-    // popoutWholeStack: true,
-    // popInOnClose: true,
   },
   root: {
     type: ItemType.row,
@@ -37,29 +34,30 @@ const console_layout: LayoutConfig = {
   },
 };
 
-export class App {
+export class ConsoleApp {
   private readonly _layout: GoldenLayout;
   private readonly _sel_protocols: HTMLSelectElement;
   private readonly _btn_connect: HTMLButtonElement;
-  private readonly _in_url: HTMLInputElement;
   private readonly _el_error: HTMLElement;
 
-  private readonly _serial_container: HTMLElement;
-  private readonly _sel_serial: HTMLSelectElement;
-  private readonly _serial_list: SerialList = new SerialList();
+  private readonly _app_list: AppList;
 
-  constructor(container = document.body, proto = protocols) {
+  constructor(container = document.body) {
     window.console_app = this;
+
+    this._app_list = new AppList([
+      new URLApp('ws', WSComponent),
+      new URLApp('wss', WSComponent),
+      new URLApp('http', HTTPComponent),
+      new URLApp('https', HTTPComponent),
+      new SerialApp(),
+    ]);
 
     this._layout = new GoldenLayout(
       container.querySelector('#golden') as HTMLElement,
       this.bind_component.bind(this)
     );
     this._layout.resizeWithContainerAutomatically = true;
-    this._layout.beforeVirtualRectingEvent = count => {
-      console.log('before rect', count);
-    };
-
     this.register_components();
 
     this._sel_protocols = container.querySelector(
@@ -68,42 +66,31 @@ export class App {
     this._btn_connect = container.querySelector(
       '#connect'
     ) as HTMLButtonElement;
-    this._in_url = container.querySelector('#url') as HTMLInputElement;
     this._el_error = container.querySelector('#error') as HTMLElement;
 
-    this._serial_container = container.querySelector(
-      '#serial-container'
+    const proto_container = container.querySelector(
+      '#protocol-container'
     ) as HTMLElement;
-    this._sel_serial = container.querySelector(
-      '#sel-serial-port'
-    ) as HTMLSelectElement;
+    this._app_list.apps.forEach((app: App) => {
+      this._sel_protocols.appendChild(new Option(app.protocol, app.protocol));
+      proto_container.appendChild(app.element);
+    });
 
-    Object.values(proto).forEach((v: Protocol) =>
-      this._sel_protocols.appendChild(
-        new Option(v.protocol, v.protocol, undefined, v.protocol === 'serial')
-      )
-    );
+    this._sel_protocols.onchange = ev => {
+      const el = this._app_list.protocol(this._sel_protocols.value)?.element;
+      if (el === undefined) throw new Error('Protocol not found');
+      this._app_list.apps.forEach(app => {
+        const app_el = app.element;
+        if (app_el === el)
+          (app_el as HTMLElement).style.display = 'inline-block';
+        else (app_el as HTMLElement).style.display = 'none';
+      });
+    };
+    this._sel_protocols.dispatchEvent(new Event('change'));
 
     this._btn_connect.onclick = () => {
       this.open();
     };
-
-    this._sel_protocols.onchange = () => {
-      if (this.protocol === 'serial') {
-        this._serial_container.style.display = 'inline-block';
-        this._in_url.style.display = 'none';
-      } else {
-        this._serial_container.style.display = 'none';
-        this._in_url.style.display = 'inline-block';
-      }
-    };
-    this._sel_protocols.dispatchEvent(new Event('change'));
-
-    install_serial_events(this._serial_list, this._sel_serial);
-    (container.querySelector('#serial-request') as HTMLButtonElement).onclick =
-      () => {
-        this._serial_list.request();
-      };
 
     if (this._layout.isSubWindow) {
       container.style.gridTemplate = `"header" 0px
@@ -121,7 +108,7 @@ export class App {
       ResolvedComponentItemConfig.resolveComponentTypeName(itemConfig);
     if (comp_name === undefined) throw new Error('Component name not found');
 
-    const comp_type = get_component(comp_name);
+    const comp_type = this.get_component(comp_name);
     if (comp_type === undefined) throw new Error('Component not found');
 
     const use_virtual = false;
@@ -131,20 +118,7 @@ export class App {
       use_virtual
     );
     if (use_virtual) {
-      //   const componentRootElement = component.0rootHtmlElement;
-      //   this._container.appendChild(componentRootElement);
-      container.virtualRectingRequiredEvent = (container, width, height) => {
-        this.handleContainerVirtualRectingRequiredEvent(
-          container,
-          width,
-          height
-        );
-      };
-      // container.virtualVisibilityChangeRequiredEvent =
-      //     (container, visible) => this.handleContainerVirtualVisibilityChangeRequiredEvent(container, visible);
-      // container.virtualZIndexChangeRequiredEvent =
-      //     (container, logicalZIndex, defaultZIndex) =>
-      //         this.handleContainerVirtualZIndexChangeRequiredEvent(container, logicalZIndex, defaultZIndex);
+      // Somthing here
     }
     return {
       component,
@@ -152,75 +126,8 @@ export class App {
     };
   }
 
-  // private handleContainerVirtualZIndexChangeRequiredEvent(container: ComponentContainer, logicalZIndex: LogicalZIndex, defaultZIndex: string) {
-  // const component = this._boundComponentMap.get(container);
-  // if (component === undefined) {
-  //     throw new Error('handleContainerVirtualZIndexChangeRequiredEvent: Component not found');
-  // }
-
-  // const componentRootElement = component.rootHtmlElement;
-  // if (componentRootElement === undefined) {
-  //     throw new Error('handleContainerVirtualZIndexChangeRequiredEvent: Component does not have a root HTML element');
-  // }
-
-  // componentRootElement.style.zIndex = defaultZIndex;
-  // container.element.style.zIndex = defaultZIndex;
-  // }
-
-  // private handleContainerVirtualVisibilityChangeRequiredEvent(container: ComponentContainer, visible: boolean) {
-  //   const component = this._boundComponentMap.get(container);
-  //   if (component === undefined) {
-  //       throw new Error('handleContainerVisibilityChangeRequiredEvent: Component not found');
-  //   }
-
-  //   const componentRootElement = component.rootHtmlElement;
-  //   if (componentRootElement === undefined) {
-  //       throw new Error('handleContainerVisibilityChangeRequiredEvent: Component does not have a root HTML element');
-  //   }
-
-  //   if (visible) {
-  //       componentRootElement.style.display = '';
-  //   } else {
-  //       componentRootElement.style.display = 'none';
-  //   }
-  // }
-
-  private handleContainerVirtualRectingRequiredEvent(
-    container: ComponentContainer,
-    width: number,
-    height: number
-  ): void {
-    // console.log(width, height);
-    // const component = this._boundComponentMap.get(container);
-    // if (component === undefined) {
-    //     throw new Error('handleContainerVirtualRectingRequiredEvent: Component not found');
-    // }
-    // const rootElement = component.rootHtmlElement;
-    // if (rootElement === undefined) {
-    //     throw new Error('handleContainerVirtualRectingRequiredEvent: Component does not have a root HTML element');
-    // }
-    // const rootElement = container.element;
-    // const containerBoundingClientRect = container.element.getBoundingClientRect();
-    // const left = containerBoundingClientRect.left - this._goldenLayoutBoundingClientRect.left;
-    // rootElement.style.left = this.numberToPixels(left);
-    // const top = containerBoundingClientRect.top - this._goldenLayoutBoundingClientRect.top;
-    // rootElement.style.top = this.numberToPixels(top);
-    // rootElement.style.width = this.numberToPixels(500);
-    // rootElement.style.height = this.numberToPixels(20);
-    // this._container.style.width = this.numberToPixels(500);
-    // this._container.style.height = this.numberToPixels(50);
-  }
-
-  // private numberToPixels(value: number): string {
-  //   return value.toString(10) + 'px';
-  // }
-
-  // private unbind_component(container: ComponentContainer) {
-
-  // }
-
   public get serial_list(): SerialList {
-    return this._serial_list;
+    return (this._app_list.protocol('serial') as SerialApp).list;
   }
 
   public get layout(): GoldenLayout {
@@ -233,43 +140,22 @@ export class App {
 
   private open(): void {
     this.error();
-    if (this.protocol === 'serial') this.open_serial();
-    else this.open_url();
-  }
-
-  private open_serial(): void {
     try {
-      const serial_id = +this._sel_serial.value;
-      if (serial_id === 0) {
-        this.error('No port avaiable');
-        return;
+      const app: App | undefined = this._app_list.protocol(this.protocol);
+      if (app === undefined)
+        throw new Error(`Protocol not found [${this.protocol}]`);
+      const parameter: AppOpenParameters = app.open();
+      if ('find' in parameter) {
+        if (this.find_component(parameter.find as string) !== undefined) return;
       }
-      if (
-        this.find_component(`serial://${serial_id}`, this._layout.rootItem) !==
-        undefined
-      )
-        return;
-      this._layout.addComponent(
-        protocols[this.protocol].component.name,
-        serial_id,
-        this._serial_list.port_by_id(serial_id)?.name
-      );
-    } catch (e) {
-      this.error(e as string);
-    }
-  }
 
-  private open_url(): void {
-    try {
-      const url = `${this.protocol}://${this._in_url.value}`;
-      if (this.find_component(url, this._layout.rootItem) !== undefined) return;
       this._layout.addComponent(
-        protocols[this.protocol].component.name,
-        url,
-        url
+        parameter.protocol,
+        parameter.state,
+        parameter.title
       );
     } catch (e) {
-      this.error((e as DOMException).message);
+      this.error((e as Error).message);
     }
   }
 
@@ -279,7 +165,7 @@ export class App {
 
   private find_component(
     url: string,
-    item: ContentItem | undefined
+    item: ContentItem | undefined = this._layout.rootItem
   ): ComponentBase | undefined {
     let res;
     item?.contentItems.some(comp => {
@@ -301,12 +187,20 @@ export class App {
   }
 
   private register_components(): void {
-    // Registering components
-    Object.values(components).forEach(v => {
-      this._layout.registerComponentConstructor(v.name, v.component);
+    this._app_list.apps.forEach(app => {
+      this._layout.registerComponentConstructor(app.protocol, app.component);
     });
     Object.values(other_components).forEach(v => {
       this._layout.registerComponentConstructor(v.name, v.component);
     });
+  }
+
+  private get_component(name: string): any {
+    const app = this._app_list.protocol(name);
+    if (app !== undefined) return app.component;
+
+    if (name in other_components) return other_components[name].component;
+
+    return undefined;
   }
 }
