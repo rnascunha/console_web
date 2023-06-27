@@ -15,6 +15,11 @@ import {
 import { type AppOpenParameters, type App, AppList } from './apps/app';
 import { open as open_db, type DB } from './libs/db';
 
+// Binary dump window
+import { BinaryDump } from './web-components/binary-dump/binary-dump';
+import { create_window } from './helper/window';
+import { base64_decode } from './libs/base64';
+
 const console_layout: LayoutConfig = {
   settings: {
     responsiveMode: 'always',
@@ -41,30 +46,20 @@ export class ConsoleApp {
     window.console_app = this;
 
     this._app_list = new AppList(app_list);
-    open_db(dbName, dbVersion)
-      .then(async (db: DB) => {
-        this._db = db;
-        return await this._db.read_iterator('protocol');
-      })
-      .then(v => {
-        if ('current' in v) this._sel_protocols.value = v.current;
-        this._app_list.apps.forEach(app => {
-          if (app.protocol in v) {
-            app.update(v[app.protocol]);
-          }
-        });
-      })
-      .catch(() => {
-        this._db = undefined;
-      })
-      .finally(() => {
-        this._sel_protocols.dispatchEvent(new Event('change'));
-      });
+    this.load_db().finally(() => {
+      this._sel_protocols.dispatchEvent(new Event('change'));
+    });
 
     this._layout = new GoldenLayout(
       container.querySelector('#golden') as HTMLElement,
-      this.bind_component.bind(this)
+      this.bind_component.bind(this),
+      this.unbind_component.bind(this)
     );
+
+    this._layout.container.addEventListener('click-data', ev => {
+      this.byte_dump_window((ev as CustomEvent).detail.data);
+    });
+
     this._layout.resizeWithContainerAutomatically = true;
     this.register_components();
 
@@ -85,14 +80,7 @@ export class ConsoleApp {
     });
 
     this._sel_protocols.onchange = () => {
-      const el = this._app_list.protocol(this._sel_protocols.value)?.element;
-      if (el === undefined) throw new Error('Protocol not found');
-      this._app_list.apps.forEach(app => {
-        const app_el = app.element;
-        if (app_el === el)
-          (app_el as HTMLElement).style.display = 'inline-block';
-        else (app_el as HTMLElement).style.display = 'none';
-      });
+      this.select_protocol();
     };
 
     this._btn_connect.onclick = () => {
@@ -131,6 +119,12 @@ export class ConsoleApp {
       component,
       virtual: use_virtual,
     };
+  }
+
+  private unbind_component(container: ComponentContainer): void {
+    if (container.virtual) {
+      this._layout.container.removeChild(container.element);
+    }
   }
 
   public get list(): AppList {
@@ -214,5 +208,61 @@ export class ConsoleApp {
     if (name in other_components) return other_components[name].component;
 
     return undefined;
+  }
+
+  private byte_dump_window(data: string): void {
+    const d = base64_decode(data);
+    const body = new BinaryDump(8, d, { hide: ['octal', 'binary'] });
+
+    const win = create_window('Binary Dump', body, {
+      append: true,
+      center: true,
+      hide_undock: this._layout.isSubWindow,
+    });
+    if (!this._layout.isSubWindow) {
+      win.addEventListener('undock', () => {
+        window.console_app.layout.createPopout(
+          window.console_app.layout.newComponent(
+            'DockDumpComponent',
+            JSON.stringify({
+              data,
+              hide: ['octal', 'binary'],
+            })
+          ),
+          {
+            width: win.clientWidth,
+            height: win.clientHeight - win.header.clientHeight,
+            left: win.offsetLeft,
+            top: win.offsetTop,
+          },
+          null,
+          null
+        );
+        win.close();
+      });
+    }
+  }
+
+  private async load_db(): Promise<void> {
+    try {
+      this._db = await open_db(dbName, dbVersion);
+      const v = await this._db.read_iterator('protocol');
+      if ('current' in v) this._sel_protocols.value = v.current;
+      this._app_list.apps.forEach(app => {
+        if (app.protocol in v) app.update(v[app.protocol]);
+      });
+    } catch (e) {
+      this._db = undefined;
+    }
+  }
+
+  private select_protocol(): void {
+    const el = this._app_list.protocol(this._sel_protocols.value)?.element;
+    if (el === undefined) throw new Error('Protocol not found');
+    this._app_list.apps.forEach(app => {
+      const app_el = app.element;
+      if (app_el === el) (app_el as HTMLElement).style.display = 'inline-block';
+      else (app_el as HTMLElement).style.display = 'none';
+    });
   }
 }

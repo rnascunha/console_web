@@ -1,7 +1,6 @@
 import { time } from '../../helper/time';
-import { binary_to_ascii, parse } from '../../libs/binary-dump';
-import { BinaryDump } from '../binary-dump/binary-dump';
-import { create_window } from '../../helper/window';
+import { binary_to_ascii, string_to_ascii } from '../../libs/binary-dump';
+import { base64_encode2 } from '../../libs/base64';
 
 type TypeData = 'comm' | 'recv' | 'send' | 'error' | 'warn';
 
@@ -73,34 +72,14 @@ export default class DataDisplay extends HTMLElement {
     this._data.onclick = ev => {
       const el = ev.composedPath()[0] as HTMLElement;
       if (!('data' in el.dataset)) return;
-
-      const d = parse(el.dataset.data as string, 'text');
-
-      const body = new BinaryDump(8, d, { hide: ['octal', 'binary'] });
-
-      const win = create_window('Binary Dump', body);
-      document.body.appendChild(win);
-      win.center();
-      win.addEventListener('undock', () => {
-        window.console_app.layout.createPopout(
-          window.console_app.layout.newComponent(
-            'DockDumpComponent',
-            JSON.stringify({
-              data: el.dataset.data as string,
-              hide: ['octal', 'binary'],
-            })
-          ),
-          {
-            width: win.clientWidth,
-            height: win.clientHeight - win.header.clientHeight,
-            left: win.offsetLeft,
-            top: win.offsetTop,
+      this.dispatchEvent(
+        new CustomEvent('click-data', {
+          bubbles: true,
+          detail: {
+            data: el.dataset.data,
           },
-          null,
-          null
-        );
-        win.close();
-      });
+        })
+      );
     };
   }
 
@@ -108,37 +87,51 @@ export default class DataDisplay extends HTMLElement {
     this._data.innerHTML = '';
   }
 
-  public send(message: string, message_size?: number, raw?: string): void {
-    this.add_message('send', message, message_size, raw);
+  public send(
+    message: string | Uint8Array,
+    message_size?: number,
+    raw?: string | Uint8Array
+  ): void {
+    if (message instanceof Uint8Array)
+      this.data_binary('send', message, message_size, raw);
+    else this.data_string('send', message, message_size, raw);
   }
 
-  public send_binary(
-    message: Uint8Array,
+  public receive(
+    message: string | Uint8Array,
     message_size?: number,
-    raw?: string
+    raw?: string | Uint8Array
+  ): void {
+    if (message instanceof Uint8Array)
+      this.data_binary('recv', message, message_size, raw);
+    else this.data_string('recv', message, message_size, raw);
+  }
+
+  private data_string(
+    type: 'recv' | 'send',
+    message: string,
+    message_size?: number,
+    raw?: string | Uint8Array
   ): void {
     this.add_message(
-      'send',
-      binary_to_ascii(message),
-      message_size ?? message.length,
-      new TextDecoder('latin1').decode(message)
+      type,
+      string_to_ascii(message),
+      message_size,
+      base64_encode2(raw ?? message)
     );
   }
 
-  public receive(message: string, message_size?: number, raw?: string): void {
-    this.add_message('recv', message, message_size, raw);
-  }
-
-  public receive_binary(
+  private data_binary(
+    type: 'recv' | 'send',
     message: Uint8Array,
     message_size?: number,
-    raw?: string
+    raw?: string | Uint8Array
   ): void {
     this.add_message(
-      'recv',
+      type,
       binary_to_ascii(message),
-      message_size ?? message.length,
-      new TextDecoder('latin1').decode(message)
+      message_size,
+      base64_encode2(raw ?? message)
     );
   }
 

@@ -92,19 +92,21 @@ export class HTTPView {
       let url = this._url;
       if (this._in_query.value.length !== 0) url += `?${this._in_query.value}`;
 
-      const data = binary_to_ascii(this._in_body.data);
+      const binary_data = this._in_body.data;
+      const data = binary_to_ascii(binary_data);
       this._data.send(
         `[${id}] ${this.method} ${url} body:[${data}]`,
-        this._in_body.value.length,
-        this._in_body.value
+        binary_data.length,
+        binary_data
       );
-      const response = await request(url, this.method, data);
+      const response = await request(url, this.method, binary_data);
       if (response.ok) {
-        const data = await response.text();
+        const data_bin = new Uint8Array(await response.arrayBuffer());
+        const data = binary_to_ascii(data_bin);
         this._data.receive(
           `[${id}] headers:[${HTTPView.make_headers(response)}] body:[${data}]`,
-          data.length,
-          data
+          data_bin.length,
+          data_bin
         );
       }
     } catch (e) {

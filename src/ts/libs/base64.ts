@@ -94,3 +94,14 @@ export function base64_encode(aBytes: Uint8Array): string {
     (nMod3 === 2 ? '' : nMod3 === 1 ? '=' : '==')
   );
 }
+
+export function base64_encode_string(aBytes: string): string {
+  return base64_encode(
+    Uint8Array.from(Array.from(aBytes).map(c => c.charCodeAt(0)))
+  );
+}
+
+export function base64_encode2(aBytes: string | Uint8Array): string {
+  if (aBytes instanceof Uint8Array) return base64_encode(aBytes);
+  return base64_encode_string(aBytes);
+}

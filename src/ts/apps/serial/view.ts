@@ -208,8 +208,8 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     ).onclick = async () => {
       const data = this._out_data.data;
       if (data.length > 0) {
-        await this._port.write(this._out_data.data);
-        this._data.send_binary(data);
+        await this._port.write(data);
+        this._data.send(data);
       }
     };
 
@@ -279,9 +279,8 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     this._container.querySelectorAll('.serial-signal-button').forEach(btn => {
       (btn as HTMLButtonElement).disabled = !enable;
     });
-    (
-      this._container.querySelector('.serial-input') as HTMLInputElement
-    ).disabled = !enable;
+    if (enable) this._out_data.removeAttribute('disabled');
+    else this._out_data.setAttribute('disabled', '');
     (
       this._container.querySelector('.serial-send') as HTMLButtonElement
     ).disabled = !enable;

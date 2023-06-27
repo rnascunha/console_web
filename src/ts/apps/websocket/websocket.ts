@@ -220,7 +220,7 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
   private on_message(ev: MessageEvent): void {
     if (typeof ev.data === 'string')
       this._data.receive(ev.data, ev.data.length, ev.data);
-    else this._data.receive_binary(new Uint8Array(ev.data as ArrayBuffer));
+    else this._data.receive(new Uint8Array(ev.data as ArrayBuffer));
   }
 
   private on_close(ev: CloseEvent): void {
@@ -259,6 +259,6 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
     } else {
       this._socket.send(new TextDecoder('latin1').decode(data));
     }
-    this._data.send_binary(data);
+    this._data.send(data);
   }
 }

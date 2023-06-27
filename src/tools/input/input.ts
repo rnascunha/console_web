@@ -49,6 +49,7 @@ function init() {
     i.onclick = () => {
       if (i.checked) bd.hide(i.value as Encoding);
       else bd.show(i.value as Encoding);
+      window.history.replaceState('state', '', make_link(false));
       write();
     };
 
@@ -66,13 +67,14 @@ function init() {
 
 function update() {
   bd.update(input_binary.data, +bl.value);
+  window.history.replaceState('state', '', make_link(false));
   write();
 }
 
-function make_link(): string {
-  let link = `${window.location.origin}${window.location.pathname}?encode=${
-    input_binary.encode
-  }&bl=${+bl.value}`;
+function make_link(fulllink = true): string {
+  let link = `${fulllink ? window.location.origin : ''}${
+    window.location.pathname
+  }?encode=${input_binary.encode}&bl=${+bl.value}`;
 
   const hide: string[] = [];
   encoding.forEach(e => {
