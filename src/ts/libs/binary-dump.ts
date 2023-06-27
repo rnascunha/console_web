@@ -1,7 +1,3 @@
-// Decimal match
-//
-// Octal match
-//
 /**
  * Encoding
  */
@@ -74,7 +70,7 @@ function split_hexa(str: string): string[] {
 }
 
 function split_text(str: string): string[] {
-  return str.match(/\\x[0-9a-fA-F]{1,2}|\\n|\\r|\\0|[ -~]/g) ?? [];
+  return str.match(/\\x[0-9a-fA-F]{1,2}|\\n|\\r|\\0|\\\\|[ -~]/g) ?? [];
 }
 
 interface FormatOptions {
@@ -174,6 +170,8 @@ function string_array_to_binary(str: string[]): Uint8Array {
           return 13;
         case '\\0':
           return 0;
+        case '\\\\':
+          return 92;
         default:
           break;
       }
@@ -244,6 +242,7 @@ const specialChars: SpecialChars = {
   '\0': '\\0',
   '\n': '\\n',
   '\r': '\\r',
+  '\\': '\\\\',
 };
 
 export function string_to_ascii_array(
