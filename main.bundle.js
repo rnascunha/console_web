@@ -10587,6 +10587,9 @@ class App {
     get element() {
         return this._el;
     }
+    focus() {
+        this._el.firstChild.focus();
+    }
     get component() {
         return this._component;
     }
@@ -10777,6 +10780,10 @@ class HTTPView {
         this._btn_request_data.onclick = () => __awaiter(this, void 0, void 0, function* () {
             yield this.request();
         });
+        this._in_body.onkeyup = (ev) => __awaiter(this, void 0, void 0, function* () {
+            if (ev.key === 'Enter')
+                yield this.request();
+        });
     }
     get url() {
         return this._url;
@@ -10794,12 +10801,14 @@ class HTTPView {
                 let url = this._url;
                 if (this._in_query.value.length !== 0)
                     url += `?${this._in_query.value}`;
-                const data = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.binary_to_ascii)(this._in_body.data);
-                this._data.send(`[${id}] ${this.method} ${url} body:[${data}]`, this._in_body.value.length, this._in_body.value);
-                const response = yield request(url, this.method, data);
+                const binary_data = this._in_body.data;
+                const data = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.binary_to_ascii)(binary_data);
+                this._data.send(`[${id}] ${this.method} ${url} body:[${data}]`, binary_data.length, binary_data);
+                const response = yield request(url, this.method, binary_data);
                 if (response.ok) {
-                    const data = yield response.text();
-                    this._data.receive(`[${id}] headers:[${HTTPView.make_headers(response)}] body:[${data}]`, data.length, data);
+                    const data_bin = new Uint8Array(yield response.arrayBuffer());
+                    const data = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.binary_to_ascii)(data_bin);
+                    this._data.receive(`[${id}] headers:[${HTTPView.make_headers(response)}] body:[${data}]`, data_bin.length, data_bin);
                 }
             }
             catch (e) {
@@ -11324,13 +11333,13 @@ class SerialView extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__["defau
             set_signal(s, '.serial-RI', 'ringIndicator', this._container);
         });
         // Send data
-        this._container.querySelector('.serial-send').onclick = () => __awaiter(this, void 0, void 0, function* () {
-            const data = this._out_data.data;
-            if (data.length > 0) {
-                yield this._port.write(this._out_data.data);
-                this._data.send_binary(data);
-            }
-        });
+        this._container.querySelector('.serial-send').onclick = () => {
+            this.send().finally(() => { });
+        };
+        this._out_data.onkeyup = ev => {
+            if (ev.key === 'Enter')
+                this.send().finally(() => { });
+        };
         // Clear data
         this._container.querySelector('.serial-data-clear').onclick = () => {
             this._data.clear();
@@ -11381,7 +11390,10 @@ class SerialView extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__["defau
         this._container.querySelectorAll('.serial-signal-button').forEach(btn => {
             btn.disabled = !enable;
         });
-        this._container.querySelector('.serial-input').disabled = !enable;
+        if (enable)
+            this._out_data.removeAttribute('disabled');
+        else
+            this._out_data.setAttribute('disabled', '');
         this._container.querySelector('.serial-send').disabled = !enable;
         this._container.querySelector('.serial-btn-signal').disabled = !enable;
     }
@@ -11390,6 +11402,15 @@ class SerialView extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__["defau
     }
     data(data) {
         this._data.receive(data.data, data.size, data.raw);
+    }
+    send() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = this._out_data.data;
+            if (data.length > 0) {
+                yield this._port.write(data);
+                this._data.send(data);
+            }
+        });
     }
     disconnect() {
         this._port.disconnect();
@@ -11501,6 +11522,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   WebsocketView: () => (/* binding */ WebsocketView)
 /* harmony export */ });
 /* harmony import */ var _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/event_emitter */ "./src/ts/libs/event_emitter.ts");
+/* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
+
 
 /**
  * https://www.rfc-editor.org/rfc/rfc6455.html#section-11.7
@@ -11610,7 +11633,7 @@ class WebsocketView extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__["de
             this.close();
         };
         this._in_data.onkeyup = ev => {
-            if (ev.code === 'Enter') {
+            if (ev.key === 'Enter') {
                 ev.preventDefault();
                 this.send_data();
             }
@@ -11667,9 +11690,9 @@ class WebsocketView extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__["de
     }
     on_message(ev) {
         if (typeof ev.data === 'string')
-            this._data.receive(ev.data, ev.data.length, ev.data);
+            this._data.receive((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__.string_to_ascii)(ev.data), ev.data.length, ev.data);
         else
-            this._data.receive_binary(new Uint8Array(ev.data));
+            this._data.receive(new Uint8Array(ev.data));
     }
     on_close(ev) {
         this.to_close(ev.code);
@@ -11704,7 +11727,7 @@ class WebsocketView extends _libs_event_emitter__WEBPACK_IMPORTED_MODULE_0__["de
         else {
             this._socket.send(new TextDecoder('latin1').decode(data));
         }
-        this._data.send_binary(data);
+        this._data.send(data);
     }
 }
 
@@ -11753,11 +11776,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./golden-components/component-base */ "./src/ts/golden-components/component-base.ts");
 /* harmony import */ var _components__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components */ "./src/ts/components.ts");
-/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/utils/types.js");
-/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/golden-layout.js");
-/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/config/resolved-config.js");
+/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/utils/types.js");
+/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/golden-layout.js");
+/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/config/resolved-config.js");
 /* harmony import */ var _apps_app__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./apps/app */ "./src/ts/apps/app.ts");
 /* harmony import */ var _libs_db__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./libs/db */ "./src/ts/libs/db.ts");
+/* harmony import */ var _web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./web-components/binary-dump/binary-dump */ "./src/ts/web-components/binary-dump/binary-dump.ts");
+/* harmony import */ var _helper_window__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./helper/window */ "./src/ts/helper/window.ts");
+/* harmony import */ var _libs_base64__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./libs/base64 */ "./src/ts/libs/base64.ts");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -11772,12 +11798,16 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+// Binary dump window
+
+
+
 const console_layout = {
     settings: {
         responsiveMode: 'always',
     },
     root: {
-        type: golden_layout__WEBPACK_IMPORTED_MODULE_4__.ItemType.row,
+        type: golden_layout__WEBPACK_IMPORTED_MODULE_7__.ItemType.row,
         content: [],
     },
 };
@@ -11787,27 +11817,13 @@ class ConsoleApp {
     constructor(app_list, container = document.body) {
         window.console_app = this;
         this._app_list = new _apps_app__WEBPACK_IMPORTED_MODULE_2__.AppList(app_list);
-        (0,_libs_db__WEBPACK_IMPORTED_MODULE_3__.open)(dbName, dbVersion)
-            .then((db) => __awaiter(this, void 0, void 0, function* () {
-            this._db = db;
-            return yield this._db.read_iterator('protocol');
-        }))
-            .then(v => {
-            if ('current' in v)
-                this._sel_protocols.value = v.current;
-            this._app_list.apps.forEach(app => {
-                if (app.protocol in v) {
-                    app.update(v[app.protocol]);
-                }
-            });
-        })
-            .catch(() => {
-            this._db = undefined;
-        })
-            .finally(() => {
+        this.load_db().finally(() => {
             this._sel_protocols.dispatchEvent(new Event('change'));
         });
-        this._layout = new golden_layout__WEBPACK_IMPORTED_MODULE_5__.GoldenLayout(container.querySelector('#golden'), this.bind_component.bind(this));
+        this._layout = new golden_layout__WEBPACK_IMPORTED_MODULE_8__.GoldenLayout(container.querySelector('#golden'), this.bind_component.bind(this), this.unbind_component.bind(this));
+        this._layout.container.addEventListener('click-data', ev => {
+            this.byte_dump_window(ev.detail.data);
+        });
         this._layout.resizeWithContainerAutomatically = true;
         this.register_components();
         this._sel_protocols = container.querySelector('#protocols');
@@ -11819,20 +11835,14 @@ class ConsoleApp {
             proto_container.appendChild(app.element);
         });
         this._sel_protocols.onchange = () => {
-            var _a;
-            const el = (_a = this._app_list.protocol(this._sel_protocols.value)) === null || _a === void 0 ? void 0 : _a.element;
-            if (el === undefined)
-                throw new Error('Protocol not found');
-            this._app_list.apps.forEach(app => {
-                const app_el = app.element;
-                if (app_el === el)
-                    app_el.style.display = 'inline-block';
-                else
-                    app_el.style.display = 'none';
-            });
+            this.select_protocol();
         };
         this._btn_connect.onclick = () => {
             this.open();
+        };
+        proto_container.onkeyup = ev => {
+            if (ev.key === 'Enter')
+                this.open();
         };
         if (this._layout.isSubWindow) {
             container.style.gridTemplate = `"header" 0px
@@ -11844,7 +11854,7 @@ class ConsoleApp {
             this._layout.loadLayout(console_layout);
     }
     bind_component(container, itemConfig) {
-        const comp_name = golden_layout__WEBPACK_IMPORTED_MODULE_6__.ResolvedComponentItemConfig.resolveComponentTypeName(itemConfig);
+        const comp_name = golden_layout__WEBPACK_IMPORTED_MODULE_9__.ResolvedComponentItemConfig.resolveComponentTypeName(itemConfig);
         if (comp_name === undefined)
             throw new Error('Component name not found');
         const comp_type = this.get_component(comp_name);
@@ -11860,6 +11870,11 @@ class ConsoleApp {
             component,
             virtual: use_virtual,
         };
+    }
+    unbind_component(container) {
+        if (container.virtual) {
+            this._layout.container.removeChild(container.element);
+        }
     }
     get list() {
         return this._app_list;
@@ -11926,6 +11941,61 @@ class ConsoleApp {
         if (name in _components__WEBPACK_IMPORTED_MODULE_1__.other_components)
             return _components__WEBPACK_IMPORTED_MODULE_1__.other_components[name].component;
         return undefined;
+    }
+    byte_dump_window(data) {
+        const d = (0,_libs_base64__WEBPACK_IMPORTED_MODULE_6__.base64_decode)(data);
+        const body = new _web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_4__.BinaryDump(8, d, { hide: ['octal', 'binary'] });
+        const win = (0,_helper_window__WEBPACK_IMPORTED_MODULE_5__.create_window)('Binary Dump', body, {
+            append: true,
+            center: true,
+            hide_undock: this._layout.isSubWindow,
+        });
+        if (!this._layout.isSubWindow) {
+            win.addEventListener('undock', () => {
+                window.console_app.layout.createPopout(window.console_app.layout.newComponent('DockDumpComponent', JSON.stringify({
+                    data,
+                    hide: ['octal', 'binary'],
+                })), {
+                    width: win.clientWidth,
+                    height: win.clientHeight - win.header.clientHeight,
+                    left: win.offsetLeft,
+                    top: win.offsetTop,
+                }, null, null);
+                win.close();
+            });
+        }
+    }
+    load_db() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                this._db = yield (0,_libs_db__WEBPACK_IMPORTED_MODULE_3__.open)(dbName, dbVersion);
+                const v = yield this._db.read_iterator('protocol');
+                if ('current' in v)
+                    this._sel_protocols.value = v.current;
+                this._app_list.apps.forEach(app => {
+                    if (app.protocol in v)
+                        app.update(v[app.protocol]);
+                });
+            }
+            catch (e) {
+                this._db = undefined;
+            }
+        });
+    }
+    select_protocol() {
+        var _a;
+        const el = (_a = this._app_list.protocol(this._sel_protocols.value)) === null || _a === void 0 ? void 0 : _a.element;
+        if (el === undefined)
+            throw new Error('Protocol not found');
+        this._app_list.apps.forEach(app => {
+            const app_el = app.element;
+            if (app_el === el) {
+                app_el.style.display = 'inline-block';
+                app.focus();
+            }
+            else
+                app_el.style.display = 'none';
+        });
     }
 }
 
@@ -12081,6 +12151,109 @@ function create_window(title, body, options = {}) {
 
 /***/ }),
 
+/***/ "./src/ts/libs/base64.ts":
+/*!*******************************!*\
+  !*** ./src/ts/libs/base64.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   base64_decode: () => (/* binding */ base64_decode),
+/* harmony export */   base64_encode: () => (/* binding */ base64_encode),
+/* harmony export */   base64_encode2: () => (/* binding */ base64_encode2),
+/* harmony export */   base64_encode_string: () => (/* binding */ base64_encode_string)
+/* harmony export */ });
+/**
+ * @see https://developer.mozilla.org/en-US/docs/Glossary/Base64
+ */
+// Array of bytes to Base64 string decoding
+function b64_to_uint6(nChr) {
+    return nChr > 64 && nChr < 91
+        ? nChr - 65
+        : nChr > 96 && nChr < 123
+            ? nChr - 71
+            : nChr > 47 && nChr < 58
+                ? nChr + 4
+                : nChr === 43
+                    ? 62
+                    : nChr === 47
+                        ? 63
+                        : 0;
+}
+function base64_decode(sBase64, nBlocksSize = 0) {
+    const sB64Enc = sBase64.replace(/[^A-Za-z0-9+/]/g, ''); // Remove any non-base64 characters, such as trailing "=", whitespace, and more.
+    const nInLen = sB64Enc.length;
+    const nOutLen = nBlocksSize !== 0
+        ? Math.ceil(((nInLen * 3 + 1) >> 2) / nBlocksSize) * nBlocksSize
+        : (nInLen * 3 + 1) >> 2;
+    const taBytes = new Uint8Array(nOutLen);
+    let nMod3;
+    let nMod4;
+    let nUint24 = 0;
+    let nOutIdx = 0;
+    for (let nInIdx = 0; nInIdx < nInLen; nInIdx++) {
+        nMod4 = nInIdx & 3;
+        nUint24 |= b64_to_uint6(sB64Enc.charCodeAt(nInIdx)) << (6 * (3 - nMod4));
+        if (nMod4 === 3 || nInLen - nInIdx === 1) {
+            nMod3 = 0;
+            while (nMod3 < 3 && nOutIdx < nOutLen) {
+                taBytes[nOutIdx] = (nUint24 >>> ((16 >>> nMod3) & 24)) & 255;
+                nMod3++;
+                nOutIdx++;
+            }
+            nUint24 = 0;
+        }
+    }
+    return taBytes;
+}
+/* Base64 string to array encoding */
+function uint6_to_b64(nUint6) {
+    return nUint6 < 26
+        ? nUint6 + 65
+        : nUint6 < 52
+            ? nUint6 + 71
+            : nUint6 < 62
+                ? nUint6 - 4
+                : nUint6 === 62
+                    ? 43
+                    : nUint6 === 63
+                        ? 47
+                        : 65;
+}
+function base64_encode(aBytes) {
+    let nMod3 = 2;
+    let sB64Enc = '';
+    const nLen = aBytes.length;
+    let nUint24 = 0;
+    for (let nIdx = 0; nIdx < nLen; nIdx++) {
+        nMod3 = nIdx % 3;
+        // To break your base64 into several 80-character lines, add:
+        //   if (nIdx > 0 && ((nIdx * 4) / 3) % 76 === 0) {
+        //      sB64Enc += "\r\n";
+        //    }
+        nUint24 |= aBytes[nIdx] << ((16 >>> nMod3) & 24);
+        if (nMod3 === 2 || aBytes.length - nIdx === 1) {
+            sB64Enc += String.fromCodePoint(uint6_to_b64((nUint24 >>> 18) & 63), uint6_to_b64((nUint24 >>> 12) & 63), uint6_to_b64((nUint24 >>> 6) & 63), uint6_to_b64(nUint24 & 63));
+            nUint24 = 0;
+        }
+    }
+    return (sB64Enc.substring(0, sB64Enc.length - 2 + nMod3) +
+        (nMod3 === 2 ? '' : nMod3 === 1 ? '=' : '=='));
+}
+function base64_encode_string(aBytes) {
+    return base64_encode(Uint8Array.from(Array.from(aBytes).map(c => c.charCodeAt(0))));
+}
+function base64_encode2(aBytes) {
+    if (aBytes instanceof Uint8Array)
+        return base64_encode(aBytes);
+    return base64_encode_string(aBytes);
+}
+
+
+/***/ }),
+
 /***/ "./src/ts/libs/binary-dump.ts":
 /*!************************************!*\
   !*** ./src/ts/libs/binary-dump.ts ***!
@@ -12108,10 +12281,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   to_array_string: () => (/* binding */ to_array_string),
 /* harmony export */   to_data: () => (/* binding */ to_data)
 /* harmony export */ });
-// Decimal match
-//
-// Octal match
-//
 /**
  * Encoding
  */
@@ -12173,7 +12342,7 @@ function split_hexa(str) {
 }
 function split_text(str) {
     var _a;
-    return (_a = str.match(/\\x[0-9a-fA-F]{1,2}|\\n|\\r|\\0|[ -~]/g)) !== null && _a !== void 0 ? _a : [];
+    return (_a = str.match(/\\x[0-9a-fA-F]{1,2}|\\n|\\r|\\0|\\\\|[ -~]/g)) !== null && _a !== void 0 ? _a : [];
 }
 /**
  * Type definitions
@@ -12248,6 +12417,8 @@ function string_array_to_binary(str) {
                 return 13;
             case '\\0':
                 return 0;
+            case '\\\\':
+                return 92;
             default:
                 break;
         }
@@ -12295,6 +12466,7 @@ const specialChars = {
     '\0': '\\0',
     '\n': '\\n',
     '\r': '\\r',
+    '\\': '\\\\',
 };
 function string_to_ascii_array(chunk, chars = specialChars) {
     const out = [];
@@ -12663,7 +12835,7 @@ var _a;
 
 (_a = document.querySelector('#setup')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
     const body = document.createElement('div');
-    body.innerHTML = `Version: <b>${"8fa25ec"}</b>`;
+    body.innerHTML = `Version: <b>${"1ee85d3"}</b>`;
     body.classList.add('setup-body');
     (0,_helper_window__WEBPACK_IMPORTED_MODULE_0__.create_window)('Setup', body, {
         hide_undock: true,
@@ -13189,9 +13361,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _helper_time__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../helper/time */ "./src/ts/helper/time.ts");
 /* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
-/* harmony import */ var _binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../binary-dump/binary-dump */ "./src/ts/web-components/binary-dump/binary-dump.ts");
-/* harmony import */ var _helper_window__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../helper/window */ "./src/ts/helper/window.ts");
-
+/* harmony import */ var _libs_base64__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../libs/base64 */ "./src/ts/libs/base64.ts");
 
 
 
@@ -13261,39 +13431,34 @@ class DataDisplay extends HTMLElement {
             const el = ev.composedPath()[0];
             if (!('data' in el.dataset))
                 return;
-            const d = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__.parse)(el.dataset.data, 'text');
-            const body = new _binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__.BinaryDump(8, d, { hide: ['octal', 'binary'] });
-            const win = (0,_helper_window__WEBPACK_IMPORTED_MODULE_3__.create_window)('Binary Dump', body);
-            document.body.appendChild(win);
-            win.center();
-            win.addEventListener('undock', () => {
-                window.console_app.layout.createPopout(window.console_app.layout.newComponent('DockDumpComponent', JSON.stringify({
+            this.dispatchEvent(new CustomEvent('click-data', {
+                bubbles: true,
+                detail: {
                     data: el.dataset.data,
-                    hide: ['octal', 'binary'],
-                })), {
-                    width: win.clientWidth,
-                    height: win.clientHeight - win.header.clientHeight,
-                    left: win.offsetLeft,
-                    top: win.offsetTop,
-                }, null, null);
-                win.close();
-            });
+                },
+            }));
         };
     }
     clear() {
         this._data.innerHTML = '';
     }
     send(message, message_size, raw) {
-        this.add_message('send', message, message_size, raw);
-    }
-    send_binary(message, message_size, raw) {
-        this.add_message('send', (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__.binary_to_ascii)(message), message_size !== null && message_size !== void 0 ? message_size : message.length, new TextDecoder('latin1').decode(message));
+        if (message instanceof Uint8Array)
+            this.data_binary('send', message, message_size, raw);
+        else
+            this.data_string('send', message, message_size, raw);
     }
     receive(message, message_size, raw) {
-        this.add_message('recv', message, message_size, raw);
+        if (message instanceof Uint8Array)
+            this.data_binary('recv', message, message_size, raw);
+        else
+            this.data_string('recv', message, message_size, raw);
     }
-    receive_binary(message, message_size, raw) {
-        this.add_message('recv', (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__.binary_to_ascii)(message), message_size !== null && message_size !== void 0 ? message_size : message.length, new TextDecoder('latin1').decode(message));
+    data_string(type, message, message_size, raw) {
+        this.add_message(type, message, message_size, (0,_libs_base64__WEBPACK_IMPORTED_MODULE_2__.base64_encode2)(raw !== null && raw !== void 0 ? raw : message));
+    }
+    data_binary(type, message, message_size, raw) {
+        this.add_message(type, (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__.binary_to_ascii)(message), message_size, (0,_libs_base64__WEBPACK_IMPORTED_MODULE_2__.base64_encode2)(raw !== null && raw !== void 0 ? raw : message));
     }
     command(message) {
         this.add_message('comm', message);

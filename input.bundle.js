@@ -677,7 +677,9 @@ function fade_out(el, pace = 0.005) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   base64_decode: () => (/* binding */ base64_decode),
-/* harmony export */   base64_encode: () => (/* binding */ base64_encode)
+/* harmony export */   base64_encode: () => (/* binding */ base64_encode),
+/* harmony export */   base64_encode2: () => (/* binding */ base64_encode2),
+/* harmony export */   base64_encode_string: () => (/* binding */ base64_encode_string)
 /* harmony export */ });
 /**
  * @see https://developer.mozilla.org/en-US/docs/Glossary/Base64
@@ -756,6 +758,14 @@ function base64_encode(aBytes) {
     return (sB64Enc.substring(0, sB64Enc.length - 2 + nMod3) +
         (nMod3 === 2 ? '' : nMod3 === 1 ? '=' : '=='));
 }
+function base64_encode_string(aBytes) {
+    return base64_encode(Uint8Array.from(Array.from(aBytes).map(c => c.charCodeAt(0))));
+}
+function base64_encode2(aBytes) {
+    if (aBytes instanceof Uint8Array)
+        return base64_encode(aBytes);
+    return base64_encode_string(aBytes);
+}
 
 
 /***/ }),
@@ -786,10 +796,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   to_array_string: () => (/* binding */ to_array_string),
 /* harmony export */   to_data: () => (/* binding */ to_data)
 /* harmony export */ });
-// Decimal match
-//
-// Octal match
-//
 /**
  * Encoding
  */
@@ -851,7 +857,7 @@ function split_hexa(str) {
 }
 function split_text(str) {
     var _a;
-    return (_a = str.match(/\\x[0-9a-fA-F]{1,2}|\\n|\\r|\\0|[ -~]/g)) !== null && _a !== void 0 ? _a : [];
+    return (_a = str.match(/\\x[0-9a-fA-F]{1,2}|\\n|\\r|\\0|\\\\|[ -~]/g)) !== null && _a !== void 0 ? _a : [];
 }
 /**
  * Type definitions
@@ -926,6 +932,8 @@ function string_array_to_binary(str) {
                 return 13;
             case '\\0':
                 return 0;
+            case '\\\\':
+                return 92;
             default:
                 break;
         }
@@ -973,6 +981,7 @@ const specialChars = {
     '\0': '\\0',
     '\n': '\\n',
     '\r': '\\r',
+    '\\': '\\\\',
 };
 function string_to_ascii_array(chunk, chars = specialChars) {
     const out = [];
@@ -1718,6 +1727,7 @@ function init() {
                 bd.hide(i.value);
             else
                 bd.show(i.value);
+            window.history.replaceState('state', '', make_link(false));
             write();
         };
         if (bd.is_hidden(i.value))
@@ -1732,10 +1742,11 @@ function init() {
 }
 function update() {
     bd.update(input_binary.data, +bl.value);
+    window.history.replaceState('state', '', make_link(false));
     write();
 }
-function make_link() {
-    let link = `${window.location.origin}${window.location.pathname}?encode=${input_binary.encode}&bl=${+bl.value}`;
+function make_link(fulllink = true) {
+    let link = `${fulllink ? window.location.origin : ''}${window.location.pathname}?encode=${input_binary.encode}&bl=${+bl.value}`;
     const hide = [];
     _ts_libs_binary_dump__WEBPACK_IMPORTED_MODULE_5__.encoding.forEach(e => {
         if (bd.is_hidden(e))
