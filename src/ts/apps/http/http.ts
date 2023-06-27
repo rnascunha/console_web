@@ -72,6 +72,9 @@ export class HTTPView {
     this._btn_request_data.onclick = async (): Promise<void> => {
       await this.request();
     };
+    this._in_body.onkeyup = async ev => {
+      if (ev.key === 'Enter') await this.request();
+    };
   }
 
   public get url(): string {

@@ -1,6 +1,7 @@
 import type DataDisplay from '../../web-components/data-display/data-display';
 import EventEmitter from '../../libs/event_emitter';
 import type { BinaryInputSelect } from '../../web-components/binary-input/text-select-binary';
+import { string_to_ascii } from '../../libs/binary-dump';
 
 interface WebSocketEvents {
   open: Event;
@@ -153,7 +154,7 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
     };
 
     this._in_data.onkeyup = ev => {
-      if (ev.code === 'Enter') {
+      if (ev.key === 'Enter') {
         ev.preventDefault();
         this.send_data();
       }
@@ -219,7 +220,7 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
 
   private on_message(ev: MessageEvent): void {
     if (typeof ev.data === 'string')
-      this._data.receive(ev.data, ev.data.length, ev.data);
+      this._data.receive(string_to_ascii(ev.data), ev.data.length, ev.data);
     else this._data.receive(new Uint8Array(ev.data as ArrayBuffer));
   }
 

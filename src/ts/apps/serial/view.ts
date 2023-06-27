@@ -205,12 +205,11 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     // Send data
     (
       this._container.querySelector('.serial-send') as HTMLButtonElement
-    ).onclick = async () => {
-      const data = this._out_data.data;
-      if (data.length > 0) {
-        await this._port.write(data);
-        this._data.send(data);
-      }
+    ).onclick = () => {
+      this.send().finally(() => {});
+    };
+    this._out_data.onkeyup = ev => {
+      if (ev.key === 'Enter') this.send().finally(() => {});
     };
 
     // Clear data
@@ -295,6 +294,14 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
 
   private data(data: ParseData): void {
     this._data.receive(data.data, data.size, data.raw);
+  }
+
+  private async send(): Promise<void> {
+    const data = this._out_data.data;
+    if (data.length > 0) {
+      await this._port.write(data);
+      this._data.send(data);
+    }
   }
 
   private disconnect(): void {

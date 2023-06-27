@@ -1,5 +1,5 @@
 import { time } from '../../helper/time';
-import { binary_to_ascii, string_to_ascii } from '../../libs/binary-dump';
+import { binary_to_ascii } from '../../libs/binary-dump';
 import { base64_encode2 } from '../../libs/base64';
 
 type TypeData = 'comm' | 'recv' | 'send' | 'error' | 'warn';
@@ -115,7 +115,7 @@ export default class DataDisplay extends HTMLElement {
   ): void {
     this.add_message(
       type,
-      string_to_ascii(message),
+      message,
       message_size,
       base64_encode2(raw ?? message)
     );

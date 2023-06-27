@@ -29,6 +29,10 @@ export abstract class App {
     return this._el;
   }
 
+  public focus(): void {
+    (this._el.firstChild as HTMLElement).focus();
+  }
+
   get component(): any {
     return this._component;
   }

@@ -87,6 +87,10 @@ export class ConsoleApp {
       this.open();
     };
 
+    proto_container.onkeyup = ev => {
+      if (ev.key === 'Enter') this.open();
+    };
+
     if (this._layout.isSubWindow) {
       container.style.gridTemplate = `"header" 0px
                                       "body" auto
@@ -261,8 +265,10 @@ export class ConsoleApp {
     if (el === undefined) throw new Error('Protocol not found');
     this._app_list.apps.forEach(app => {
       const app_el = app.element;
-      if (app_el === el) (app_el as HTMLElement).style.display = 'inline-block';
-      else (app_el as HTMLElement).style.display = 'none';
+      if (app_el === el) {
+        (app_el as HTMLElement).style.display = 'inline-block';
+        app.focus();
+      } else (app_el as HTMLElement).style.display = 'none';
     });
   }
 }
