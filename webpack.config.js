@@ -67,11 +67,13 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       chunks: ['main'],
+      favicon: path.resolve(__dirname, './favicon.ico'),
       template: path.resolve(__dirname, './src/index.html'),
     }),
     new HtmlWebpackPlugin({
       chunks: ['input'],
       filename: 'input.html',
+      favicon: path.resolve(__dirname, './favicon.ico'),
       template: path.resolve(__dirname, './src/tools/input/input.html'),
     }),
     new webpack.DefinePlugin({
