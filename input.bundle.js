@@ -21,7 +21,28 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.window {\n  background-color: white;\n  margin: 0px;\n  padding: 0px;\n  box-shadow: 3px 2px 2px black;\n  border: 1px black solid;\n  border-radius: 5px;\n}\n\n.window-header {\n  background-color: blue;\n  font-weight: bold;\n  width: 100%;\n  text-align: center;\n  padding: 3px 0px;\n  border-top-left-radius: 4px;\n}\n\n.window-body {\n  border-bottom-right-radius: 4px;\n}", "",{"version":3,"sources":["webpack://./src/css/window.css"],"names":[],"mappings":";AACA;EACE,uBAAuB;EACvB,WAAW;EACX,YAAY;EACZ,6BAA6B;EAC7B,uBAAuB;EACvB,kBAAkB;AACpB;;AAEA;EACE,sBAAsB;EACtB,iBAAiB;EACjB,WAAW;EACX,kBAAkB;EAClB,gBAAgB;EAChB,2BAA2B;AAC7B;;AAEA;EACE,+BAA+B;AACjC","sourcesContent":["\n.window {\n  background-color: white;\n  margin: 0px;\n  padding: 0px;\n  box-shadow: 3px 2px 2px black;\n  border: 1px black solid;\n  border-radius: 5px;\n}\n\n.window-header {\n  background-color: blue;\n  font-weight: bold;\n  width: 100%;\n  text-align: center;\n  padding: 3px 0px;\n  border-top-left-radius: 4px;\n}\n\n.window-body {\n  border-bottom-right-radius: 4px;\n}"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, `
+.window {
+  background-color: white;
+  margin: 0px;
+  padding: 0px;
+  box-shadow: 3px 2px 2px black;
+  border: 1px black solid;
+  border-radius: 5px;
+}
+
+.window-header {
+  background-color: blue;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  padding: 3px 0px;
+  border-top-left-radius: 4px;
+}
+
+.window-body {
+  border-bottom-right-radius: 4px;
+}`, "",{"version":3,"sources":["webpack://./src/css/window.css"],"names":[],"mappings":";AACA;EACE,uBAAuB;EACvB,WAAW;EACX,YAAY;EACZ,6BAA6B;EAC7B,uBAAuB;EACvB,kBAAkB;AACpB;;AAEA;EACE,sBAAsB;EACtB,iBAAiB;EACjB,WAAW;EACX,kBAAkB;EAClB,gBAAgB;EAChB,2BAA2B;AAC7B;;AAEA;EACE,+BAA+B;AACjC","sourcesContent":["\n.window {\n  background-color: white;\n  margin: 0px;\n  padding: 0px;\n  box-shadow: 3px 2px 2px black;\n  border: 1px black solid;\n  border-radius: 5px;\n}\n\n.window-header {\n  background-color: blue;\n  font-weight: bold;\n  width: 100%;\n  text-align: center;\n  padding: 3px 0px;\n  border-top-left-radius: 4px;\n}\n\n.window-body {\n  border-bottom-right-radius: 4px;\n}"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -47,7 +68,55 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\n#header {\n  display: flex;\n  width: 100%;\n  align-items: center;\n  justify-content: space-between;\n}\n\n#options {\n  width: fit-content;\n}\n\n#share {\n  font-size: xx-large;\n  cursor: pointer;\n}\n\n#share:hover {\n  background-color: black;\n  color: white;\n}\n\n.link {\n  cursor: text;\n  width: 500px;\n}\n\n.copy {\n  padding: 2px;\n  cursor: pointer;\n}\n\n.copy:hover {\n  background-color: black;\n  color: white;\n}\n\n#input-binary {\n  width: 50%;\n}\n", "",{"version":3,"sources":["webpack://./src/tools/input/input.css"],"names":[],"mappings":"AAAA;;EAEE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb,WAAW;EACX,mBAAmB;EACnB,8BAA8B;AAChC;;AAEA;EACE,kBAAkB;AACpB;;AAEA;EACE,mBAAmB;EACnB,eAAe;AACjB;;AAEA;EACE,uBAAuB;EACvB,YAAY;AACd;;AAEA;EACE,YAAY;EACZ,YAAY;AACd;;AAEA;EACE,YAAY;EACZ,eAAe;AACjB;;AAEA;EACE,uBAAuB;EACvB,YAAY;AACd;;AAEA;EACE,UAAU;AACZ","sourcesContent":["html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\n#header {\n  display: flex;\n  width: 100%;\n  align-items: center;\n  justify-content: space-between;\n}\n\n#options {\n  width: fit-content;\n}\n\n#share {\n  font-size: xx-large;\n  cursor: pointer;\n}\n\n#share:hover {\n  background-color: black;\n  color: white;\n}\n\n.link {\n  cursor: text;\n  width: 500px;\n}\n\n.copy {\n  padding: 2px;\n  cursor: pointer;\n}\n\n.copy:hover {\n  background-color: black;\n  color: white;\n}\n\n#input-binary {\n  width: 50%;\n}\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, `html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#header {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#options {
+  width: fit-content;
+}
+
+#share {
+  font-size: xx-large;
+  cursor: pointer;
+}
+
+#share:hover {
+  background-color: black;
+  color: white;
+}
+
+.link {
+  cursor: text;
+  width: 500px;
+}
+
+.copy {
+  padding: 2px;
+  cursor: pointer;
+}
+
+.copy:hover {
+  background-color: black;
+  color: white;
+}
+
+#input-binary {
+  width: 50%;
+}
+`, "",{"version":3,"sources":["webpack://./src/tools/input/input.css"],"names":[],"mappings":"AAAA;;EAEE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb,WAAW;EACX,mBAAmB;EACnB,8BAA8B;AAChC;;AAEA;EACE,kBAAkB;AACpB;;AAEA;EACE,mBAAmB;EACnB,eAAe;AACjB;;AAEA;EACE,uBAAuB;EACvB,YAAY;AACd;;AAEA;EACE,YAAY;EACZ,YAAY;AACd;;AAEA;EACE,YAAY;EACZ,eAAe;AACjB;;AAEA;EACE,uBAAuB;EACvB,YAAY;AACd;;AAEA;EACE,UAAU;AACZ","sourcesContent":["html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\n#header {\n  display: flex;\n  width: 100%;\n  align-items: center;\n  justify-content: space-between;\n}\n\n#options {\n  width: fit-content;\n}\n\n#share {\n  font-size: xx-large;\n  cursor: pointer;\n}\n\n#share:hover {\n  background-color: black;\n  color: white;\n}\n\n.link {\n  cursor: text;\n  width: 500px;\n}\n\n.copy {\n  padding: 2px;\n  cursor: pointer;\n}\n\n.copy:hover {\n  background-color: black;\n  color: white;\n}\n\n#input-binary {\n  width: 50%;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -1552,6 +1621,9 @@ class BinaryInputSelect extends HTMLElement {
     }
     get data() {
         return this._data.data;
+    }
+    set data(d) {
+        this._data.data = d;
     }
     set encode(enc) {
         if (!_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.encoding.includes(enc))
