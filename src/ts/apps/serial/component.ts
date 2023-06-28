@@ -2,7 +2,7 @@ import {
   AppComponent,
   ComponentBase,
 } from '../../golden-components/component-base';
-import type { SerialApp } from '../app';
+import type { SerialApp } from './app';
 import type { SerialConn } from './serial';
 import { SerialView, SerialViewConsole } from './view';
 import type {
