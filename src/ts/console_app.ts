@@ -20,6 +20,7 @@ import { dispatch_setup } from './setup';
 import { BinaryDump } from './web-components/binary-dump/binary-dump';
 import { create_window } from './helper/window';
 import { base64_decode } from './libs/base64';
+import type { DraggablePopup } from './web-components/draggable-popup/draggable-popup';
 
 const console_layout: LayoutConfig = {
   settings: {
@@ -96,8 +97,13 @@ export class ConsoleApp {
       if (ev.key === 'Enter') this.open();
     };
 
+    let setup_window: DraggablePopup | null = null;
     container.querySelector('#setup')?.addEventListener('click', ev => {
-      if (this._db !== undefined) dispatch_setup(this._db);
+      if (setup_window !== null) {
+        setup_window.center();
+        return;
+      }
+      if (this._db !== undefined) setup_window = dispatch_setup(this._db);
     });
 
     if (this._layout.isSubWindow) {
@@ -264,6 +270,9 @@ export class ConsoleApp {
       this._app_list.apps.forEach(app => {
         if (app.protocol in v) app.update(v[app.protocol]);
       });
+      this._db.handler.onversionchange = async () => {
+        this._db = await open_db(dbName, dbVersion);
+      };
     } catch (e) {
       this._db = undefined;
     }
