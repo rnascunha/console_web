@@ -106,4 +106,22 @@ export class DB {
       };
     });
   }
+
+  public async clear(force: boolean = false): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+      const op = window.indexedDB.deleteDatabase(this._db.name);
+      op.onsuccess = () => {
+        resolve();
+      };
+
+      op.onerror = () => {
+        reject(new Error(`Error deleting DB [${this._db.name}]`));
+      };
+
+      op.onblocked = () => {
+        if (force) this._db.close();
+        else reject(new Error(`Blocked deleting DB [${this._db.name}]`));
+      };
+    });
+  }
 }

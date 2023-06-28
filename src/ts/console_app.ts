@@ -14,6 +14,7 @@ import {
 } from 'golden-layout';
 import { type AppOpenParameters, type App, AppList } from './apps/app';
 import { open as open_db, type DB } from './libs/db';
+import { dispatch_setup } from './setup';
 
 // Binary dump window
 import { BinaryDump } from './web-components/binary-dump/binary-dump';
@@ -94,6 +95,10 @@ export class ConsoleApp {
     proto_container.onkeyup = ev => {
       if (ev.key === 'Enter') this.open();
     };
+
+    container.querySelector('#setup')?.addEventListener('click', ev => {
+      if (this._db !== undefined) dispatch_setup(this._db);
+    });
 
     if (this._layout.isSubWindow) {
       container.style.gridTemplate = `"header" 0px
