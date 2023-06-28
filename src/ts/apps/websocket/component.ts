@@ -12,7 +12,8 @@ export class WSComponent extends AppComponent {
   ) {
     super(container, virtual);
 
-    this._view = new WebsocketView(new Websocket(state as string));
+    const value = JSON.parse(state as string);
+    this._view = new WebsocketView(new Websocket(value.url), value.state);
     this.rootHtmlElement.appendChild(this._view.container);
 
     this.set_title(`${this.socket.url} (connecting)`);
@@ -25,6 +26,10 @@ export class WSComponent extends AppComponent {
     });
     this._view.on('close', () => {
       this.set_title(`${this.socket.url} (closed)`);
+    });
+
+    this._view.on('state', args => {
+      window.console_app.set_state(value.url.split('://')[0], args);
     });
   }
 

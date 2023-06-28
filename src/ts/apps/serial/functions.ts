@@ -45,6 +45,7 @@ export async function esp32_signal_reset(port: SerialConn): Promise<void> {
 }
 
 function update_ports(ports: SerialConn[], select: HTMLSelectElement): void {
+  const selected = +select.value;
   select.innerHTML = '';
   if (ports.length === 0) {
     select.appendChild(new Option('No ports', '0'));
@@ -54,7 +55,12 @@ function update_ports(ports: SerialConn[], select: HTMLSelectElement): void {
   select.disabled = false;
   ports.forEach(port =>
     select.appendChild(
-      new Option(make_serial_name(port.port), port.id.toString())
+      new Option(
+        make_serial_name(port.port),
+        port.id.toString(),
+        undefined,
+        port.id === selected
+      )
     )
   );
 }

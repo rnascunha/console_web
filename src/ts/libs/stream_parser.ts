@@ -115,7 +115,7 @@ export class ParseUntilTimeout extends EventEmitter<ParserUntilTimeoutEvents> {
     const result = this._parser.parse();
     for (const d of result) {
       this.emit('data', {
-        data: `${string_to_ascii(d.data)}[${string_to_ascii(d.result[0])}]`,
+        data: `${string_to_ascii(d.data)}${string_to_ascii(d.result[0])}`,
         size: d.data.length + d.result[0].length,
         raw: d.data + d.result[0],
       });

@@ -14,8 +14,18 @@ export async function open(
 
     openRequest.onupgradeneeded = ev => {
       const db: IDBDatabase = (ev.target as IDBOpenDBRequest).result;
-      const store = db.createObjectStore('protocol');
-      store.transaction.oncomplete = () => {};
+
+      const protocol_transaction = db.createObjectStore('protocol').transaction;
+      protocol_transaction.oncomplete = () => {};
+      protocol_transaction.onerror = ev => {
+        throw new Error('Error creating "protocol" ObjectStore');
+      };
+
+      const apps_transaction = db.createObjectStore('apps').transaction;
+      apps_transaction.oncomplete = () => {};
+      apps_transaction.onerror = ev => {
+        throw new Error('Error creating "apps" ObjectStore');
+      };
     };
   });
 }
@@ -57,7 +67,7 @@ export class DB {
     });
   }
 
-  public async read_iterator(obj_store: string): Promise<Record<string, any>> {
+  public async read_entries(obj_store: string): Promise<Record<string, any>> {
     return await new Promise((resolve, reject) => {
       const request = this._db
         .transaction(obj_store, 'readonly')

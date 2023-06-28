@@ -17,7 +17,7 @@ import '../css/golden-layout.less';
 // Importing app
 import { WSComponent } from './apps/websocket/component';
 import { HTTPComponent } from './apps/http/component';
-import { type App, SerialApp, URLApp } from './apps/app';
+import { type App, SerialApp, HTTPApp, WSApp } from './apps/app';
 import { is_serial_supported } from './apps/serial/functions';
 
 import { ConsoleApp } from './console_app';
@@ -46,10 +46,10 @@ function is_secure_connection(): boolean {
 
 function get_app_list(): App[] {
   const apps: App[] = [];
-  if (!is_secure_connection()) apps.push(new URLApp('ws', WSComponent));
-  apps.push(new URLApp('wss', WSComponent));
-  if (!is_secure_connection()) apps.push(new URLApp('http', HTTPComponent));
-  apps.push(new URLApp('https', HTTPComponent));
+  if (!is_secure_connection()) apps.push(new WSApp('ws', WSComponent));
+  apps.push(new WSApp('wss', WSComponent));
+  if (!is_secure_connection()) apps.push(new HTTPApp('http', HTTPComponent));
+  apps.push(new HTTPApp('https', HTTPComponent));
   if (is_serial_supported()) apps.push(new SerialApp());
   return apps;
 }

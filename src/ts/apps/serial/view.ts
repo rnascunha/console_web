@@ -4,22 +4,39 @@ import { ParseUntilTimeout, type ParseData } from '../../libs/stream_parser';
 import { DataTerminal } from '../../libs/terminal';
 import { esp32_signal_reset } from './functions';
 import type { SerialConn } from './serial';
+import type { Encoding } from '../../libs/binary-dump';
 import type { BinaryInputSelect } from '../../web-components/binary-input/text-select-binary';
 
 const serialBaudrate: number[] = [
   9600, 19200, 38400, 57600, 115200, 230400, 460800, 576000, 921600,
 ];
 const serialDataBits = [7, 8];
-const serialFlowControl = ['none', 'hardware'];
-const serialParity = ['none', 'even', 'odd'];
+const serialFlowControl: FlowControlType[] = ['none', 'hardware'];
+const serialParity: ParityType[] = ['none', 'even', 'odd'];
 const serialStopBits = [1, 2];
 
-const serialDefaults = {
+const serialDefaults: SerialOptions = {
   baudRate: 115200,
   dataBits: 8,
   flowControl: 'none',
   parity: 'none',
   stopBits: 1,
+};
+
+export interface SerialState {
+  open: SerialOptions;
+  input: {
+    data: number[];
+    encode: Encoding;
+  };
+}
+
+export const serialStateDefault: SerialState = {
+  open: serialDefaults,
+  input: {
+    data: [],
+    encode: 'text',
+  },
 };
 
 const template = (function () {
@@ -86,6 +103,7 @@ const template = (function () {
 })();
 
 interface SerialViewEvents {
+  state: SerialState;
   console: boolean;
   close_console: undefined;
   disconnect: undefined;
@@ -99,7 +117,14 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
   private readonly _out_data: BinaryInputSelect;
   private readonly _parser: ParseUntilTimeout;
 
-  constructor(port: SerialConn) {
+  // Open serial fields
+  private readonly _el_baudrate: HTMLInputElement;
+  private readonly _el_databits: HTMLSelectElement;
+  private readonly _el_flowcontrol: HTMLSelectElement;
+  private readonly _el_parity: HTMLSelectElement;
+  private readonly _el_stopbits: HTMLSelectElement;
+
+  constructor(port: SerialConn, state?: SerialState) {
     super();
 
     this._port = port;
@@ -118,9 +143,28 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
 
     this._parser = new ParseUntilTimeout(100);
 
+    this._el_baudrate = this._container.querySelector(
+      '.serial-baudrate'
+    ) as HTMLInputElement;
+    this._el_databits = this._container.querySelector(
+      '.serial-databits'
+    ) as HTMLSelectElement;
+    this._el_flowcontrol = this._container.querySelector(
+      '.serial-flowcontrol'
+    ) as HTMLSelectElement;
+    this._el_parity = this._container.querySelector(
+      '.serial-parity'
+    ) as HTMLSelectElement;
+    this._el_stopbits = this._container.querySelector(
+      '.serial-stopbits'
+    ) as HTMLSelectElement;
+
+    if (state !== undefined) this.set_state(state);
+
     this._port.on('open', () => {
       this.opened();
       this._parser.start();
+      this.emit('state', this.state());
     });
     this._port.on('close', () => {
       this.closed();
@@ -145,33 +189,7 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     this._btn_open.onclick = async () => {
       try {
         if (this._port.state === 'close') {
-          await this._port.open({
-            baudRate: +(
-              this._container.querySelector(
-                '.serial-baudrate'
-              ) as HTMLSelectElement
-            ).value,
-            dataBits: +(
-              this._container.querySelector(
-                '.serial-databits'
-              ) as HTMLSelectElement
-            ).value,
-            flowControl: (
-              this._container.querySelector(
-                '.serial-flowcontrol'
-              ) as HTMLSelectElement
-            ).value as FlowControlType,
-            parity: (
-              this._container.querySelector(
-                '.serial-parity'
-              ) as HTMLSelectElement
-            ).value as ParityType,
-            stopBits: +(
-              this._container.querySelector(
-                '.serial-stopbits'
-              ) as HTMLSelectElement
-            ).value,
-          });
+          await this._port.open(this.open_parameters());
         } else if (this._port.state === 'open') {
           await this._port.close();
         }
@@ -232,7 +250,7 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     ) as HTMLButtonElement;
     (
       this._container.querySelector('.serial-console') as HTMLButtonElement
-    ).onclick = ev => {
+    ).onclick = () => {
       if (btn_console.classList.contains('btn-pressed')) {
         this.emit('console', false);
       } else {
@@ -301,6 +319,7 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     if (data.length > 0) {
       await this._port.write(data);
       this._data.send(data);
+      this.emit('state', this.state());
     }
   }
 
@@ -314,6 +333,45 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     this._data.warning('Disconnected');
 
     this.emit('disconnect', undefined);
+  }
+
+  private open_parameters(): SerialOptions {
+    return {
+      baudRate: +this._el_baudrate.value,
+      dataBits: +this._el_databits.value,
+      flowControl: this._el_flowcontrol.value as FlowControlType,
+      parity: this._el_parity.value as ParityType,
+      stopBits: +this._el_stopbits.value,
+    };
+  }
+
+  private state(): SerialState {
+    return {
+      open: this.open_parameters(),
+      input: {
+        data: Array.from(this._out_data.data),
+        encode: this._out_data.encode,
+      },
+    };
+  }
+
+  private set_state(state: SerialState): void {
+    this._el_baudrate.value = state.open.baudRate.toString();
+    this._el_databits.value = state.open.dataBits?.toString() as string;
+    this._el_flowcontrol.value = state.open.flowControl as FlowControlType;
+    this._el_parity.value = state.open.parity as ParityType;
+    this._el_stopbits.value = state.open.stopBits?.toString() as string;
+
+    /**
+     * TODO: fix this.
+     */
+    customElements
+      .whenDefined('text-select-binary')
+      .then(() => {
+        this._out_data.encode = state.input.encode;
+        this._out_data.data = Uint8Array.from(state.input.data);
+      })
+      .finally(() => {});
   }
 }
 
@@ -333,6 +391,9 @@ export class SerialViewConsole extends EventEmitter<SerialViewConsoleEvents> {
     this._port = port;
     this._terminal = new DataTerminal(container);
     this._port.on('data', data => {
+      this._terminal.write(data);
+    });
+    this._port.on('sent', data => {
       this._terminal.write(data);
     });
     this._port.on('open', () => {

@@ -23,18 +23,24 @@ export class SerialComponent extends AppComponent {
   ) {
     super(container, virtual);
 
+    const state_obj = JSON.parse(state as string);
+
     const port = (
       window.console_app.list.protocol('serial') as SerialApp
-    ).list.port_by_id(state as number);
+    ).list.port_by_id(state_obj.id);
     if (port === undefined)
       throw new Error(`Failed to find port [${state as string}]`);
 
-    this._view = new SerialView(port);
+    this._view = new SerialView(port, state_obj.state);
     this.rootHtmlElement.appendChild(this._view.container);
 
     this.container.setTitle(`${this._view.port.name}`);
     this._view.on('disconnect', () => {
       this.container.setTitle(`${this._view.port.name} (disconnected)`);
+    });
+
+    this._view.on('state', args => {
+      window.console_app.set_state('serial', args);
     });
 
     this.container.on('beforeComponentRelease', () => {
@@ -67,7 +73,7 @@ export class SerialComponent extends AppComponent {
 
   private find_console_component(id: number, parent: ContentItem): boolean {
     parent.contentItems.some(c => {
-      if (c?.isComponent) return false;
+      if (c === undefined || !c.isComponent) return false;
 
       const v = (c as ComponentItem).component;
       if (!(v instanceof SerialConsoleComponent)) return false;

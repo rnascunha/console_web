@@ -28,6 +28,12 @@
         "leadingUnderscore": "require"
       },
       {
+        "selector": "property",
+        "format": ["snake_case"],
+        "modifiers": ["protected"],
+        "leadingUnderscore": "require"
+      },
+      {
         "selector": "function",
         "format": ["snake_case"]
       },

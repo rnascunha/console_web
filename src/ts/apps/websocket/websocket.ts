@@ -1,13 +1,28 @@
 import type DataDisplay from '../../web-components/data-display/data-display';
 import EventEmitter from '../../libs/event_emitter';
 import type { BinaryInputSelect } from '../../web-components/binary-input/text-select-binary';
-import { string_to_ascii } from '../../libs/binary-dump';
+import { string_to_ascii, type Encoding } from '../../libs/binary-dump';
+
+export interface WebSocketState {
+  input: {
+    data: number[];
+    encode: Encoding;
+  };
+}
+
+export const webSocketStateDefault: WebSocketState = {
+  input: {
+    data: [],
+    encode: 'text',
+  },
+};
 
 interface WebSocketEvents {
   open: Event;
   message: MessageEvent;
   close: CloseEvent;
   error: Event;
+  state: WebSocketState;
 }
 
 /**
@@ -126,7 +141,7 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
   private readonly _btn_close: HTMLButtonElement;
   private readonly _data: DataDisplay;
 
-  constructor(socket: Websocket) {
+  constructor(socket: Websocket, state?: WebSocketState) {
     super();
 
     this._socket = socket;
@@ -145,6 +160,8 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
       '.close_conn'
     ) as HTMLButtonElement;
     this._data = this._container.querySelector('.data') as DataDisplay;
+
+    if (state !== undefined) this.set_state(state);
 
     this._btn_send_data.onclick = () => {
       this.send_data();
@@ -261,5 +278,21 @@ export class WebsocketView extends EventEmitter<WebSocketEvents> {
       this._socket.send(new TextDecoder('latin1').decode(data));
     }
     this._data.send(data);
+    this.emit('state', {
+      input: {
+        data: Array.from(this._in_data.data),
+        encode: this._in_data.encode,
+      },
+    });
+  }
+
+  private set_state(state: WebSocketState): void {
+    customElements
+      .whenDefined('text-select-binary')
+      .then(() => {
+        this._in_data.data = Uint8Array.from(state.input.data);
+        this._in_data.encode = state.input.encode;
+      })
+      .finally(() => {});
   }
 }

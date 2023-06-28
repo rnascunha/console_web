@@ -46,9 +46,13 @@ export class ConsoleApp {
     window.console_app = this;
 
     this._app_list = new AppList(app_list);
-    this.load_db().finally(() => {
-      this._sel_protocols.dispatchEvent(new Event('change'));
-    });
+    this.load_db()
+      .then(async () => {
+        await this.update_state();
+      })
+      .finally(() => {
+        this._sel_protocols.dispatchEvent(new Event('change'));
+      });
 
     this._layout = new GoldenLayout(
       container.querySelector('#golden') as HTMLElement,
@@ -181,7 +185,7 @@ export class ConsoleApp {
     item?.contentItems.some(comp => {
       if (!comp.isComponent) {
         res = this.find_component(url, comp);
-        if (res === undefined) return true;
+        if (res !== undefined) return true;
       }
 
       const temp = (comp as ComponentItem).component;
@@ -250,7 +254,7 @@ export class ConsoleApp {
   private async load_db(): Promise<void> {
     try {
       this._db = await open_db(dbName, dbVersion);
-      const v = await this._db.read_iterator('protocol');
+      const v = await this._db.read_entries('protocol');
       if ('current' in v) this._sel_protocols.value = v.current;
       this._app_list.apps.forEach(app => {
         if (app.protocol in v) app.update(v[app.protocol]);
@@ -258,6 +262,28 @@ export class ConsoleApp {
     } catch (e) {
       this._db = undefined;
     }
+  }
+
+  private async update_state(): Promise<void> {
+    const v = await this._db?.read_entries('apps');
+    if (v === undefined) return;
+    Object.entries(v).forEach(([app_name, state]: [string, unknown]) => {
+      this.set_state(app_name, state, false);
+    });
+  }
+
+  public set_state(
+    app_name: string,
+    state: unknown,
+    update_db: boolean = true
+  ): void {
+    const app = this._app_list.protocol(app_name);
+    if (app === undefined) {
+      console.warn(`App '${app_name}' not found`);
+      return;
+    }
+    app.set_state(state);
+    if (update_db) this._db?.write('apps', app_name, state).finally(() => {});
   }
 
   private select_protocol(): void {

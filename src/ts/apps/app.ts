@@ -2,6 +2,12 @@ import type { JsonValue } from 'golden-layout';
 import { SerialComponent } from './serial/component';
 import { SerialList } from './serial/serial';
 import { install_serial_events } from './serial/functions';
+import { type SerialState, serialStateDefault } from './serial/view';
+import {
+  type WebSocketState,
+  webSocketStateDefault,
+} from './websocket/websocket';
+import { type HTTPState, httpStateDefault } from './http/http';
 
 export interface AppOpenParameters {
   protocol: string;
@@ -29,8 +35,13 @@ export abstract class App {
     return this._el;
   }
 
+  /**
+   * Is this good enough? Shouldn't it be abstract and let
+   * the the derived class implement it?
+   */
   public focus(): void {
-    (this._el.firstChild as HTMLElement).focus();
+    const el = this._el.firstChild as HTMLElement;
+    if ('focus' in el) el.focus();
   }
 
   get component(): any {
@@ -39,37 +50,38 @@ export abstract class App {
 
   abstract open(): AppOpenParameters;
   public update(value: JsonValue): void {}
+  public set_state(value: unknown): void {}
 }
 
 const serial_template = (function () {
   const template = document.createElement('template');
-  template.innerHTML = `<span id="serial-container">
-    <select id="sel-serial-port"></select>
-    <button id="serial-request">&#128279;</button>
-  </span>`;
+  template.innerHTML = `
+    <select class="sel-serial-port" name=serial></select>
+    <button class="serial-request">&#128279;</button>`;
   return template;
 })();
 
 const url_template = (function () {
   const template = document.createElement('template');
-  template.innerHTML = `<input id="url" placeholder="url" />`;
+  template.innerHTML = `<input class="url" name=url placeholder="url" />`;
   return template;
 })();
 
 export class SerialApp extends App {
   private readonly _sel_serial: HTMLSelectElement;
   private readonly _serial_list: SerialList = new SerialList();
+  private _state: SerialState = serialStateDefault;
 
   constructor() {
     super('serial', serial_template.content.cloneNode(true), SerialComponent);
 
     this._sel_serial = (this.element as HTMLElement).querySelector(
-      '#sel-serial-port'
+      '.sel-serial-port'
     ) as HTMLSelectElement;
 
     (
       (this.element as HTMLElement).querySelector(
-        '#serial-request'
+        '.serial-request'
       ) as HTMLButtonElement
     ).onclick = () => {
       this._serial_list.request();
@@ -87,22 +99,29 @@ export class SerialApp extends App {
     return {
       find: `serial://${serial_id}`,
       protocol: this.protocol,
-      state: serial_id,
+      state: JSON.stringify({ id: serial_id, state: this._state }),
     };
   }
 
   public get list(): SerialList {
     return this._serial_list;
   }
+
+  public override set_state(state: SerialState): void {
+    this._state = state;
+  }
 }
 
-export class URLApp extends App {
+export class URLApp<T> extends App {
   private readonly _in_url: HTMLInputElement;
-  constructor(protocol: string, component: any) {
+  private _state: T;
+
+  constructor(protocol: string, component: any, state: T) {
     super(protocol, url_template.content.cloneNode(true), component);
     this._in_url = (this.element as HTMLElement).querySelector(
-      '#url'
+      '.url'
     ) as HTMLInputElement;
+    this._state = state;
   }
 
   public open(): AppOpenParameters {
@@ -111,7 +130,7 @@ export class URLApp extends App {
       return {
         protocol: this.protocol,
         find: url,
-        state: url,
+        state: JSON.stringify({ url, state: this._state }),
         title: url,
       };
     } catch (e) {
@@ -120,7 +139,24 @@ export class URLApp extends App {
   }
 
   public override update(value: JsonValue): void {
-    this._in_url.value = (value as string).split('://')[1];
+    const data = JSON.parse(value as string);
+    this._in_url.value = data.url.split('://')[1];
+  }
+
+  public override set_state(value: T): void {
+    this._state = value;
+  }
+}
+
+export class WSApp extends URLApp<WebSocketState> {
+  constructor(protocol: string, component: any, state?: WebSocketState) {
+    super(protocol, component, webSocketStateDefault);
+  }
+}
+
+export class HTTPApp extends URLApp<HTTPState> {
+  constructor(protocol: string, component: any, state?: WebSocketState) {
+    super(protocol, component, httpStateDefault);
   }
 }
 

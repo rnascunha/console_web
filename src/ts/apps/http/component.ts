@@ -12,8 +12,13 @@ export class HTTPComponent extends AppComponent {
   ) {
     super(container, virtual);
 
-    this._view = new HTTPView(state as string); // url
+    const data = JSON.parse(state as string);
+    this._view = new HTTPView(data.url, data.state);
     this.rootHtmlElement.appendChild(this._view.container);
+
+    this._view.on('state', args => {
+      window.console_app.set_state(data.url.split('://')[0], args);
+    });
 
     this.container.setTitle(`${this._view.url}`);
     if (this.container.layoutManager.isSubWindow)

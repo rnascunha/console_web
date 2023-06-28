@@ -7,6 +7,7 @@ interface SerialConnEvents {
   open: SerialConn;
   close: SerialConn;
   data: Uint8Array;
+  sent: Uint8Array;
   error: any;
   disconnect: undefined;
 }
@@ -78,6 +79,7 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
     const writer = this._output_stream?.getWriter();
     await writer?.write(data);
     writer?.releaseLock();
+    this.emit('sent', data);
   }
 
   public get id(): number {

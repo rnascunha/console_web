@@ -1,9 +1,33 @@
+import EventEmitter from '../../libs/event_emitter';
 import type DataDisplay from '../../web-components/data-display/data-display';
 import type { BinaryInputSelect } from '../../web-components/binary-input/text-select-binary';
 import { binary_to_ascii } from '../../libs/binary-dump';
+import type { Encoding } from '../../libs/binary-dump';
 
 const methods = ['GET', 'POST', 'PUT', 'DELETE'] as const;
 type Method = (typeof methods)[number];
+
+export interface HTTPState {
+  method: Method;
+  query: string;
+  body: {
+    data: number[];
+    encode: Encoding;
+  };
+}
+
+export const httpStateDefault: HTTPState = {
+  method: 'GET',
+  query: '',
+  body: {
+    data: [],
+    encode: 'text',
+  },
+};
+
+interface HTTPEvents {
+  state: HTTPState;
+}
 
 async function request(
   url: string,
@@ -32,7 +56,7 @@ const template = (function () {
   return template;
 })();
 
-export class HTTPView {
+export class HTTPView extends EventEmitter<HTTPEvents> {
   private readonly _url: string;
 
   private _id: number = 0;
@@ -44,7 +68,9 @@ export class HTTPView {
   private readonly _in_body: BinaryInputSelect;
   private readonly _sel_method: HTMLSelectElement;
 
-  constructor(url: string) {
+  constructor(url: string, state?: HTTPState) {
+    super();
+
     this._url = url;
 
     this._container = document.createElement('div');
@@ -64,6 +90,8 @@ export class HTTPView {
     this._sel_method = this._container.querySelector(
       '.http-method'
     ) as HTMLSelectElement;
+
+    if (state !== undefined) this.set_state(state);
 
     (this._container.querySelector('.clear') as HTMLElement).onclick = () => {
       this._data.clear();
@@ -112,6 +140,14 @@ export class HTTPView {
           data_bin
         );
       }
+      this.emit('state', {
+        body: {
+          data: Array.from(this._in_body.data),
+          encode: this._in_body.encode,
+        },
+        query: this._in_query.value,
+        method: this._sel_method.value as Method,
+      });
     } catch (e) {
       this._data.error(`[${id}] ${(e as TypeError).message}`);
     }
@@ -122,5 +158,20 @@ export class HTTPView {
     response.headers.forEach((v, k) => headers.push(`${k}: ${v}`));
 
     return headers.join(', ');
+  }
+
+  private set_state(state: HTTPState): void {
+    this._in_query.value = state.query;
+    this._sel_method.value = state.method;
+    /**
+     * TODO: fix this
+     */
+    customElements
+      .whenDefined('text-select-binary')
+      .then(() => {
+        this._in_body.data = Uint8Array.from(state.body.data);
+        this._in_body.encode = state.body.encode;
+      })
+      .finally(() => {});
   }
 }

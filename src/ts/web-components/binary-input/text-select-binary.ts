@@ -82,6 +82,10 @@ export class BinaryInputSelect extends HTMLElement {
     return this._data.data;
   }
 
+  set data(d: Uint8Array) {
+    this._data.data = d;
+  }
+
   set encode(enc: Encoding) {
     if (!encoding.includes(enc)) return;
     this._data.encode = enc;
