@@ -16,6 +16,7 @@
 - [x] change project name (Console Web?)
 - [ ] Save output data to file. Make it loadable inside de application.
 - [x] Add persistent data.
+- [ ] Add keyboard shortcuts.
 - [ ] Document it :| (code and manual)
 
 ## Tools

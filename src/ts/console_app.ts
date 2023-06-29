@@ -14,7 +14,7 @@ import {
 } from 'golden-layout';
 import { type AppOpenParameters, type App, AppList } from './apps/app';
 import { open as open_db, type DB } from './libs/db';
-import { dispatch_setup } from './setup';
+import { dispatch_setup, dispatch_tool } from './setup';
 
 // Binary dump window
 import { BinaryDump } from './web-components/binary-dump/binary-dump';
@@ -84,6 +84,8 @@ export class ConsoleApp {
       this._sel_protocols.appendChild(new Option(app.protocol, app.protocol));
       proto_container.appendChild(app.element);
     });
+
+    dispatch_tool(this._layout);
 
     this._sel_protocols.onchange = () => {
       this.select_protocol();

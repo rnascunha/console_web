@@ -26,13 +26,19 @@ body {
   text-align: center;
 }
 
-#setup {
-  cursor: pointer;
-  font-size: x-large;
-  border-radius: 15px;
+#options {
+  display: inline-flex;
+  align-items: center;
 }
 
-#setup:hover {
+.option {
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 3px;
+  font-size: x-large;
+}
+
+.option:hover {
   background-color: black;
   color: white;
 }
