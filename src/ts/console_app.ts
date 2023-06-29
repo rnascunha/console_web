@@ -254,7 +254,7 @@ export class ConsoleApp {
             left: win.offsetLeft,
             top: win.offsetTop,
           },
-          null,
+          ItemType.row,
           null
         );
         win.close();
@@ -271,6 +271,9 @@ export class ConsoleApp {
         if (app.protocol in v) app.update(v[app.protocol]);
       });
       this._db.handler.onversionchange = async () => {
+        /**
+         * Recreating the database when is deleted.
+         */
         this._db = await open_db(dbName, dbVersion);
       };
     } catch (e) {

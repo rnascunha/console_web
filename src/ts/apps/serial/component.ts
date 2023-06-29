@@ -5,11 +5,12 @@ import {
 import type { SerialApp } from './app';
 import type { SerialConn } from './serial';
 import { SerialView, SerialViewConsole } from './view';
-import type {
-  ComponentContainer,
-  JsonValue,
-  ContentItem,
-  ComponentItem,
+import {
+  type ComponentContainer,
+  type JsonValue,
+  type ContentItem,
+  type ComponentItem,
+  LayoutManager,
 } from 'golden-layout';
 
 export class SerialComponent extends AppComponent {
@@ -50,11 +51,19 @@ export class SerialComponent extends AppComponent {
     this._console = null;
     this._view.on('console', open => {
       if (open) {
-        const p = window.console_app.layout.addComponent(
+        const p = window.console_app.layout.addComponentAtLocation(
           'SerialConsoleComponent',
-          state as number
-        );
-        this.find_console_component(state as number, p.parentItem);
+          state_obj.id,
+          undefined,
+          [
+            { typeId: LayoutManager.LocationSelector.TypeId.FirstRowOrColumn },
+            { typeId: LayoutManager.LocationSelector.TypeId.FocusedItem },
+            { typeId: LayoutManager.LocationSelector.TypeId.FirstStack },
+            { typeId: LayoutManager.LocationSelector.TypeId.Root },
+          ]
+        ) as LayoutManager.Location;
+        console.log('p', p);
+        this.find_console_component(state_obj.id, p.parentItem);
         this._console?.container.on('beforeComponentRelease', () => {
           this._view.emit('close_console', undefined);
         });
