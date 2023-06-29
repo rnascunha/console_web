@@ -811,13 +811,19 @@ body {
   text-align: center;
 }
 
-#setup {
-  cursor: pointer;
-  font-size: x-large;
-  border-radius: 15px;
+#options {
+  display: inline-flex;
+  align-items: center;
 }
 
-#setup:hover {
+.option {
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 3px;
+  font-size: x-large;
+}
+
+.option:hover {
   background-color: black;
   color: white;
 }
@@ -863,7 +869,7 @@ body {
   padding: 0px;
   margin: 0px;
 }
-`, "",{"version":3,"sources":["webpack://./src/css/style.css"],"names":[],"mappings":"AAAA;;EAEE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb;;;gBAGc;AAChB;;AAEA;EACE,aAAa;EACb,mBAAmB;AACrB;;AAEA;EACE,WAAW;EACX,YAAY;EACZ,kBAAkB;AACpB;;AAEA;EACE,eAAe;EACf,kBAAkB;EAClB,mBAAmB;AACrB;;AAEA;EACE,uBAAuB;EACvB,YAAY;AACd;;AAEA;EACE,YAAY;EACZ,2BAA2B;AAC7B;;AAEA;EACE,qBAAqB;EACrB,YAAY;EACZ,YAAY;EACZ,kBAAkB;AACpB;;AAEA;EACE,aAAa;AACf;;AAEA;EACE,mBAAmB;EACnB,0BAA0B;AAC5B;;AAEA;EACE,oBAAoB;AACtB;;AAEA;;EAEE;AACF;EACE,gBAAgB;EAChB,YAAY;AACd;;AAEA;EACE,aAAa;EACb,sBAAsB;EACtB,YAAY;EACZ,gBAAgB;EAChB,YAAY;EACZ,WAAW;AACb","sourcesContent":["html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\nbody {\n  display: grid;\n  grid-template:\n    'header' min-content\n    'body' auto\n    'footer' 2px;\n}\n\n#header {\n  display: flex;\n  align-items: center;\n}\n\n#title {\n  margin: 0px;\n  flex-grow: 1;\n  text-align: center;\n}\n\n#setup {\n  cursor: pointer;\n  font-size: x-large;\n  border-radius: 15px;\n}\n\n#setup:hover {\n  background-color: black;\n  color: white;\n}\n\n.setup-body {\n  padding: 5px;\n  background-color: lightgrey;\n}\n\n#error {\n  background-color: red;\n  color: white;\n  padding: 2px;\n  border-radius: 2px;\n}\n\n#error:empty {\n  display: none;\n}\n\n.btn-pressed {\n  border-style: inset;\n  background-color: darkgray;\n}\n\n.btn-not-pressed {\n  border-style: outset;\n}\n\n/**\n *\n */\n#golden {\n  overflow: hidden;\n  height: 100%;\n}\n\n.golden-content {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  overflow: hidden;\n  padding: 0px;\n  margin: 0px;\n}\n"],"sourceRoot":""}]);
+`, "",{"version":3,"sources":["webpack://./src/css/style.css"],"names":[],"mappings":"AAAA;;EAEE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb;;;gBAGc;AAChB;;AAEA;EACE,aAAa;EACb,mBAAmB;AACrB;;AAEA;EACE,WAAW;EACX,YAAY;EACZ,kBAAkB;AACpB;;AAEA;EACE,oBAAoB;EACpB,mBAAmB;AACrB;;AAEA;EACE,eAAe;EACf,mBAAmB;EACnB,YAAY;EACZ,kBAAkB;AACpB;;AAEA;EACE,uBAAuB;EACvB,YAAY;AACd;;AAEA;EACE,YAAY;EACZ,2BAA2B;AAC7B;;AAEA;EACE,qBAAqB;EACrB,YAAY;EACZ,YAAY;EACZ,kBAAkB;AACpB;;AAEA;EACE,aAAa;AACf;;AAEA;EACE,mBAAmB;EACnB,0BAA0B;AAC5B;;AAEA;EACE,oBAAoB;AACtB;;AAEA;;EAEE;AACF;EACE,gBAAgB;EAChB,YAAY;AACd;;AAEA;EACE,aAAa;EACb,sBAAsB;EACtB,YAAY;EACZ,gBAAgB;EAChB,YAAY;EACZ,WAAW;AACb","sourcesContent":["html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\nbody {\n  display: grid;\n  grid-template:\n    'header' min-content\n    'body' auto\n    'footer' 2px;\n}\n\n#header {\n  display: flex;\n  align-items: center;\n}\n\n#title {\n  margin: 0px;\n  flex-grow: 1;\n  text-align: center;\n}\n\n#options {\n  display: inline-flex;\n  align-items: center;\n}\n\n.option {\n  cursor: pointer;\n  border-radius: 10px;\n  padding: 3px;\n  font-size: x-large;\n}\n\n.option:hover {\n  background-color: black;\n  color: white;\n}\n\n.setup-body {\n  padding: 5px;\n  background-color: lightgrey;\n}\n\n#error {\n  background-color: red;\n  color: white;\n  padding: 2px;\n  border-radius: 2px;\n}\n\n#error:empty {\n  display: none;\n}\n\n.btn-pressed {\n  border-style: inset;\n  background-color: darkgray;\n}\n\n.btn-not-pressed {\n  border-style: outset;\n}\n\n/**\n *\n */\n#golden {\n  overflow: hidden;\n  height: 100%;\n}\n\n.golden-content {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  overflow: hidden;\n  padding: 0px;\n  margin: 0px;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -11731,8 +11737,14 @@ class SerialComponent extends _golden_components_component_base__WEBPACK_IMPORTE
         this._view.on('console', open => {
             var _a, _b;
             if (open) {
-                const p = window.console_app.layout.addComponent('SerialConsoleComponent', state);
-                this.find_console_component(state, p.parentItem);
+                const p = window.console_app.layout.addComponentAtLocation('SerialConsoleComponent', state_obj.id, undefined, [
+                    { typeId: 3 /* LayoutManager.LocationSelector.TypeId.FirstRowOrColumn */ },
+                    { typeId: 0 /* LayoutManager.LocationSelector.TypeId.FocusedItem */ },
+                    { typeId: 2 /* LayoutManager.LocationSelector.TypeId.FirstStack */ },
+                    { typeId: 7 /* LayoutManager.LocationSelector.TypeId.Root */ },
+                ]);
+                console.log('p', p);
+                this.find_console_component(state_obj.id, p.parentItem);
                 (_a = this._console) === null || _a === void 0 ? void 0 : _a.container.on('beforeComponentRelease', () => {
                     this._view.emit('close_console', undefined);
                 });
@@ -12732,6 +12744,10 @@ const other_components = {
         name: 'DockDumpComponent',
         component: _golden_components_component_utility__WEBPACK_IMPORTED_MODULE_0__.DockDumpComponent,
     },
+    InputDockDumpComponent: {
+        name: 'InputDockDumpComponent',
+        component: _golden_components_component_utility__WEBPACK_IMPORTED_MODULE_0__.InputDockDumpComponent,
+    },
 };
 
 
@@ -12750,14 +12766,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _golden_components_component_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./golden-components/component-base */ "./src/ts/golden-components/component-base.ts");
 /* harmony import */ var _components__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components */ "./src/ts/components.ts");
-/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/utils/types.js");
-/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/golden-layout.js");
-/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/config/resolved-config.js");
+/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/utils/types.js");
+/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/golden-layout.js");
+/* harmony import */ var golden_layout__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! golden-layout */ "./node_modules/golden-layout/dist/esm/ts/config/resolved-config.js");
 /* harmony import */ var _apps_app__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./apps/app */ "./src/ts/apps/app.ts");
 /* harmony import */ var _libs_db__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./libs/db */ "./src/ts/libs/db.ts");
-/* harmony import */ var _web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./web-components/binary-dump/binary-dump */ "./src/ts/web-components/binary-dump/binary-dump.ts");
-/* harmony import */ var _helper_window__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./helper/window */ "./src/ts/helper/window.ts");
-/* harmony import */ var _libs_base64__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./libs/base64 */ "./src/ts/libs/base64.ts");
+/* harmony import */ var _setup__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./setup */ "./src/ts/setup.ts");
+/* harmony import */ var _web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./web-components/binary-dump/binary-dump */ "./src/ts/web-components/binary-dump/binary-dump.ts");
+/* harmony import */ var _helper_window__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./helper/window */ "./src/ts/helper/window.ts");
+/* harmony import */ var _libs_base64__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./libs/base64 */ "./src/ts/libs/base64.ts");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -12772,6 +12789,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+
 // Binary dump window
 
 
@@ -12781,7 +12799,7 @@ const console_layout = {
         responsiveMode: 'always',
     },
     root: {
-        type: golden_layout__WEBPACK_IMPORTED_MODULE_7__.ItemType.row,
+        type: golden_layout__WEBPACK_IMPORTED_MODULE_8__.ItemType.row,
         content: [],
     },
 };
@@ -12789,6 +12807,7 @@ const dbName = 'console_web';
 const dbVersion = 1;
 class ConsoleApp {
     constructor(app_list, container = document.body) {
+        var _a;
         window.console_app = this;
         this._app_list = new _apps_app__WEBPACK_IMPORTED_MODULE_2__.AppList(app_list);
         this.load_db()
@@ -12798,7 +12817,7 @@ class ConsoleApp {
             .finally(() => {
             this._sel_protocols.dispatchEvent(new Event('change'));
         });
-        this._layout = new golden_layout__WEBPACK_IMPORTED_MODULE_8__.GoldenLayout(container.querySelector('#golden'), this.bind_component.bind(this), this.unbind_component.bind(this));
+        this._layout = new golden_layout__WEBPACK_IMPORTED_MODULE_9__.GoldenLayout(container.querySelector('#golden'), this.bind_component.bind(this), this.unbind_component.bind(this));
         this._layout.container.addEventListener('click-data', ev => {
             this.byte_dump_window(ev.detail.data);
         });
@@ -12812,6 +12831,7 @@ class ConsoleApp {
             this._sel_protocols.appendChild(new Option(app.protocol, app.protocol));
             proto_container.appendChild(app.element);
         });
+        (0,_setup__WEBPACK_IMPORTED_MODULE_4__.dispatch_tool)(this._layout);
         this._sel_protocols.onchange = () => {
             this.select_protocol();
         };
@@ -12822,6 +12842,15 @@ class ConsoleApp {
             if (ev.key === 'Enter')
                 this.open();
         };
+        let setup_window = null;
+        (_a = container.querySelector('#setup')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', ev => {
+            if (setup_window !== null) {
+                setup_window.center();
+                return;
+            }
+            if (this._db !== undefined)
+                setup_window = (0,_setup__WEBPACK_IMPORTED_MODULE_4__.dispatch_setup)(this._db);
+        });
         if (this._layout.isSubWindow) {
             container.style.gridTemplate = `"header" 0px
                                       "body" auto
@@ -12832,7 +12861,7 @@ class ConsoleApp {
             this._layout.loadLayout(console_layout);
     }
     bind_component(container, itemConfig) {
-        const comp_name = golden_layout__WEBPACK_IMPORTED_MODULE_9__.ResolvedComponentItemConfig.resolveComponentTypeName(itemConfig);
+        const comp_name = golden_layout__WEBPACK_IMPORTED_MODULE_10__.ResolvedComponentItemConfig.resolveComponentTypeName(itemConfig);
         if (comp_name === undefined)
             throw new Error('Component name not found');
         const comp_type = this.get_component(comp_name);
@@ -12921,9 +12950,9 @@ class ConsoleApp {
         return undefined;
     }
     byte_dump_window(data) {
-        const d = (0,_libs_base64__WEBPACK_IMPORTED_MODULE_6__.base64_decode)(data);
-        const body = new _web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_4__.BinaryDump(8, d, { hide: ['octal', 'binary'] });
-        const win = (0,_helper_window__WEBPACK_IMPORTED_MODULE_5__.create_window)('Binary Dump', body, {
+        const d = (0,_libs_base64__WEBPACK_IMPORTED_MODULE_7__.base64_decode)(data);
+        const body = new _web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_5__.BinaryDump(8, d, { hide: ['octal', 'binary'] });
+        const win = (0,_helper_window__WEBPACK_IMPORTED_MODULE_6__.create_window)('Binary Dump', body, {
             append: true,
             center: true,
             hide_undock: this._layout.isSubWindow,
@@ -12938,7 +12967,7 @@ class ConsoleApp {
                     height: win.clientHeight - win.header.clientHeight,
                     left: win.offsetLeft,
                     top: win.offsetTop,
-                }, null, null);
+                }, golden_layout__WEBPACK_IMPORTED_MODULE_8__.ItemType.row, null);
                 win.close();
             });
         }
@@ -12953,6 +12982,12 @@ class ConsoleApp {
                 this._app_list.apps.forEach(app => {
                     if (app.protocol in v)
                         app.update(v[app.protocol]);
+                });
+                this._db.handler.onversionchange = () => __awaiter(this, void 0, void 0, function* () {
+                    /**
+                     * Recreating the database when is deleted.
+                     */
+                    this._db = yield (0,_libs_db__WEBPACK_IMPORTED_MODULE_3__.open)(dbName, dbVersion);
                 });
             }
             catch (e) {
@@ -13048,7 +13083,9 @@ class AppComponent extends ComponentBase {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   DockDumpComponent: () => (/* binding */ DockDumpComponent)
+/* harmony export */   DockDumpComponent: () => (/* binding */ DockDumpComponent),
+/* harmony export */   InputDockDumpComponent: () => (/* binding */ InputDockDumpComponent),
+/* harmony export */   create_binary_dump_html: () => (/* binding */ create_binary_dump_html)
 /* harmony export */ });
 /* harmony import */ var _component_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./component-base */ "./src/ts/golden-components/component-base.ts");
 /* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
@@ -13060,14 +13097,97 @@ class DockDumpComponent extends _component_base__WEBPACK_IMPORTED_MODULE_0__.Com
     constructor(container, state, virtual) {
         super(container, virtual);
         const parsed = JSON.parse(state);
-        this._data = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__.parse)(parsed.data, 'text');
+        const data = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__.parse)(parsed.data, 'text');
         this.container.setTitle('Binary Dump');
         if (this.container.layoutManager.isSubWindow) {
             window.document.title = 'Binary Dump';
         }
-        const body = new _web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__.BinaryDump(8, this._data, { hide: parsed.hide });
+        const body = new _web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__.BinaryDump(8, data, { hide: parsed.hide });
         body.classList.add('window-body');
         this.rootHtmlElement.appendChild(body);
+    }
+}
+const template = (function () {
+    const template = document.createElement('template');
+    template.innerHTML = `
+  <style>
+    :host {
+      background-color: darkgrey;
+    }
+
+    #input {
+      display: block;
+    }
+
+    #dump-container {
+      overflow: auto;
+    }
+  </style>
+  <div id=header>
+    <text-select-binary id=input></text-select-binary>
+    <input type=number min=1 max=16 id=breakline>
+    <label><input type=checkbox name=encode value=binary>Binary</label>
+    <label><input type=checkbox name=encode value=octal>Octal</label>
+    <label><input type=checkbox name=encode value=decimal>Decimal</label>
+    <label><input type=checkbox name=encode value=hexa>Hexa</label>
+    <label><input type=checkbox name=encode value=text>Text</label>
+  </div>
+  <div id=dump-container>
+    <binary-dump id=dump></binary-dump>
+  </div>`;
+    return template;
+})();
+function create_binary_dump_html(data, bl, options = { hide: [] }) {
+    var _a, _b, _c, _d;
+    const body = document.createElement('div');
+    body.attachShadow({ mode: 'open' });
+    body.classList.add('window-body');
+    (_a = body.shadowRoot) === null || _a === void 0 ? void 0 : _a.appendChild(template.content.cloneNode(true));
+    const input = (_b = body.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#input');
+    const dump = (_c = body.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#dump');
+    const breakline = (_d = body.shadowRoot) === null || _d === void 0 ? void 0 : _d.querySelector('#breakline');
+    breakline.value = bl.toString();
+    Promise.all([
+        customElements.whenDefined('binary-dump'),
+        customElements.whenDefined('text-select-binary'),
+    ])
+        .then(() => {
+        var _a;
+        input.data = data;
+        input.encode = 'text';
+        dump.update(data, bl);
+        dump.hide(...options.hide);
+        breakline.onchange = () => {
+            dump.update(input.data, +breakline.value);
+        };
+        (_a = body.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll('input[name=encode]').forEach(v => {
+            const i = v;
+            i.onclick = () => {
+                if (i.checked)
+                    dump.show(i.value);
+                else
+                    dump.hide(i.value);
+            };
+            if (!dump.is_hidden(i.value))
+                i.checked = true;
+        });
+        input.onkeyup = () => {
+            dump.update(input.data, bl);
+        };
+        input.focus();
+    })
+        .finally(() => { });
+    return body;
+}
+class InputDockDumpComponent extends _component_base__WEBPACK_IMPORTED_MODULE_0__.ComponentBase {
+    constructor(container, state, virtual) {
+        super(container, virtual);
+        const parsed = JSON.parse(state);
+        this.container.setTitle('Binary Dump');
+        if (this.container.layoutManager.isSubWindow) {
+            window.document.title = 'Binary Dump';
+        }
+        this.rootHtmlElement.appendChild(create_binary_dump_html((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__.parse)(parsed.data, 'text'), parsed.breakline, { hide: parsed.hide }));
     }
 }
 
@@ -13560,6 +13680,9 @@ class DB {
     constructor(instance) {
         this._db = instance;
     }
+    get handler() {
+        return this._db;
+    }
     read(obj_store, attr) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield new Promise((resolve, reject) => {
@@ -13627,6 +13750,25 @@ class DB {
                 };
                 request.onerror = ev => {
                     reject(ev);
+                };
+            });
+        });
+    }
+    clear(force = false) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield new Promise((resolve, reject) => {
+                const op = window.indexedDB.deleteDatabase(this._db.name);
+                op.onsuccess = () => __awaiter(this, void 0, void 0, function* () {
+                    resolve();
+                });
+                op.onerror = () => {
+                    reject(new Error(`Error deleting DB [${this._db.name}]`));
+                };
+                op.onblocked = () => {
+                    if (force)
+                        this._db.close();
+                    else
+                        reject(new Error(`Blocked deleting DB [${this._db.name}]`));
                 };
             });
         });
@@ -13838,19 +13980,51 @@ class DataTerminal {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   dispatch_setup: () => (/* binding */ dispatch_setup),
+/* harmony export */   dispatch_tool: () => (/* binding */ dispatch_tool)
+/* harmony export */ });
 /* harmony import */ var _helper_window__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./helper/window */ "./src/ts/helper/window.ts");
-var _a;
 
-(_a = document.querySelector('#setup')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+const template = (function () {
+    const template = document.createElement('template');
+    template.innerHTML = `
+  <div>
+    <button class=delete-db>Erase DB</button>
+  </div>
+  <div class=info></div>
+  <div>
+    <small>Version: <b>${"a193752"}</b></small>
+  </div>`;
+    return template;
+})();
+function dispatch_setup(db) {
+    var _a;
     const body = document.createElement('div');
-    body.innerHTML = `Version: <b>${"9516645"}</b>`;
+    body.appendChild(template.content.cloneNode(true));
     body.classList.add('setup-body');
-    (0,_helper_window__WEBPACK_IMPORTED_MODULE_0__.create_window)('Setup', body, {
+    (_a = body.querySelector('.delete-db')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+        const info = body.querySelector('.info');
+        db.clear(true)
+            .then(() => {
+            info.textContent = 'Database delete';
+        })
+            .catch(e => {
+            info.textContent = e.message;
+        });
+    });
+    return (0,_helper_window__WEBPACK_IMPORTED_MODULE_0__.create_window)('Setup', body, {
         hide_undock: true,
         append: true,
         center: true,
     });
-});
+}
+function dispatch_tool(layout) {
+    var _a;
+    (_a = document.querySelector('#tools')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+        layout.addComponent('InputDockDumpComponent', JSON.stringify({ data: '', breakline: 8, hide: [] }));
+    });
+}
 
 
 /***/ }),
