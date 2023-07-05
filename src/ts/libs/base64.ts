@@ -65,7 +65,15 @@ function uint6_to_b64(nUint6: number): number {
     : 65;
 }
 
-export function base64_encode(aBytes: Uint8Array): string {
+interface Base64EncodeOptions {
+  breakline?: boolean;
+  pad?: boolean;
+}
+
+export function base64_encode(
+  aBytes: Uint8Array,
+  options?: Base64EncodeOptions
+): string {
   let nMod3 = 2;
   let sB64Enc = '';
 
@@ -73,10 +81,14 @@ export function base64_encode(aBytes: Uint8Array): string {
   let nUint24 = 0;
   for (let nIdx = 0; nIdx < nLen; nIdx++) {
     nMod3 = nIdx % 3;
-    // To break your base64 into several 80-character lines, add:
-    //   if (nIdx > 0 && ((nIdx * 4) / 3) % 76 === 0) {
-    //      sB64Enc += "\r\n";
-    //    }
+    // To break your base64 into several 80-character lines:
+    if (
+      options?.breakline === true &&
+      nIdx > 0 &&
+      ((nIdx * 4) / 3) % 76 === 0
+    ) {
+      sB64Enc += '\r\n';
+    }
 
     nUint24 |= aBytes[nIdx] << ((16 >>> nMod3) & 24);
     if (nMod3 === 2 || aBytes.length - nIdx === 1) {
@@ -91,7 +103,7 @@ export function base64_encode(aBytes: Uint8Array): string {
   }
   return (
     sB64Enc.substring(0, sB64Enc.length - 2 + nMod3) +
-    (nMod3 === 2 ? '' : nMod3 === 1 ? '=' : '==')
+    (options?.pad === false ? '' : nMod3 === 2 ? '' : nMod3 === 1 ? '=' : '==')
   );
 }
 

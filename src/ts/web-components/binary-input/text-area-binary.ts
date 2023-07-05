@@ -7,6 +7,7 @@ import {
   to_data,
   check_encoding,
   to_array_string,
+  clear_string,
 } from '../../libs/binary-dump';
 
 const template = (function () {
@@ -16,30 +17,33 @@ const template = (function () {
     :host {
       display: inline-block;
     }
-    
-    input {
+
+    textarea{
       width: 100%;
-      box-sizing: border-box;
     }
   </style>
-  <input>`;
+  <textarea></textarea>`;
   return template;
 })();
 
-export class BinaryInput extends HTMLElement {
+export class BinaryAreaInput extends HTMLElement {
   private _encode: Encoding = 'hexa';
-  private readonly _input: HTMLInputElement;
+  private readonly _input: HTMLTextAreaElement;
 
   constructor() {
     super();
 
     this.attachShadow({ mode: 'open' });
     this.shadowRoot?.appendChild(template.content.cloneNode(true));
-    this._input = this.shadowRoot?.querySelector('input') as HTMLInputElement;
+    this._input = this.shadowRoot?.querySelector(
+      'textarea'
+    ) as HTMLTextAreaElement;
 
     this._input.onkeydown = ev => {
       if (ev.ctrlKey) return;
-      if (['Backspace', 'Delete', 'Tab', 'Home', 'End'].includes(ev.key))
+      if (
+        ['Backspace', 'Delete', 'Tab', 'Home', 'End', 'Enter'].includes(ev.key)
+      )
         return;
       if (ev.key.startsWith('Arrow')) return;
       if (ev.key === 'Escape') {
@@ -57,12 +61,12 @@ export class BinaryInput extends HTMLElement {
 
     this._input.onpaste = ev => {
       ev.preventDefault();
-      this.format(ev.clipboardData?.getData('text') ?? '');
+      this.value = ev.clipboardData?.getData('text') ?? '';
     };
   }
 
   static get observedAttributes(): string[] {
-    return ['placeholder', 'disabled'];
+    return ['placeholder', 'disabled', 'rows', 'cols'];
   }
 
   connectedCallback(): void {
@@ -92,6 +96,22 @@ export class BinaryInput extends HTMLElement {
     else this.removeAttribute('disabled');
   }
 
+  set rows(r: number) {
+    this._input.setAttribute('rows', r.toString());
+  }
+
+  get rows(): number {
+    return this._input.rows;
+  }
+
+  set cols(c: number) {
+    this._input.setAttribute('cols', c.toString());
+  }
+
+  get cols(): number {
+    return this._input.cols;
+  }
+
   public override focus(): void {
     this._input.focus();
   }
@@ -105,32 +125,61 @@ export class BinaryInput extends HTMLElement {
       case 'disabled':
         this.disabled = newVal !== null;
         break;
+      case 'rows':
+        this.rows = +newVal;
+        break;
+      case 'cols':
+        this.cols = +newVal;
+        break;
     }
+  }
+
+  set value(v: string) {
+    this._input.value = v
+      .split('\n')
+      .map(s => {
+        s = clear_string(s, this._encode);
+        return format(split(s, this._encode), this._encode, {
+          separator: ' ',
+          pad: '0',
+        });
+      })
+      .join('\n');
   }
 
   get value(): string {
     return this._input.value;
   }
 
+  set data(d: Uint8Array) {
+    this._input.value = format(to_array_string(d, this._encode), this._encode, {
+      separator: ' ',
+      pad: '0',
+    });
+  }
+
   get data(): Uint8Array {
     return to_data(split(this.value, this._encode), this._encode);
   }
 
-  set data(d: Uint8Array) {
-    this._input.value = format(to_array_string(d, this._encode), this._encode, {
-      separator: ' ',
-      pad: this.encode === 'base64' ? '' : '0',
-    });
+  get data_array(): Uint8Array[] {
+    return this._input.value
+      .split('\n')
+      .map(s => to_data(split(s, this._encode), this._encode));
   }
 
   set encode(enc: Encoding) {
     check_encoding(enc);
     if (enc === this._encode) return;
-    this._input.value = format(
-      convert(split(this.value, this._encode), this._encode, enc),
-      enc,
-      { separator: ' ', pad: this.encode === 'base64' ? '' : '0' }
-    );
+    this._input.value = this._input.value
+      .split('\n')
+      .map(s =>
+        format(convert(split(s, this._encode), this._encode, enc), enc, {
+          separator: ' ',
+          pad: '0',
+        })
+      )
+      .join('\n');
 
     this._encode = enc;
   }
@@ -144,11 +193,13 @@ export class BinaryInput extends HTMLElement {
   }
 
   private format(str: string): void {
-    this._input.value = format(split(str, this._encode), this._encode, {
-      separator: ' ',
-      pad: this.encode === 'base64' ? '' : '0',
-    });
+    this._input.value = str
+      .split('\n')
+      .map(s => {
+        return format(split(s, this._encode), this._encode);
+      })
+      .join('\n');
   }
 }
 
-customElements.define('text-binary', BinaryInput);
+customElements.define('text-area-binary', BinaryAreaInput);

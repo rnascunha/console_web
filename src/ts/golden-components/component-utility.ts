@@ -1,8 +1,9 @@
 import { ComponentBase } from './component-base';
 import type { ComponentContainer, JsonValue } from 'golden-layout';
-import { Encoding, parse } from '../libs/binary-dump';
-import { BinaryDump } from '../web-components/binary-dump/binary-dump';
+import { type Encoding } from '../libs/binary-dump';
+import type { BinaryDump } from '../web-components/binary-dump/binary-dump';
 import type { BinaryInputSelect } from '../web-components/binary-input/text-select-binary';
+import { base64_encode, base64_decode } from '../libs/base64';
 
 export class DockDumpComponent extends ComponentBase {
   constructor(
@@ -13,14 +14,18 @@ export class DockDumpComponent extends ComponentBase {
     super(container, virtual);
 
     const parsed = JSON.parse(state as string);
-    const data = parse(parsed.data as string, 'text');
+    const data = base64_decode(parsed.data as string);
 
     this.container.setTitle('Binary Dump');
     if (this.container.layoutManager.isSubWindow) {
       window.document.title = 'Binary Dump';
     }
 
-    const body = new BinaryDump(8, data, { hide: parsed.hide });
+    const body = create_binary_dump_html(data, {
+      hide: parsed.hide,
+      breakline: 8,
+      show_header: false,
+    });
     body.classList.add('window-body');
     this.rootHtmlElement.appendChild(body);
   }
@@ -32,6 +37,9 @@ const template = (function () {
   <style>
     :host {
       background-color: darkgrey;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
 
     #input {
@@ -57,10 +65,17 @@ const template = (function () {
   return template;
 })();
 
+interface InputBinaryDumpOptionsElement {
+  breakline?: number;
+  encode?: Encoding;
+  hide?: Encoding[];
+  show_input?: boolean;
+  show_header?: boolean;
+}
+
 export function create_binary_dump_html(
   data: Uint8Array,
-  bl: number,
-  options: { hide: Encoding[] } = { hide: [] as Encoding[] }
+  options: InputBinaryDumpOptionsElement = {}
 ): HTMLElement {
   const body = document.createElement('div');
   body.attachShadow({ mode: 'open' });
@@ -72,7 +87,7 @@ export function create_binary_dump_html(
   const breakline = body.shadowRoot?.querySelector(
     '#breakline'
   ) as HTMLInputElement;
-  breakline.value = bl.toString();
+  breakline.value = options.breakline?.toString() ?? '8';
 
   Promise.all([
     customElements.whenDefined('binary-dump'),
@@ -80,9 +95,9 @@ export function create_binary_dump_html(
   ])
     .then(() => {
       input.data = data;
-      input.encode = 'text';
-      dump.update(data, bl);
-      dump.hide(...options.hide);
+      input.encode = options.encode ?? 'text';
+      dump.update(data, +breakline.value);
+      dump.hide(...(options.hide ?? []));
 
       breakline.onchange = () => {
         dump.update(input.data, +breakline.value);
@@ -99,11 +114,19 @@ export function create_binary_dump_html(
       });
 
       input.onkeyup = () => {
-        dump.update(input.data, bl);
+        dump.update(input.data, +breakline.value);
       };
       input.focus();
     })
     .finally(() => {});
+
+  if ('show_header' in options && options.show_header === false) {
+    (body.shadowRoot?.querySelector('#header') as HTMLElement).style.display =
+      'none';
+  }
+
+  if ('show_input' in options && options.show_input === false)
+    input.style.display = 'none';
 
   return body;
 }
@@ -118,17 +141,39 @@ export class InputDockDumpComponent extends ComponentBase {
 
     const parsed = JSON.parse(state as string);
 
-    this.container.setTitle('Binary Dump');
-    if (this.container.layoutManager.isSubWindow) {
-      window.document.title = 'Binary Dump';
-    }
+    this.container.setTitle('Input Dump');
+    if (this.container.layoutManager.isSubWindow)
+      window.document.title = 'Input Dump';
 
     this.rootHtmlElement.appendChild(
-      create_binary_dump_html(
-        parse(parsed.data as string, 'text'),
-        parsed.breakline,
-        { hide: parsed.hide }
-      )
+      create_binary_dump_html(base64_decode(parsed.data as string), {
+        hide: parsed.hide,
+        encode: parsed.encode,
+        breakline: parsed.breakline,
+        show_header: parsed.show_header,
+        show_input: parsed.show_input,
+      })
     );
+
+    this.container.stateRequestEvent = this.state_change.bind(this);
+  }
+
+  private state_change(): JsonValue {
+    const el = this.rootHtmlElement.firstChild as HTMLElement;
+    const input = el.shadowRoot?.querySelector('#input') as BinaryInputSelect;
+    const dump = el.shadowRoot?.querySelector('#dump') as BinaryDump;
+    const breakline = el.shadowRoot?.querySelector(
+      '#breakline'
+    ) as HTMLInputElement;
+    const header = el.shadowRoot?.querySelector('#breakline') as HTMLElement;
+
+    return JSON.stringify({
+      data: base64_encode(input.data),
+      encode: input.encode,
+      hide: dump.hided,
+      breakline: +breakline.value,
+      show_input: input.style.display !== 'none',
+      show_header: header.style.display !== 'none',
+    });
   }
 }

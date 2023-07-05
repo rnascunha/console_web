@@ -1,7 +1,9 @@
+import { base64_encode } from '../../libs/base64';
 import {
   is_ascii_code_printable,
   to_array_string,
   type Encoding,
+  encoding,
 } from '../../libs/binary-dump';
 
 const template = (function () {
@@ -12,7 +14,10 @@ const template = (function () {
         width: fit-content;
         overflow: hidden;
         display: grid;
-        grid-template: ". . . . . ."
+        grid-template: 
+          "line binary octal decimal hexa text"
+          "base64 base64 base64 base64 base64 base64 " / 
+          auto auto auto auto auto auto
       }
       
       .field {
@@ -22,26 +27,46 @@ const template = (function () {
 
       #line-count {
         background-color: white;
+        grid-area: line;
       }
 
       #decimal {
         background-color: yellow;
+        grid-area: decimal;
       }
       
       #hexa {
         background-color: blue;
+        grid-area: hexa;
       }
 
       #text {
         background-color: red;
+        grid-area: text;
       }
 
       #binary {
         background-color: grey;
+        grid-area: binary;
       }
 
       #octal {
         background-color: green;
+        grid-area: octal;
+      }
+
+      #base64-container {
+        grid-area: base64;
+        display: flex;
+        align-items: center;
+      }
+
+      #base64 {
+        margin: 0;
+        width: min-content;
+        line-break: anywhere;
+        white-space: break-spaces;
+        flex-grow: 1;
       }
 
       .hovered {
@@ -68,7 +93,11 @@ const template = (function () {
     <pre id="octal" class="field"></pre>
     <pre id="decimal" class="field"></pre>
     <pre id="hexa" class="field"></pre>
-    <pre id="text" class="field"></pre>`;
+    <pre id="text" class="field"></pre>
+    <div id=base64-container>
+      <slot name=base64-label><b>Base 64: </b></slot>
+      <pre id=base64></pre>
+    </div>`;
   return template;
 })();
 
@@ -78,6 +107,7 @@ export class BinaryDump extends HTMLElement {
   private readonly _octal: HTMLPreElement;
   private readonly _binary: HTMLPreElement;
   private readonly _text: HTMLPreElement;
+  private readonly _base64: HTMLPreElement;
   private readonly _lc: HTMLPreElement;
 
   private _bl: number;
@@ -103,6 +133,7 @@ export class BinaryDump extends HTMLElement {
     ) as HTMLPreElement;
     this._hexa = this.shadowRoot?.querySelector('#hexa') as HTMLPreElement;
     this._text = this.shadowRoot?.querySelector('#text') as HTMLPreElement;
+    this._base64 = this.shadowRoot?.querySelector('#base64') as HTMLPreElement;
     this._lc = this.shadowRoot?.querySelector('#line-count') as HTMLPreElement;
 
     this._bl = bl;
@@ -159,10 +190,14 @@ export class BinaryDump extends HTMLElement {
     return ['hide'];
   }
 
+  get hided(): Encoding[] {
+    return Array.from(this._hide.values());
+  }
+
   hide(...args: Encoding[]): void {
     let changed: boolean = false;
     args.forEach((s: Encoding) => {
-      if (this.is_encoding(s) && !this._hide.has(s)) {
+      if (is_encoding(s) && !this._hide.has(s)) {
         changed = true;
         this._hide.add(s);
       }
@@ -174,7 +209,7 @@ export class BinaryDump extends HTMLElement {
   show(...args: Encoding[]): void {
     let changed: boolean = false;
     args.forEach((s: Encoding) => {
-      if (this.is_encoding(s) && this._hide.has(s)) {
+      if (is_encoding(s) && this._hide.has(s)) {
         changed = true;
         this._hide.delete(s);
       }
@@ -214,6 +249,7 @@ export class BinaryDump extends HTMLElement {
         this._bl
       )
     );
+    this._base64.textContent = base64_encode(data, { breakline: false });
     create_break_line_field(this._lc, data.length, this._bl);
   }
 
@@ -223,10 +259,6 @@ export class BinaryDump extends HTMLElement {
   ): void {
     container.innerHTML = '';
     elements.forEach(el => container.appendChild(el));
-  }
-
-  private is_encoding(encode: Encoding): boolean {
-    return ['binary', 'octal', 'decimal', 'hexa', 'text'].includes(encode);
   }
 
   private set_hide(): void {
@@ -241,10 +273,26 @@ export class BinaryDump extends HTMLElement {
       if (this._hide.has(v[1] as Encoding)) {
         (v[0] as HTMLElement).style.display = 'none';
         new_value.push(v[1] as Encoding);
-      } else (v[0] as HTMLElement).style.display = 'inline-block';
+      } else (v[0] as HTMLElement).style.display = '';
     });
+
+    {
+      // Base64
+      const el = this.shadowRoot?.querySelector(
+        '#base64-container'
+      ) as HTMLElement;
+      if (this._hide.has('base64')) {
+        new_value.push('base64');
+        el.style.display = 'none';
+      } else el.style.display = '';
+    }
+
     this.setAttribute('hide', new_value.join(','));
   }
+}
+
+function is_encoding(encode: Encoding): boolean {
+  return encoding.includes(encode);
 }
 
 customElements.define('binary-dump', BinaryDump);

@@ -166,3 +166,71 @@ function set_encode() {
 // function update2() {
 //   dump2.update(input_select.data, +bl.value);
 // }
+
+import '../../ts/web-components/binary-input/text-area-binary';
+import { BinaryAreaInput } from '../../ts/web-components/binary-input/text-area-binary';
+
+const input_area = document.querySelector(
+  '#data-input-area'
+) as BinaryAreaInput;
+input_area.encode = 'text';
+
+const dump_area = document.querySelector('#data-dump-text-area') as BinaryDump;
+const bl_area = document.querySelector('#breakline-area') as HTMLInputElement;
+
+bl_area.onchange = () => update_area();
+input_area.onkeyup = () => update_area();
+document.querySelectorAll('input[name=encode-area]').forEach(v => {
+  const i = v as HTMLInputElement;
+  i.onclick = () => {
+    input_area.encode = i.value as Encoding;
+    update_area();
+  };
+});
+
+document.querySelectorAll('input[name=binary-area-hide]').forEach(v => {
+  const i = v as HTMLInputElement;
+  i.onclick = () => {
+    if (i.checked) dump_area.hide(i.value as Encoding);
+    else dump_area.show(i.value as Encoding);
+  };
+
+  if (bd.is_hidden(i.value as Encoding)) i.checked = true;
+});
+
+function update_area() {
+  dump_area.update(input_area.data, +bl_area.value);
+}
+
+function set_encode_area() {
+  document.querySelectorAll('input[name=encode-area]').forEach(v => {
+    const i = v as HTMLInputElement;
+    i.checked = i.value === input_binary.encode;
+  });
+}
+
+function set_hide_area() {
+  document.querySelectorAll('input[name=binary-area-hide]').forEach(v => {
+    const i = v as HTMLInputElement;
+    i.checked = dump_area.is_hidden(i.value as Encoding);
+  });
+}
+
+set_hide_area();
+set_encode_area();
+update_area();
+
+/************************** */
+import '../../ts/web-components/binary-input/text-area-radio-binary';
+import { BinaryInputAreaRadio } from '../../ts/web-components/binary-input/text-area-radio-binary';
+
+const input_area_radio = document.querySelector(
+  '#data-text-area-radio'
+) as BinaryInputAreaRadio;
+const dump_area_radio = document.querySelector(
+  '#dump-text-area-radio'
+) as BinaryDump;
+
+input_area_radio.onkeyup = () => {
+  dump_area_radio.update(input_area_radio.data, 8);
+};

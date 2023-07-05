@@ -1,7 +1,16 @@
+import { base64_decode, base64_encode } from './base64';
+
 /**
  * Encoding
  */
-export const encoding = ['binary', 'octal', 'decimal', 'hexa', 'text'] as const;
+export const encoding = [
+  'binary',
+  'octal',
+  'decimal',
+  'hexa',
+  'text',
+  'base64',
+] as const;
 export type Encoding = (typeof encoding)[number];
 
 function is_encoding(encode: Encoding): encode is Encoding {
@@ -41,6 +50,13 @@ function is_ascii(char: string): boolean {
   return char.charCodeAt(0) <= 255;
 }
 
+function is_base64(char: string): boolean {
+  const c = char.charAt(0);
+  return (
+    (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+  );
+}
+
 export function is_ascii_printable(char: string): boolean {
   return is_ascii_code_printable(char.charCodeAt(0));
 }
@@ -71,6 +87,10 @@ function split_hexa(str: string): string[] {
 
 function split_text(str: string): string[] {
   return str.match(/\\x[0-9a-fA-F]{1,2}|\\n|\\r|\\0|\\\\|[ -~]/g) ?? [];
+}
+
+function split_base64(str: string): string[] {
+  return [str];
 }
 
 interface FormatOptions {
@@ -119,6 +139,12 @@ const dataType: Record<Encoding, DataTypesInterface> = {
     check_char: is_ascii,
     split: split_text,
   },
+  base64: {
+    base: 1,
+    char_byte_size: 1,
+    check_char: is_base64,
+    split: split_base64,
+  },
 };
 
 /**
@@ -145,6 +171,9 @@ export function format(
   if (encode === 'text') return str.join('');
 
   const fmt = { ...{ separator: ' ', pad: '' }, ...opt };
+  if (encode === 'base64') {
+    return fmt.pad.length === 0 ? str[0].replace(/=/g, '') : str[0];
+  }
 
   if (fmt.pad.length > 0)
     str = str.map(v => v.padStart(dataType[encode].char_byte_size, fmt.pad));
@@ -189,6 +218,7 @@ export function parse(str: string, encode: Encoding): Uint8Array {
   str = clear_string(str, encode);
 
   if (encode === 'text') return string_to_binary(str);
+  if (encode === 'base64') return base64_decode(str);
   return Uint8Array.from(
     dataType[encode]
       .split(str)
@@ -199,6 +229,7 @@ export function parse(str: string, encode: Encoding): Uint8Array {
 export function to_data(str: string[], encode: Encoding): Uint8Array {
   check_encoding(encode);
   if (encode === 'text') return string_array_to_binary(str);
+  if (encode === 'base64') return base64_decode(str[0]);
 
   return Uint8Array.from(
     str.map((s: string) => parseInt(s, dataType[encode].base))
@@ -212,6 +243,8 @@ export function to_array_string(
 ): string[] {
   check_encoding(encode);
   if (encode === 'text') return binary_to_ascii_array(data);
+  if (encode === 'base64')
+    return [base64_encode(data, { pad: pad.length > 0 })];
 
   const { base, char_byte_size } = dataType[encode];
   if (pad.length > 0)

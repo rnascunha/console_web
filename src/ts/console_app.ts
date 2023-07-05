@@ -248,6 +248,8 @@ export class ConsoleApp {
             JSON.stringify({
               data,
               hide: ['octal', 'binary'],
+              show_header: false,
+              breakline: 8,
             })
           ),
           {
