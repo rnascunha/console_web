@@ -9,6 +9,7 @@ let commit_hash = require('child_process')
 module.exports = {
   entry: {
     main: path.resolve(__dirname, './src/ts/main.ts'),
+    test: path.resolve(__dirname, './src/tools/test/input.ts'),
     input: path.resolve(__dirname, './src/tools/input/input.ts'),
   },
 
@@ -69,6 +70,12 @@ module.exports = {
       chunks: ['main'],
       favicon: path.resolve(__dirname, './favicon.ico'),
       template: path.resolve(__dirname, './src/index.html'),
+    }),
+    new HtmlWebpackPlugin({
+      chunks: ['test'],
+      filename: 'test.html',
+      favicon: path.resolve(__dirname, './favicon.ico'),
+      template: path.resolve(__dirname, './src/tools/test/input.html'),
     }),
     new HtmlWebpackPlugin({
       chunks: ['input'],
