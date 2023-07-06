@@ -44,7 +44,7 @@ const template = (function () {
   template.innerHTML = `
     <div>
       <div>
-        <input type=number min=0 class='sel-serial-conn serial-baudrate' list=serial-baudrate-list>
+        <input type=number min=0 class='sel-serial-conn serial-baudrate' list=serial-baudrate-list />
         <datalist id=serial-baudrate-list></datalist>
         <select class='sel-serial-conn serial-databits'></select>
         <select class='sel-serial-conn serial-flowcontrol'></select>

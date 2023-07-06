@@ -1,7 +1,6 @@
 import { create_window } from './helper/window';
 import type { DraggablePopup } from './web-components/draggable-popup/draggable-popup';
 import type { DB } from './libs/db';
-import { GoldenLayout } from 'golden-layout';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -36,14 +35,5 @@ export function dispatch_setup(db: DB): DraggablePopup {
     hide_undock: true,
     append: true,
     center: true,
-  });
-}
-
-export function dispatch_tool(layout: GoldenLayout): void {
-  document.querySelector('#tools')?.addEventListener('click', () => {
-    layout.addComponent(
-      'InputDockDumpComponent',
-      JSON.stringify({ data: '', breakline: 8, hide: [] })
-    );
   });
 }

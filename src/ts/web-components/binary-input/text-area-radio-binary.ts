@@ -6,7 +6,11 @@ const template = (function () {
   template.innerHTML = `
   <style>
   :host {
-    display: inline-block;
+    display: inline-flex;
+  }
+
+  #data {
+    flex-grow: 1;
   }
 
   #encode-container {
@@ -45,7 +49,7 @@ export class BinaryInputAreaRadio extends HTMLElement {
       input.textContent = enc;
       input.type = 'radio';
 
-      input.onchange = ev => {
+      input.onchange = () => {
         this.encode = input.value as Encoding;
       };
 

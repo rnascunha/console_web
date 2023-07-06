@@ -41,7 +41,7 @@ export abstract class App {
 
   abstract open(): AppOpenParameters;
   public update(value: JsonValue): void {}
-  public set_state(value: unknown): void {}
+  public set_state(value: JsonValue): void {}
 }
 
 const url_template = (function () {
@@ -50,11 +50,11 @@ const url_template = (function () {
   return template;
 })();
 
-export class URLApp<T> extends App {
+export class URLApp extends App {
   private readonly _in_url: HTMLInputElement;
-  private _state: T;
+  private _state: JsonValue;
 
-  constructor(protocol: string, component: any, state: T) {
+  constructor(protocol: string, component: any, state: JsonValue) {
     super(protocol, url_template.content.cloneNode(true), component);
     this._in_url = (this.element as HTMLElement).querySelector(
       '.url'
@@ -81,7 +81,7 @@ export class URLApp<T> extends App {
     this._in_url.value = data.url.split('://')[1];
   }
 
-  public override set_state(value: T): void {
+  public override set_state(value: JsonValue): void {
     this._state = value;
   }
 }

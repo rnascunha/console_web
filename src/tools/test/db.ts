@@ -1,8 +1,15 @@
-import type { InputDumpOptions } from '../../ts/web-components/input-dump/input_dump';
+import type { Encoding } from '../../ts/libs/binary-dump';
 
-const dbName = 'input-binary';
+const dbName = 'test';
 const dbVersion = 1;
 const objectStoreName = 'binary-data';
+
+interface InputData {
+  breakline: number;
+  hide: Encoding[];
+  data: Uint8Array;
+  encode: Encoding;
+}
 
 export async function open_db(): Promise<IDBDatabase> {
   return await new Promise(function (resolve, reject) {
@@ -23,7 +30,7 @@ export async function open_db(): Promise<IDBDatabase> {
   });
 }
 
-export async function read_db(db: IDBDatabase): Promise<InputDumpOptions> {
+export async function read_db(db: IDBDatabase): Promise<InputData> {
   return await new Promise(function (resolve, reject) {
     const request = db
       .transaction(objectStoreName, 'readonly')
@@ -40,7 +47,7 @@ export async function read_db(db: IDBDatabase): Promise<InputDumpOptions> {
 
 export async function write_db(
   db: IDBDatabase,
-  data: InputDumpOptions
+  data: InputData
 ): Promise<void> {
   await new Promise<void>(function (resolve, reject) {
     const request = db

@@ -15,17 +15,13 @@ export async function open(
     openRequest.onupgradeneeded = ev => {
       const db: IDBDatabase = (ev.target as IDBOpenDBRequest).result;
 
-      const protocol_transaction = db.createObjectStore('protocol').transaction;
-      protocol_transaction.oncomplete = () => {};
-      protocol_transaction.onerror = ev => {
-        throw new Error('Error creating "protocol" ObjectStore');
-      };
-
-      const apps_transaction = db.createObjectStore('apps').transaction;
-      apps_transaction.oncomplete = () => {};
-      apps_transaction.onerror = ev => {
-        throw new Error('Error creating "apps" ObjectStore');
-      };
+      ['protocol', 'apps', 'tools'].forEach(os => {
+        const transaction = db.createObjectStore(os).transaction;
+        // transaction.oncomplete = () => {};
+        transaction.onerror = ev => {
+          throw new Error(`Error creating "${os}" ObjectStore`);
+        };
+      });
     };
   });
 }

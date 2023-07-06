@@ -11,13 +11,38 @@ body {
   display: grid;
   grid-template:
     'header' min-content
-    'body' auto
-    'footer' 2px;
+    'body' auto;
 }
 
 #header {
   display: flex;
   align-items: center;
+}
+
+#open-header {
+  display: none;
+  height: 40px;
+  width: 40px;
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  border-radius: 20px;
+  z-index: 100;
+  cursor: pointer;
+  background: radial-gradient(
+    circle,
+    rgba(249, 255, 0, 1) 13%,
+    rgba(133, 132, 51, 0.1) 84%
+  );
+  transition: all ease 0.5s;
+}
+
+#open-header:hover {
+  height: 60px;
+  width: 60px;
+  top: -30px;
+  right: -30px;
+  border-radius: 30px;
 }
 
 #title {

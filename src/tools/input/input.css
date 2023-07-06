@@ -7,53 +7,36 @@ body {
   overflow: hidden;
 }
 
+body {
+  display: grid;
+  grid-template:
+    'header' min-content
+    'dump' auto;
+}
+
 #header {
   display: flex;
-  width: 100%;
   align-items: center;
-  justify-content: space-between;
 }
 
-#title {
-  width: 100%;
+#header h1 {
+  flex-grow: 1;
   text-align: center;
+  margin: 2px;
 }
 
-#options {
-  width: fit-content;
-}
-
-#share {
-  font-size: xx-large;
+#link {
+  font-size: x-large;
   cursor: pointer;
-}
-
-#share:hover {
-  background-color: black;
-  color: white;
-}
-
-.link {
-  cursor: text;
-  width: 500px;
-}
-
-.copy {
+  border-radius: 20px;
   padding: 2px;
-  cursor: pointer;
 }
 
-.copy:hover {
+#link:hover {
   background-color: black;
-  color: white;
 }
 
-#input-binary {
-  width: 50%;
-}
-
-#encode-area-container {
-  display: inline-flex;
-  flex-direction: column;
-  vertical-align: top;
+#input-dump {
+  height: 100%;
+  overflow: auto;
 }

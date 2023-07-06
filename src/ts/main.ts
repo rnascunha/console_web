@@ -4,6 +4,9 @@ import './web-components/draggable-popup/draggable-popup';
 import './web-components/binary-dump/binary-dump';
 import './web-components/binary-input/text-binary';
 import './web-components/binary-input/text-select-binary';
+import './web-components/binary-input/text-area-binary';
+import './web-components/binary-input/text-area-radio-binary';
+import './web-components/input-dump/input_dump';
 
 // Importing style
 import '../css/style.css';
@@ -25,6 +28,7 @@ import { is_serial_supported } from './apps/serial/functions';
 
 import { ConsoleApp } from './console_app';
 import './setup';
+import { InputDumpTool } from './tools/input_dump/tool';
 
 declare global {
   const __COMMIT_HASH__: string; // eslint-disable-line
@@ -58,5 +62,5 @@ function get_app_list(): App[] {
 }
 
 function run(): void {
-  new ConsoleApp(get_app_list()); // eslint-disable-line no-new
+  new ConsoleApp(get_app_list(), [new InputDumpTool()]); // eslint-disable-line no-new
 }

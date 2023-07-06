@@ -1,0 +1,59 @@
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#header {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#title {
+  width: 100%;
+  text-align: center;
+}
+
+#options {
+  width: fit-content;
+}
+
+#share {
+  font-size: xx-large;
+  cursor: pointer;
+}
+
+#share:hover {
+  background-color: black;
+  color: white;
+}
+
+.link {
+  cursor: text;
+  width: 500px;
+}
+
+.copy {
+  padding: 2px;
+  cursor: pointer;
+}
+
+.copy:hover {
+  background-color: black;
+  color: white;
+}
+
+#input-binary {
+  width: 50%;
+}
+
+#encode-area-container {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: top;
+}

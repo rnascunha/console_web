@@ -8,13 +8,15 @@ import {
   type ContentItem,
   type LayoutConfig,
   type ComponentContainer,
+  type JsonValue,
   ItemType,
   GoldenLayout,
   ResolvedComponentItemConfig,
 } from 'golden-layout';
 import { type AppOpenParameters, type App, AppList } from './apps/app';
+import { type Tool, ToolList } from './tools/tools';
 import { open as open_db, type DB } from './libs/db';
-import { dispatch_setup, dispatch_tool } from './setup';
+import { dispatch_setup } from './setup';
 
 // Binary dump window
 import { BinaryDump } from './web-components/binary-dump/binary-dump';
@@ -35,19 +37,37 @@ const console_layout: LayoutConfig = {
 const dbName = 'console_web';
 const dbVersion = 1;
 
+interface AppState {
+  show_header: boolean;
+}
+
 export class ConsoleApp {
   private readonly _layout: GoldenLayout;
+
+  private readonly _container: HTMLElement;
   private readonly _sel_protocols: HTMLSelectElement;
   private readonly _btn_connect: HTMLButtonElement;
   private readonly _el_error: HTMLElement;
+  private readonly _el_open_header: HTMLElement;
 
   private readonly _app_list: AppList;
+  private readonly _tool_list: ToolList;
+
+  private readonly _state: AppState = { show_header: true };
   private _db: DB | undefined;
 
-  constructor(app_list: App[], container: HTMLElement = document.body) {
+  constructor(
+    app_list: App[],
+    tool_list: Tool[],
+    container: HTMLElement = document.body
+  ) {
     window.console_app = this;
 
+    this._container = container;
+
     this._app_list = new AppList(app_list);
+    this._tool_list = new ToolList(tool_list);
+
     this.load_db()
       .then(async () => {
         await this.update_state();
@@ -76,6 +96,9 @@ export class ConsoleApp {
       '#connect'
     ) as HTMLButtonElement;
     this._el_error = container.querySelector('#error') as HTMLElement;
+    this._el_open_header = container.querySelector(
+      '#open-header'
+    ) as HTMLElement;
 
     const proto_container = container.querySelector(
       '#protocol-container'
@@ -85,7 +108,25 @@ export class ConsoleApp {
       proto_container.appendChild(app.element);
     });
 
-    dispatch_tool(this._layout);
+    container.querySelector('#tools')?.addEventListener('click', () => {
+      const tool = this._tool_list.tool('input_dump');
+      if (tool === undefined) return;
+      this._layout.addComponent(tool.name, tool.open());
+    });
+
+    container.querySelector('#close')?.addEventListener('click', () => {
+      this.hide_header();
+    });
+
+    container.addEventListener('keypress', ev => {
+      if (ev.ctrlKey && ev.key === 'i') {
+        this.toggle_header();
+      }
+    });
+
+    this._el_open_header.addEventListener('click', () => {
+      this.show_header();
+    });
 
     this._sel_protocols.onchange = () => {
       this.select_protocol();
@@ -110,8 +151,7 @@ export class ConsoleApp {
 
     if (this._layout.isSubWindow) {
       container.style.gridTemplate = `"header" 0px
-                                      "body" auto
-                                      "footer" 0px`;
+                                      "body" auto`;
       this._layout.checkAddDefaultPopinButton();
     } else this._layout.loadLayout(console_layout);
   }
@@ -217,14 +257,18 @@ export class ConsoleApp {
     this._app_list.apps.forEach(app => {
       this._layout.registerComponentConstructor(app.protocol, app.component);
     });
+    this._tool_list.tools.forEach(tool => {
+      this._layout.registerComponentConstructor(tool.name, tool.component);
+    });
     Object.values(other_components).forEach(v => {
       this._layout.registerComponentConstructor(v.name, v.component);
     });
   }
 
   private get_component(name: string): any {
-    const app = this._app_list.protocol(name);
-    if (app !== undefined) return app.component;
+    const app_tool =
+      this._app_list.protocol(name) ?? this._tool_list.tool(name);
+    if (app_tool !== undefined) return app_tool.component;
 
     if (name in other_components) return other_components[name].component;
 
@@ -286,16 +330,32 @@ export class ConsoleApp {
   }
 
   private async update_state(): Promise<void> {
-    const v = await this._db?.read_entries('apps');
-    if (v === undefined) return;
-    Object.entries(v).forEach(([app_name, state]: [string, unknown]) => {
-      this.set_state(app_name, state, false);
+    if (this._db === undefined) return;
+
+    await Promise.allSettled([
+      this._db.read_entries('apps'),
+      this._db.read_entries('tools'),
+    ]).then(results => {
+      if (results[0].status === 'fulfilled') {
+        Object.entries(results[0].value).forEach(
+          ([app_name, state]: [string, JsonValue]) => {
+            this.set_state(app_name, state, false);
+          }
+        );
+      }
+      if (results[1].status === 'fulfilled') {
+        Object.entries(results[1].value).forEach(
+          ([tool_name, state]: [string, JsonValue]) => {
+            this.set_tool_state(tool_name, state, false);
+          }
+        );
+      }
     });
   }
 
   public set_state(
     app_name: string,
-    state: unknown,
+    state: JsonValue,
     update_db: boolean = true
   ): void {
     const app = this._app_list.protocol(app_name);
@@ -305,6 +365,20 @@ export class ConsoleApp {
     }
     app.set_state(state);
     if (update_db) this._db?.write('apps', app_name, state).finally(() => {});
+  }
+
+  public set_tool_state(
+    tool_name: string,
+    state: JsonValue,
+    update_db: boolean = true
+  ): void {
+    const tool = this._tool_list.tool(tool_name);
+    if (tool === undefined) {
+      console.warn(`Tool '${tool_name}' not found`);
+      return;
+    }
+    tool.set_state(state);
+    if (update_db) this._db?.write('tools', tool_name, state).finally(() => {});
   }
 
   private select_protocol(): void {
@@ -317,5 +391,27 @@ export class ConsoleApp {
         app.focus();
       } else (app_el as HTMLElement).style.display = 'none';
     });
+  }
+
+  /**
+   * App state
+   */
+  private toggle_header(): void {
+    if (this._state.show_header) this.hide_header();
+    else this.show_header();
+  }
+
+  private show_header(): void {
+    this._container.style.gridTemplate = `"header" min-content
+                                          "body" auto`;
+    this._el_open_header.style.display = 'none';
+    this._state.show_header = true;
+  }
+
+  private hide_header(): void {
+    this._container.style.gridTemplate = `"header" 0px
+                                          "body" auto`;
+    this._el_open_header.style.display = 'block';
+    this._state.show_header = false;
   }
 }

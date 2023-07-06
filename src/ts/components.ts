@@ -1,7 +1,4 @@
-import {
-  DockDumpComponent,
-  InputDockDumpComponent,
-} from './golden-components/component-utility';
+import { DockDumpComponent } from './golden-components/component-utility';
 import { SerialConsoleComponent } from './apps/serial/component';
 
 interface OtherComponent {
@@ -17,9 +14,5 @@ export const other_components: Record<string, OtherComponent> = {
   DockDumpComponent: {
     name: 'DockDumpComponent',
     component: DockDumpComponent,
-  },
-  InputDockDumpComponent: {
-    name: 'InputDockDumpComponent',
-    component: InputDockDumpComponent,
   },
 };

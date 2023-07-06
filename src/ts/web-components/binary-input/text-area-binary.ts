@@ -20,6 +20,7 @@ const template = (function () {
 
     textarea{
       width: 100%;
+      box-sizing: border-box;
     }
   </style>
   <textarea></textarea>`;
