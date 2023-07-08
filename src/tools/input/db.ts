@@ -1,4 +1,4 @@
-import type { InputDumpOptions } from '../../ts/web-components/input-dump/input_dump';
+import type { InputDumpOptions } from '../../ts/web-components/input-dump/input-dump';
 
 const dbName = 'input-binary';
 const dbVersion = 1;

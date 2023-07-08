@@ -81,6 +81,7 @@ export class DraggablePopup extends HTMLElement {
 
   public close(): void {
     this.parentNode?.removeChild(this);
+    this.dispatchEvent(new Event('close'));
   }
 
   public center(): void {

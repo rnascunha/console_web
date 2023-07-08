@@ -141,12 +141,17 @@ export class ConsoleApp {
     };
 
     let setup_window: DraggablePopup | null = null;
-    container.querySelector('#setup')?.addEventListener('click', ev => {
+    container.querySelector('#setup')?.addEventListener('click', () => {
       if (setup_window !== null) {
         setup_window.center();
         return;
       }
-      if (this._db !== undefined) setup_window = dispatch_setup(this._db);
+      if (this._db !== undefined) {
+        setup_window = dispatch_setup(this._db);
+        setup_window.addEventListener('close', () => {
+          setup_window = null;
+        });
+      }
     });
 
     if (this._layout.isSubWindow) {
@@ -167,7 +172,7 @@ export class ConsoleApp {
     const comp_type = this.get_component(comp_name);
     if (comp_type === undefined) throw new Error('Component not found');
 
-    const use_virtual = false;
+    const use_virtual = false; // container.componentType === 'SetupComponent';
     const component = new comp_type( // eslint-disable-line
       container,
       container.initialState,

@@ -23,6 +23,13 @@
 
 - [x] Add query parameters at address bar and shared button at input tool.
 - [x] Save parameters offline at browser.
+- [x] Direct link to tools.
+
+### New Tools
+
+- [ ] Tool to convert date/time/timestamp. UTC and other timezones.
+- [ ] Generate Cripto keys (CA, private/public keys);
+- [ ] Darta parses: JSON...
 
 ## Fix
 
@@ -30,3 +37,4 @@
 - [ ] Popout not working with `serial` protocol;
 - [ ] Popout at a poped out window error (disable?);
 - [x] Serial issueing 2 disconnect messages
+- [ ] Necessary to treat loading big files (`input-dump` tool for example). Need to slice?

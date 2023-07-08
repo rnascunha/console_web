@@ -6,7 +6,8 @@ import './web-components/binary-input/text-binary';
 import './web-components/binary-input/text-select-binary';
 import './web-components/binary-input/text-area-binary';
 import './web-components/binary-input/text-area-radio-binary';
-import './web-components/input-dump/input_dump';
+import './web-components/input-file/input-file';
+import './web-components/input-dump/input-dump';
 
 // Importing style
 import '../css/style.css';

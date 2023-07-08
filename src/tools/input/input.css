@@ -30,6 +30,7 @@ body {
   cursor: pointer;
   border-radius: 20px;
   padding: 2px;
+  position: relative;
 }
 
 #link:hover {

@@ -3,14 +3,14 @@ import './input.css';
 import '../../ts/web-components/binary-dump/binary-dump';
 import '../../ts/web-components/binary-input/text-area-binary';
 import '../../ts/web-components/binary-input/text-area-radio-binary';
+import '../../ts/web-components/input-file/input-file';
 
 import { AlertMessage } from '../../ts/web-components/alert-message/alert-message';
 import {
   InputDump,
   type InputDumpOptions,
-} from '../../ts/web-components/input-dump/input_dump';
+} from '../../ts/web-components/input-dump/input-dump';
 import { type Encoding } from '../../ts/libs/binary-dump';
-import { fade_out } from '../../ts/helper/fade';
 import { open_db, read_db, write_db } from './db';
 
 const container = document.querySelector('#input-dump');
@@ -30,16 +30,15 @@ document.querySelector('#link')?.addEventListener('click', () => {});
 
 container?.appendChild(input_dump);
 
-document.querySelector('#link')?.addEventListener('click', () => {
+const message = new AlertMessage('Link copied', arg => arg.hide())
+  .append_element()
+  .hide()
+  .bottom();
+
+document.querySelector('#link')?.addEventListener('click', ev => {
   navigator.clipboard.writeText(make_link(state, true)).finally(() => {});
 
-  const el = new AlertMessage('Link copied');
-  document.body.appendChild(el);
-  fade_out(el, 0.003)
-    .then(el => {
-      el.close();
-    })
-    .finally(() => {});
+  message.show();
 });
 
 input_dump.addEventListener('state', ev => {

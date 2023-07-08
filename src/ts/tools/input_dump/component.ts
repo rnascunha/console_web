@@ -3,7 +3,7 @@ import type { ComponentContainer, JsonValue } from 'golden-layout';
 import {
   InputDump,
   type InputDumpOptions,
-} from '../../web-components/input-dump/input_dump';
+} from '../../web-components/input-dump/input-dump';
 
 export class InputDockDumpComponent extends ComponentBase {
   private _state: Record<string, any>;

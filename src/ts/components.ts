@@ -1,5 +1,6 @@
 import { DockDumpComponent } from './golden-components/component-utility';
 import { SerialConsoleComponent } from './apps/serial/component';
+import { SetupComponent } from './tools/setup/component';
 
 interface OtherComponent {
   name: string;
@@ -14,5 +15,9 @@ export const other_components: Record<string, OtherComponent> = {
   DockDumpComponent: {
     name: 'DockDumpComponent',
     component: DockDumpComponent,
+  },
+  SetupComponent: {
+    name: 'SetupComponent',
+    component: SetupComponent,
   },
 };

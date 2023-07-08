@@ -1,5 +1,6 @@
 import { base64_decode, base64_encode } from '../../libs/base64';
 import { encoding, type Encoding } from '../../libs/binary-dump';
+import { AlertMessage } from '../alert-message/alert-message';
 import type { BinaryDump } from '../binary-dump/binary-dump';
 import type { BinaryInputAreaRadio } from '../binary-input/text-area-radio-binary';
 
@@ -29,13 +30,29 @@ const template = (function () {
       flex-direction: column;
     }
 
-    #breakline-container {
-      align-self: flex-end;
+    #options {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    #options * {
+      text-align: center;
     }
 
     #dump-container {
       overflow: auto;
       height: 100%;
+    }
+
+    fieldset {
+      padding: 2px;
+      border-radius: 3px;
+    }
+
+    fieldset legend {
+      font-size: small;
+      font-weight: bold;
     }
   </style>
   <div id=header>
@@ -48,9 +65,17 @@ const template = (function () {
       <label><input type=checkbox name=encode value=text></label>
       <label><input type=checkbox name=encode value=base64></label>
     </div>
-    <label id=breakline-container><b>Breakline</b><br>
-      <input type=number min=1 max=16 id=breakline>
-    </label>
+    <div id=options>
+      <input-file id=file>File</input-file>
+      <fieldset>
+        <legend>Bytes</legend>
+        <span id=size-bytes>0</span>
+      </fieldset>
+      <fieldset>
+        <legend>Breakline</legend>
+        <input type=number min=1 max=16 id=breakline>
+      </fieldset>
+    </div>
   </div>
   <div id=dump-container>
     <binary-dump id=dump></binary-dump>
@@ -69,6 +94,8 @@ export class InputDump extends HTMLElement {
   private readonly _input: BinaryInputAreaRadio;
   private readonly _dump: BinaryDump;
   private readonly _breakline: HTMLInputElement;
+  private readonly _size_bytes: HTMLSpanElement;
+
   constructor(options: InputDumpOptions = {}) {
     super();
 
@@ -82,19 +109,37 @@ export class InputDump extends HTMLElement {
     this._breakline = this.shadowRoot?.querySelector(
       '#breakline'
     ) as HTMLInputElement;
+    this._size_bytes = this.shadowRoot?.querySelector(
+      '#size-bytes'
+    ) as HTMLSpanElement;
 
     Promise.all([
       customElements.whenDefined('binary-dump'),
       customElements.whenDefined('text-area-radio-binary'),
     ])
       .then(() => {
-        if (options.data !== undefined)
-          this._input.data = base64_decode(options.data);
+        const d = base64_decode(options.data ?? '');
+        this._input.data = d;
+        this._size_bytes.textContent = d.length.toString();
         this._input.encode = options.encode ?? 'text';
         this._breakline.value = options.breakline?.toString() ?? '8';
 
+        const file_handler = async (ev: Event): Promise<void> => {
+          const d = await file_event(ev);
+          if (d === undefined) return;
+          this._input.data = d;
+          update();
+        };
+
+        (this.shadowRoot?.querySelector('#file') as InputFile).on(
+          'change',
+          file_handler
+        );
+
         const update = (): void => {
-          this._dump.update(this._input.data, +this._breakline.value);
+          const d = this._input.data;
+          this._dump.update(d, +this._breakline.value);
+          this._size_bytes.textContent = d.length.toString();
           this.dispatchEvent(
             new CustomEvent('state', {
               detail: {
@@ -134,7 +179,11 @@ export class InputDump extends HTMLElement {
   }
 
   public set state(s: InputDumpOptions) {
-    if (s.data !== undefined) this._input.data = base64_decode(s.data);
+    if (s.data !== undefined) {
+      const d = base64_decode(s.data);
+      this._input.data = d;
+      this._size_bytes.textContent = d.length.toString();
+    }
     if (s.encode !== undefined) this._input.encode = s.encode;
     if (s.hide !== undefined) {
       this._dump.show(...encoding);
@@ -155,3 +204,21 @@ export class InputDump extends HTMLElement {
 }
 
 customElements.define('input-dump', InputDump);
+
+async function file_event(ev: Event): Promise<Uint8Array | undefined> {
+  const target = ev.target as HTMLInputElement;
+  const file_list = target.files;
+  if (file_list?.length === 0) return undefined;
+  const file = file_list?.[0] as File;
+  const buf = await file.arrayBuffer();
+  if (buf === undefined) return undefined;
+  new AlertMessage(
+    `File ${file.name} loaded from 0 to ${Math.min(1024, file.size)}`
+  )
+    .bottom()
+    .append_element()
+    .face_out(0.003, true);
+
+  target.value = '';
+  return new Uint8Array(buf).slice(0, 1024);
+}

@@ -1,3 +1,5 @@
+import { fade_out } from '../../helper/fade';
+
 const template = (function () {
   const template = document.createElement('template');
   template.innerHTML = `
@@ -11,6 +13,7 @@ const template = (function () {
       background-color: lightgreen;
       padding: 5px;
       border-radius: 10px;
+      font-size: medium;
       min-width: 200px;
       top: 5px;
       left: 50%;
@@ -25,6 +28,7 @@ const template = (function () {
 
     #close {
       cursor: pointer;
+      border-radius: 10px;
     }
 
     #close:hover {
@@ -38,7 +42,12 @@ const template = (function () {
 })();
 
 export class AlertMessage extends HTMLElement {
-  constructor(message: string = '') {
+  constructor(
+    message: string = '',
+    action: (args: AlertMessage) => any = arg => {
+      arg.close();
+    }
+  ) {
     super();
 
     this.attachShadow({ mode: 'open' });
@@ -49,12 +58,48 @@ export class AlertMessage extends HTMLElement {
         message;
 
     this.shadowRoot?.querySelector('#close')?.addEventListener('click', () => {
-      this.close();
+      action(this);
     });
+  }
+
+  public text(message: string): AlertMessage {
+    (this.shadowRoot?.querySelector('#message') as HTMLElement).textContent =
+      message;
+    return this;
+  }
+
+  public hide(): AlertMessage {
+    this.style.visibility = 'hidden';
+    return this;
+  }
+
+  public show(): AlertMessage {
+    this.style.visibility = 'visible';
+    return this;
   }
 
   public close(): void {
     this.parentNode?.removeChild(this);
+  }
+
+  public bottom(pixels: number = 5): AlertMessage {
+    this.style.top = 'unset';
+    this.style.bottom = `${pixels}px`;
+    return this;
+  }
+
+  public append_element(el: HTMLElement = document.body): AlertMessage {
+    el.appendChild(this);
+    return this;
+  }
+
+  public face_out(pace: number, close = false): AlertMessage {
+    fade_out(this, pace)
+      .then(() => {
+        if (close) this.close();
+      })
+      .finally(() => {});
+    return this;
   }
 }
 
