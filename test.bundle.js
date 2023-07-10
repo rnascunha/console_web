@@ -2,10 +2,57 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./node_modules/css-loader/dist/cjs.js!./src/tools/input/input.css":
-/*!*************************************************************************!*\
-  !*** ./node_modules/css-loader/dist/cjs.js!./src/tools/input/input.css ***!
-  \*************************************************************************/
+/***/ "./node_modules/css-loader/dist/cjs.js!./src/css/window.css":
+/*!******************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./src/css/window.css ***!
+  \******************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../node_modules/css-loader/dist/runtime/sourceMaps.js */ "./node_modules/css-loader/dist/runtime/sourceMaps.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+// Imports
+
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, `
+.window {
+  background-color: white;
+  margin: 0px;
+  padding: 0px;
+  box-shadow: 3px 2px 2px black;
+  border: 1px black solid;
+  border-radius: 5px;
+}
+
+.window-header {
+  background-color: blue;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  padding: 3px 0px;
+  border-top-left-radius: 4px;
+}
+
+.window-body {
+  border-bottom-right-radius: 4px;
+}`, "",{"version":3,"sources":["webpack://./src/css/window.css"],"names":[],"mappings":";AACA;EACE,uBAAuB;EACvB,WAAW;EACX,YAAY;EACZ,6BAA6B;EAC7B,uBAAuB;EACvB,kBAAkB;AACpB;;AAEA;EACE,sBAAsB;EACtB,iBAAiB;EACjB,WAAW;EACX,kBAAkB;EAClB,gBAAgB;EAChB,2BAA2B;AAC7B;;AAEA;EACE,+BAA+B;AACjC","sourcesContent":["\n.window {\n  background-color: white;\n  margin: 0px;\n  padding: 0px;\n  box-shadow: 3px 2px 2px black;\n  border: 1px black solid;\n  border-radius: 5px;\n}\n\n.window-header {\n  background-color: blue;\n  font-weight: bold;\n  width: 100%;\n  text-align: center;\n  padding: 3px 0px;\n  border-top-left-radius: 4px;\n}\n\n.window-body {\n  border-bottom-right-radius: 4px;\n}"],"sourceRoot":""}]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/dist/cjs.js!./src/tools/test/input.css":
+/*!************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./src/tools/test/input.css ***!
+  \************************************************************************/
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -30,41 +77,57 @@ body {
   overflow: hidden;
 }
 
-body {
-  display: grid;
-  grid-template:
-    'header' min-content
-    'dump' auto;
-}
-
 #header {
   display: flex;
+  width: 100%;
   align-items: center;
+  justify-content: space-between;
 }
 
-#header h1 {
-  flex-grow: 1;
+#title {
+  width: 100%;
   text-align: center;
-  margin: 2px;
 }
 
-#link {
-  font-size: x-large;
+#options {
+  width: fit-content;
+}
+
+#share {
+  font-size: xx-large;
   cursor: pointer;
-  border-radius: 20px;
-  padding: 2px;
-  position: relative;
 }
 
-#link:hover {
+#share:hover {
   background-color: black;
+  color: white;
 }
 
-#input-dump {
-  height: 100%;
-  overflow: auto;
+.link {
+  cursor: text;
+  width: 500px;
 }
-`, "",{"version":3,"sources":["webpack://./src/tools/input/input.css"],"names":[],"mappings":"AAAA;;EAEE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb;;eAEa;AACf;;AAEA;EACE,aAAa;EACb,mBAAmB;AACrB;;AAEA;EACE,YAAY;EACZ,kBAAkB;EAClB,WAAW;AACb;;AAEA;EACE,kBAAkB;EAClB,eAAe;EACf,mBAAmB;EACnB,YAAY;EACZ,kBAAkB;AACpB;;AAEA;EACE,uBAAuB;AACzB;;AAEA;EACE,YAAY;EACZ,cAAc;AAChB","sourcesContent":["html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\nbody {\n  display: grid;\n  grid-template:\n    'header' min-content\n    'dump' auto;\n}\n\n#header {\n  display: flex;\n  align-items: center;\n}\n\n#header h1 {\n  flex-grow: 1;\n  text-align: center;\n  margin: 2px;\n}\n\n#link {\n  font-size: x-large;\n  cursor: pointer;\n  border-radius: 20px;\n  padding: 2px;\n  position: relative;\n}\n\n#link:hover {\n  background-color: black;\n}\n\n#input-dump {\n  height: 100%;\n  overflow: auto;\n}\n"],"sourceRoot":""}]);
+
+.copy {
+  padding: 2px;
+  cursor: pointer;
+}
+
+.copy:hover {
+  background-color: black;
+  color: white;
+}
+
+#input-binary {
+  width: 50%;
+}
+
+#encode-area-container {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: top;
+}
+`, "",{"version":3,"sources":["webpack://./src/tools/test/input.css"],"names":[],"mappings":"AAAA;;EAEE,YAAY;EACZ,WAAW;EACX,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb,WAAW;EACX,mBAAmB;EACnB,8BAA8B;AAChC;;AAEA;EACE,WAAW;EACX,kBAAkB;AACpB;;AAEA;EACE,kBAAkB;AACpB;;AAEA;EACE,mBAAmB;EACnB,eAAe;AACjB;;AAEA;EACE,uBAAuB;EACvB,YAAY;AACd;;AAEA;EACE,YAAY;EACZ,YAAY;AACd;;AAEA;EACE,YAAY;EACZ,eAAe;AACjB;;AAEA;EACE,uBAAuB;EACvB,YAAY;AACd;;AAEA;EACE,UAAU;AACZ;;AAEA;EACE,oBAAoB;EACpB,sBAAsB;EACtB,mBAAmB;AACrB","sourcesContent":["html,\nbody {\n  height: 100%;\n  width: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n\n#header {\n  display: flex;\n  width: 100%;\n  align-items: center;\n  justify-content: space-between;\n}\n\n#title {\n  width: 100%;\n  text-align: center;\n}\n\n#options {\n  width: fit-content;\n}\n\n#share {\n  font-size: xx-large;\n  cursor: pointer;\n}\n\n#share:hover {\n  background-color: black;\n  color: white;\n}\n\n.link {\n  cursor: text;\n  width: 500px;\n}\n\n.copy {\n  padding: 2px;\n  cursor: pointer;\n}\n\n.copy:hover {\n  background-color: black;\n  color: white;\n}\n\n#input-binary {\n  width: 50%;\n}\n\n#encode-area-container {\n  display: inline-flex;\n  flex-direction: column;\n  vertical-align: top;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -457,10 +520,64 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
-/***/ "./src/tools/input/input.css":
-/*!***********************************!*\
-  !*** ./src/tools/input/input.css ***!
-  \***********************************/
+/***/ "./src/css/window.css":
+/*!****************************!*\
+  !*** ./src/css/window.css ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/styleDomAPI.js */ "./node_modules/style-loader/dist/runtime/styleDomAPI.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/insertBySelector.js */ "./node_modules/style-loader/dist/runtime/insertBySelector.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js */ "./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/insertStyleElement.js */ "./node_modules/style-loader/dist/runtime/insertStyleElement.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! !../../node_modules/style-loader/dist/runtime/styleTagTransform.js */ "./node_modules/style-loader/dist/runtime/styleTagTransform.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_window_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! !!../../node_modules/css-loader/dist/cjs.js!./window.css */ "./node_modules/css-loader/dist/cjs.js!./src/css/window.css");
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var options = {};
+
+options.styleTagTransform = (_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default());
+options.setAttributes = (_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default());
+
+      options.insert = _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default().bind(null, "head");
+    
+options.domAPI = (_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default());
+options.insertStyleElement = (_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default());
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_window_css__WEBPACK_IMPORTED_MODULE_6__["default"], options);
+
+
+
+
+       /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_window_css__WEBPACK_IMPORTED_MODULE_6__["default"] && _node_modules_css_loader_dist_cjs_js_window_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals ? _node_modules_css_loader_dist_cjs_js_window_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals : undefined);
+
+
+/***/ }),
+
+/***/ "./src/tools/test/input.css":
+/*!**********************************!*\
+  !*** ./src/tools/test/input.css ***!
+  \**********************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -479,7 +596,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! !../../../node_modules/style-loader/dist/runtime/styleTagTransform.js */ "./node_modules/style-loader/dist/runtime/styleTagTransform.js");
 /* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _node_modules_css_loader_dist_cjs_js_input_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! !!../../../node_modules/css-loader/dist/cjs.js!./input.css */ "./node_modules/css-loader/dist/cjs.js!./src/tools/input/input.css");
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_input_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! !!../../../node_modules/css-loader/dist/cjs.js!./input.css */ "./node_modules/css-loader/dist/cjs.js!./src/tools/test/input.css");
 
       
       
@@ -511,10 +628,10 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 /***/ }),
 
-/***/ "./src/tools/input/db.ts":
-/*!*******************************!*\
-  !*** ./src/tools/input/db.ts ***!
-  \*******************************/
+/***/ "./src/tools/test/db.ts":
+/*!******************************!*\
+  !*** ./src/tools/test/db.ts ***!
+  \******************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -532,7 +649,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const dbName = 'input-binary';
+const dbName = 'test';
 const dbVersion = 1;
 const objectStoreName = 'binary-data';
 function open_db() {
@@ -1766,268 +1883,258 @@ customElements.define('text-area-radio-binary', BinaryInputAreaRadio);
 
 /***/ }),
 
-/***/ "./src/ts/web-components/input-dump/input-dump.ts":
-/*!********************************************************!*\
-  !*** ./src/ts/web-components/input-dump/input-dump.ts ***!
-  \********************************************************/
+/***/ "./src/ts/web-components/binary-input/text-binary.ts":
+/*!***********************************************************!*\
+  !*** ./src/ts/web-components/binary-input/text-binary.ts ***!
+  \***********************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InputDump: () => (/* binding */ InputDump)
+/* harmony export */   BinaryInput: () => (/* binding */ BinaryInput)
 /* harmony export */ });
-/* harmony import */ var _libs_base64__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/base64 */ "./src/ts/libs/base64.ts");
-/* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
-/* harmony import */ var _alert_message_alert_message__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../alert-message/alert-message */ "./src/ts/web-components/alert-message/alert-message.ts");
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
+/* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
 
 const template = (function () {
     const template = document.createElement('template');
     template.innerHTML = `
   <style>
     :host {
-      background-color: darkgrey;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
+      display: inline-block;
     }
-
-    #header {
-      display: flex;
-      gap: 2px;
+    
+    input {
       width: 100%;
-    }
-
-    #input {
-      flex-grow: 1;
-    }
-
-    #hide {
-      display: flex;
-      flex-direction: column;
-    }
-
-    #options {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-    }
-
-    #options * {
-      text-align: center;
-    }
-
-    #dump-container {
-      overflow: auto;
-      height: 100%;
-    }
-
-    fieldset {
-      padding: 2px;
-      border-radius: 3px;
-    }
-
-    fieldset legend {
-      font-size: small;
-      font-weight: bold;
+      box-sizing: border-box;
     }
   </style>
-  <div id=header>
-    <text-area-radio-binary id=input></text-area-radio-binary>
-    <div id=hide>
-      <label><input type=checkbox name=encode value=binary></label>
-      <label><input type=checkbox name=encode value=octal></label>
-      <label><input type=checkbox name=encode value=decimal></label>
-      <label><input type=checkbox name=encode value=hexa></label>
-      <label><input type=checkbox name=encode value=text></label>
-      <label><input type=checkbox name=encode value=base64></label>
-    </div>
-    <div id=options>
-      <input-file id=file>File</input-file>
-      <fieldset>
-        <legend>Bytes</legend>
-        <span id=size-bytes>0</span>
-      </fieldset>
-      <fieldset>
-        <legend>Breakline</legend>
-        <input type=number min=1 max=16 id=breakline>
-      </fieldset>
-    </div>
-  </div>
-  <div id=dump-container>
-    <binary-dump id=dump></binary-dump>
-  </div>`;
+  <input>`;
     return template;
 })();
-class InputDump extends HTMLElement {
-    constructor(options = {}) {
-        var _a, _b, _c, _d, _e;
+class BinaryInput extends HTMLElement {
+    constructor() {
+        var _a, _b;
         super();
+        this._encode = 'hexa';
         this.attachShadow({ mode: 'open' });
         (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.appendChild(template.content.cloneNode(true));
-        this._input = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#input');
-        this._dump = (_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#dump');
-        this._breakline = (_d = this.shadowRoot) === null || _d === void 0 ? void 0 : _d.querySelector('#breakline');
-        this._size_bytes = (_e = this.shadowRoot) === null || _e === void 0 ? void 0 : _e.querySelector('#size-bytes');
-        Promise.all([
-            customElements.whenDefined('binary-dump'),
-            customElements.whenDefined('text-area-radio-binary'),
-        ])
-            .then(() => {
-            var _a, _b, _c, _d, _e, _f, _g, _h;
-            const d = (0,_libs_base64__WEBPACK_IMPORTED_MODULE_0__.base64_decode)((_a = options.data) !== null && _a !== void 0 ? _a : '');
-            this._input.data = d;
-            this._size_bytes.textContent = d.length.toString();
-            this._input.encode = (_b = options.encode) !== null && _b !== void 0 ? _b : 'text';
-            this._breakline.value = (_d = (_c = options.breakline) === null || _c === void 0 ? void 0 : _c.toString()) !== null && _d !== void 0 ? _d : '8';
-            const file_handler = (ev) => __awaiter(this, void 0, void 0, function* () {
-                const d = yield file_event(ev);
-                if (d === undefined)
-                    return;
-                this._input.data = d;
-                update();
-            });
-            ((_e = this.shadowRoot) === null || _e === void 0 ? void 0 : _e.querySelector('#file')).on('change', file_handler);
-            const update = () => {
-                const d = this._input.data;
-                this._dump.update(d, +this._breakline.value);
-                this._size_bytes.textContent = d.length.toString();
-                this.dispatchEvent(new CustomEvent('state', {
-                    detail: {
-                        data: (0,_libs_base64__WEBPACK_IMPORTED_MODULE_0__.base64_encode)(this._input.data),
-                        encode: this._input.encode,
-                        breakline: +this._breakline.value,
-                        hide: this._dump.hided,
-                    },
-                }));
-            };
-            this._input.addEventListener('keyup', () => {
-                update();
-            });
-            (_f = this._input.shadowRoot) === null || _f === void 0 ? void 0 : _f.addEventListener('change', () => {
-                update();
-            });
-            this._breakline.addEventListener('change', () => {
-                update();
-            });
-            this._dump.hide(...((_g = options.hide) !== null && _g !== void 0 ? _g : []));
-            (_h = this.shadowRoot) === null || _h === void 0 ? void 0 : _h.querySelectorAll('input[name=encode]').forEach(v => {
-                const i = v;
-                i.onclick = () => {
-                    if (i.checked)
-                        this._dump.show(i.value);
-                    else
-                        this._dump.hide(i.value);
-                    update();
-                };
-                if (!this._dump.is_hidden(i.value))
-                    i.checked = true;
-            });
-            update();
-        })
-            .finally(() => { });
-    }
-    set state(s) {
-        if (s.data !== undefined) {
-            const d = (0,_libs_base64__WEBPACK_IMPORTED_MODULE_0__.base64_decode)(s.data);
-            this._input.data = d;
-            this._size_bytes.textContent = d.length.toString();
-        }
-        if (s.encode !== undefined)
-            this._input.encode = s.encode;
-        if (s.hide !== undefined) {
-            this._dump.show(..._libs_binary_dump__WEBPACK_IMPORTED_MODULE_1__.encoding);
-            this._dump.hide(...s.hide);
-        }
-        if (s.breakline !== undefined)
-            this._breakline.value = s.breakline.toString();
-    }
-    get state() {
-        return {
-            data: (0,_libs_base64__WEBPACK_IMPORTED_MODULE_0__.base64_encode)(this._input.data),
-            encode: this._input.encode,
-            breakline: +this._breakline.value,
-            hide: this._dump.hided,
+        this._input = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('input');
+        this._input.onkeydown = ev => {
+            if (ev.ctrlKey)
+                return;
+            if (['Backspace', 'Delete', 'Tab', 'Home', 'End'].includes(ev.key))
+                return;
+            if (ev.key.startsWith('Arrow'))
+                return;
+            if (ev.key === 'Escape') {
+                this.clear();
+                return;
+            }
+            if (!(0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.is_encode_char)(ev.key, this._encode))
+                ev.preventDefault();
+        };
+        this._input.onkeyup = ev => {
+            const position = this._input.selectionStart;
+            this.format(this._input.value);
+            if (['Delete'].includes(ev.key))
+                this._input.selectionEnd = position;
+        };
+        this._input.onpaste = ev => {
+            var _a, _b;
+            ev.preventDefault();
+            this.format((_b = (_a = ev.clipboardData) === null || _a === void 0 ? void 0 : _a.getData('text')) !== null && _b !== void 0 ? _b : '');
         };
     }
+    static get observedAttributes() {
+        return ['placeholder', 'disabled'];
+    }
+    connectedCallback() {
+        if (this.hasAttribute('placeholder')) {
+            this._input.placeholder = this.getAttribute('placeholder');
+        }
+        this._input.disabled = this.hasAttribute('disabled');
+    }
+    set placeholder(name) {
+        this._input.placeholder = name;
+        this.setAttribute('placeholder', name);
+    }
+    get placeholder() {
+        return this._input.placeholder;
+    }
+    get disabled() {
+        return this._input.disabled;
+    }
+    set disabled(disable) {
+        this._input.disabled = disable;
+        if (disable)
+            this.setAttribute('disabled', 'true');
+        else
+            this.removeAttribute('disabled');
+    }
+    focus() {
+        this._input.focus();
+    }
+    attributeChangedCallback(attr, oldVal, newVal) {
+        if (oldVal === newVal)
+            return;
+        switch (attr) {
+            case 'placeholder':
+                this.placeholder = newVal;
+                break;
+            case 'disabled':
+                this.disabled = newVal !== null;
+                break;
+        }
+    }
+    get value() {
+        return this._input.value;
+    }
+    get data() {
+        return (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.to_data)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.split)(this.value, this._encode), this._encode);
+    }
+    set data(d) {
+        this._input.value = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.format)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.to_array_string)(d, this._encode), this._encode, {
+            separator: ' ',
+            pad: this.encode === 'base64' ? '' : '0',
+        });
+    }
+    set encode(enc) {
+        (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.check_encoding)(enc);
+        if (enc === this._encode)
+            return;
+        this._input.value = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.format)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.convert)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.split)(this.value, this._encode), this._encode, enc), enc, { separator: ' ', pad: this.encode === 'base64' ? '' : '0' });
+        this._encode = enc;
+    }
+    get encode() {
+        return this._encode;
+    }
+    clear() {
+        this._input.value = '';
+    }
+    format(str) {
+        this._input.value = (0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.format)((0,_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.split)(str, this._encode), this._encode, {
+            separator: ' ',
+            pad: this.encode === 'base64' ? '' : '0',
+        });
+    }
 }
-customElements.define('input-dump', InputDump);
-function file_event(ev) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const target = ev.target;
-        const file_list = target.files;
-        if ((file_list === null || file_list === void 0 ? void 0 : file_list.length) === 0)
-            return undefined;
-        const file = file_list === null || file_list === void 0 ? void 0 : file_list[0];
-        const buf = yield file.arrayBuffer();
-        if (buf === undefined)
-            return undefined;
-        new _alert_message_alert_message__WEBPACK_IMPORTED_MODULE_2__.AlertMessage(`File ${file.name} loaded from 0 to ${Math.min(1024, file.size)}`)
-            .bottom()
-            .append_element()
-            .face_out(0.003, true);
-        target.value = '';
-        return new Uint8Array(buf).slice(0, 1024);
-    });
-}
+customElements.define('text-binary', BinaryInput);
 
 
 /***/ }),
 
-/***/ "./src/ts/web-components/input-file/input-file.ts":
-/*!********************************************************!*\
-  !*** ./src/ts/web-components/input-file/input-file.ts ***!
-  \********************************************************/
-/***/ (() => {
+/***/ "./src/ts/web-components/binary-input/text-select-binary.ts":
+/*!******************************************************************!*\
+  !*** ./src/ts/web-components/binary-input/text-select-binary.ts ***!
+  \******************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   BinaryInputSelect: () => (/* binding */ BinaryInputSelect)
+/* harmony export */ });
+/* harmony import */ var _libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
 
 const template = (function () {
     const template = document.createElement('template');
     template.innerHTML = `
   <style>
-    :host {
-      position: relative;
-      border: 1px solid black;
-      border-radius: 3px;
-      box-sizing: border-box;
-    }
-
-    input {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      opacity: 0;
-      box-sizing: border-box;
-    }
-  </style><slot></slot>
-  <input type=file />`;
+  :host {
+    display: inline-block;
+  }
+  </style>
+  <text-binary id=data></text-binary>
+  <select id=encode></select>`;
     return template;
 })();
-class InputFile extends HTMLElement {
-    constructor() {
-        var _a, _b;
+class BinaryInputSelect extends HTMLElement {
+    constructor(options = {}) {
+        var _a, _b, _c, _d;
         super();
         this.attachShadow({ mode: 'open' });
         (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.appendChild(template.content.cloneNode(true));
-        this._input = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('input');
+        this._data = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#data');
+        this._select = (_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#encode');
+        _libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.encoding.forEach(enc => {
+            this._select.appendChild(new Option(enc, enc, false, (options === null || options === void 0 ? void 0 : options.selected) === enc));
+        });
+        this.encode = (_d = options === null || options === void 0 ? void 0 : options.selected) !== null && _d !== void 0 ? _d : this._select.value;
+        this._select.onchange = ev => {
+            this.encode = this._select.value;
+        };
     }
-    on(type, listener, options = {}) {
-        this._input.addEventListener(type, listener, options);
+    static get observedAttributes() {
+        return ['selected', 'placeholder', 'disabled'];
+    }
+    connectedCallback() {
+        if (this.hasAttribute('selected')) {
+            this.encode = this.getAttribute('selected');
+        }
+        if (this.hasAttribute('placeholder')) {
+            this._data.placeholder = this.getAttribute('placeholder');
+        }
+        this.disabled = this.hasAttribute('disabled');
+    }
+    attributeChangedCallback(attr, oldVal, newVal) {
+        if (oldVal === newVal)
+            return;
+        switch (attr) {
+            case 'selected':
+                this.encode = newVal;
+                break;
+            case 'placeholder':
+                this.placeholder = newVal;
+                break;
+            case 'disabled':
+                this.disabled = newVal !== null;
+                break;
+        }
+    }
+    get value() {
+        return this._data.value;
+    }
+    get data() {
+        return this._data.data;
+    }
+    set data(d) {
+        this._data.data = d;
+    }
+    set encode(enc) {
+        if (!_libs_binary_dump__WEBPACK_IMPORTED_MODULE_0__.encoding.includes(enc))
+            return;
+        this._data.encode = enc;
+        this._select.value = enc;
+        this.setAttribute('selected', enc);
+    }
+    get encode() {
+        return this._data.encode;
+    }
+    clear() {
+        this._data.clear();
+    }
+    set placeholder(name) {
+        this._data.placeholder = name;
+        this.setAttribute('placeholder', name);
+    }
+    get placeholder() {
+        return this._data.placeholder;
+    }
+    get disabled() {
+        return this._data.disabled;
+    }
+    set disabled(disable) {
+        this._data.disabled = disable;
+        this._select.disabled = disable;
+        if (disable)
+            this.setAttribute('disabled', 'true');
+        else
+            this.removeAttribute('disabled');
+    }
+    focus() {
+        this._data.focus();
     }
 }
-customElements.define('input-file', InputFile);
+customElements.define('text-select-binary', BinaryInputSelect);
 
 
 /***/ })
@@ -2108,29 +2215,22 @@ customElements.define('input-file', InputFile);
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-/*!**********************************!*\
-  !*** ./src/tools/input/input.ts ***!
-  \**********************************/
+/*!*********************************!*\
+  !*** ./src/tools/test/input.ts ***!
+  \*********************************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _input_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./input.css */ "./src/tools/input/input.css");
-/* harmony import */ var _ts_web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../ts/web-components/binary-dump/binary-dump */ "./src/ts/web-components/binary-dump/binary-dump.ts");
-/* harmony import */ var _ts_web_components_binary_input_text_area_binary__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../ts/web-components/binary-input/text-area-binary */ "./src/ts/web-components/binary-input/text-area-binary.ts");
-/* harmony import */ var _ts_web_components_binary_input_text_area_radio_binary__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../ts/web-components/binary-input/text-area-radio-binary */ "./src/ts/web-components/binary-input/text-area-radio-binary.ts");
-/* harmony import */ var _ts_web_components_input_file_input_file__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../ts/web-components/input-file/input-file */ "./src/ts/web-components/input-file/input-file.ts");
-/* harmony import */ var _ts_web_components_input_file_input_file__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_ts_web_components_input_file_input_file__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _ts_web_components_alert_message_alert_message__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../ts/web-components/alert-message/alert-message */ "./src/ts/web-components/alert-message/alert-message.ts");
-/* harmony import */ var _ts_web_components_input_dump_input_dump__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../ts/web-components/input-dump/input-dump */ "./src/ts/web-components/input-dump/input-dump.ts");
-/* harmony import */ var _db__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./db */ "./src/tools/input/db.ts");
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var _a, _b;
+/* harmony import */ var _input_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./input.css */ "./src/tools/test/input.css");
+/* harmony import */ var _css_window_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../css/window.css */ "./src/css/window.css");
+/* harmony import */ var _ts_web_components_binary_dump_binary_dump__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../ts/web-components/binary-dump/binary-dump */ "./src/ts/web-components/binary-dump/binary-dump.ts");
+/* harmony import */ var _ts_web_components_binary_input_text_binary__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../ts/web-components/binary-input/text-binary */ "./src/ts/web-components/binary-input/text-binary.ts");
+/* harmony import */ var _ts_web_components_binary_input_text_select_binary__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../ts/web-components/binary-input/text-select-binary */ "./src/ts/web-components/binary-input/text-select-binary.ts");
+/* harmony import */ var _ts_libs_binary_dump__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../ts/libs/binary-dump */ "./src/ts/libs/binary-dump.ts");
+/* harmony import */ var _ts_libs_base64__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../ts/libs/base64 */ "./src/ts/libs/base64.ts");
+/* harmony import */ var _ts_web_components_alert_message_alert_message__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../ts/web-components/alert-message/alert-message */ "./src/ts/web-components/alert-message/alert-message.ts");
+/* harmony import */ var _ts_helper_fade__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../ts/helper/fade */ "./src/ts/helper/fade.ts");
+/* harmony import */ var _db__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./db */ "./src/tools/test/db.ts");
+/* harmony import */ var _ts_web_components_binary_input_text_area_binary__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../ts/web-components/binary-input/text-area-binary */ "./src/ts/web-components/binary-input/text-area-binary.ts");
+/* harmony import */ var _ts_web_components_binary_input_text_area_radio_binary__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../ts/web-components/binary-input/text-area-radio-binary */ "./src/ts/web-components/binary-input/text-area-radio-binary.ts");
 
 
 
@@ -2139,83 +2239,203 @@ var _a, _b;
 
 
 
-const container = document.querySelector('#input-dump');
-const input_dump = new _ts_web_components_input_dump_input_dump__WEBPACK_IMPORTED_MODULE_6__.InputDump(read_link());
-let state = {};
+
+
+const bl = document.querySelector('#breakline');
+const bd = document.querySelector('#data-dump');
+const input_binary = document.querySelector('#input-binary');
+input_binary.encode = 'text';
 let db;
-read()
-    .then((state) => {
-    input_dump.state = state;
+(0,_db__WEBPACK_IMPORTED_MODULE_9__.open_db)()
+    .then(mdb => {
+    db = mdb;
+    read().then(() => {
+        init();
+    });
 })
-    .catch(e => {
-    console.warn('Error opening database');
+    .catch(err => {
+    console.log('error', err);
 });
-(_a = document.querySelector('#link')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => { });
-container === null || container === void 0 ? void 0 : container.appendChild(input_dump);
-const message = new _ts_web_components_alert_message_alert_message__WEBPACK_IMPORTED_MODULE_5__.AlertMessage('Link copied', arg => arg.hide())
-    .append_element()
-    .hide()
-    .bottom();
-(_b = document.querySelector('#link')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', ev => {
-    navigator.clipboard.writeText(make_link(state, true)).finally(() => { });
-    message.show();
-});
-input_dump.addEventListener('state', ev => {
-    state = ev.detail;
-    window.history.replaceState('state', '', make_link(state, false));
-    write().finally(() => { });
-});
-function make_link(state, fulllink = true) {
+function init() {
     var _a;
-    let link = `${fulllink ? window.location.origin : ''}${window.location.pathname}?encode=${state.encode}&bl=${state.breakline}`;
-    if (state.hide !== undefined && state.hide.length > 0)
-        link += `&hide=${state.hide.join(',')}`;
-    if (state.data !== undefined && ((_a = state.data) === null || _a === void 0 ? void 0 : _a.length) > 0)
-        link += `&data=${state.data}`;
+    read_link();
+    bl.onchange = () => update();
+    input_binary.onkeyup = () => update();
+    document.querySelectorAll('input[name=encode]').forEach(v => {
+        const i = v;
+        i.onclick = () => {
+            input_binary.encode = i.value;
+            update();
+        };
+    });
+    document.querySelectorAll('input[name=binary-hide]').forEach(v => {
+        const i = v;
+        i.onclick = () => {
+            if (i.checked)
+                bd.hide(i.value);
+            else
+                bd.show(i.value);
+            window.history.replaceState('state', '', make_link(false));
+            write();
+        };
+        if (bd.is_hidden(i.value))
+            i.checked = true;
+    });
+    (_a = document.querySelector('#share')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+        navigator.clipboard.writeText(make_link());
+        const el = new _ts_web_components_alert_message_alert_message__WEBPACK_IMPORTED_MODULE_7__.AlertMessage('Link copied');
+        document.body.appendChild(el);
+        (0,_ts_helper_fade__WEBPACK_IMPORTED_MODULE_8__.fade_out)(el).then(el => el.close());
+    });
+}
+function update() {
+    bd.update(input_binary.data, +bl.value);
+    window.history.replaceState('state', '', make_link(false));
+    write();
+}
+function make_link(fulllink = true) {
+    let link = `${fulllink ? window.location.origin : ''}${window.location.pathname}?encode=${input_binary.encode}&bl=${+bl.value}`;
+    const hide = [];
+    _ts_libs_binary_dump__WEBPACK_IMPORTED_MODULE_5__.encoding.forEach(e => {
+        if (bd.is_hidden(e))
+            hide.push(e);
+    });
+    if (hide.length > 0)
+        link += `&hide=${hide.join(',')}`;
+    const data = input_binary.data;
+    if (data.length > 0)
+        link += `&data=${(0,_ts_libs_base64__WEBPACK_IMPORTED_MODULE_6__.base64_encode)(data)}`;
     return link;
 }
 function read_link() {
     const url = new URL(window.location.href);
-    const state = {
-        breakline: 8,
-        data: '',
-        hide: [],
-        encode: 'text',
-    };
     url.searchParams.forEach((value, key) => {
         switch (key) {
             case 'bl':
-                state.breakline = +value;
+                bl.value = value;
                 break;
             case 'data':
-                state.data = value;
+                input_binary.data = (0,_ts_libs_base64__WEBPACK_IMPORTED_MODULE_6__.base64_decode)(value);
                 break;
             case 'hide':
-                state.hide = value.split(',');
+                bd.hide(...value.split(','));
+                set_hide();
                 break;
             case 'encode':
-                state.encode = value;
+                input_binary.encode = value;
                 break;
         }
     });
-    return state;
-}
-function read() {
-    return __awaiter(this, void 0, void 0, function* () {
-        db = yield (0,_db__WEBPACK_IMPORTED_MODULE_7__.open_db)();
-        return yield (0,_db__WEBPACK_IMPORTED_MODULE_7__.read_db)(db);
-    });
+    set_encode();
+    update();
 }
 function write() {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (db === undefined)
-            return;
-        yield (0,_db__WEBPACK_IMPORTED_MODULE_7__.write_db)(db, state);
+    if (db === undefined)
+        return Promise.resolve();
+    return (0,_db__WEBPACK_IMPORTED_MODULE_9__.write_db)(db, {
+        breakline: +bl.value,
+        data: input_binary.data,
+        hide: _ts_libs_binary_dump__WEBPACK_IMPORTED_MODULE_5__.encoding.reduce((acc, v) => {
+            if (bd.is_hidden(v))
+                acc.push(v);
+            return acc;
+        }, []),
+        encode: input_binary.encode,
     });
 }
+function read() {
+    if (db === undefined)
+        return Promise.resolve();
+    return (0,_db__WEBPACK_IMPORTED_MODULE_9__.read_db)(db).then(data => {
+        if (data === undefined)
+            return;
+        bl.value = data.breakline.toString();
+        input_binary.encode = data.encode;
+        bd.hide(...data.hide);
+        input_binary.data = data.data;
+        set_hide();
+        set_encode();
+        update();
+    });
+}
+function set_hide() {
+    document.querySelectorAll('input[name=binary-hide]').forEach(v => {
+        const i = v;
+        i.checked = bd.is_hidden(i.value);
+    });
+}
+function set_encode() {
+    document.querySelectorAll('input[name=encode]').forEach(v => {
+        const i = v;
+        i.checked = i.value === input_binary.encode;
+    });
+}
+/**
+ *
+ */
+// import { BinaryInputSelect } from '../../ts/web-components/binary-input/text-select-binary';
+// const input_select = document.querySelector(
+//   '#data-input-select'
+// ) as BinaryInputSelect;
+// const dump2 = document.querySelector('#data-dump-select') as BinaryDump;
+// input_select.onkeyup = () => update2();
+// input_select.onchange = () => update2();
+// function update2() {
+//   dump2.update(input_select.data, +bl.value);
+// }
+
+const input_area = document.querySelector('#data-input-area');
+input_area.encode = 'text';
+const dump_area = document.querySelector('#data-dump-text-area');
+const bl_area = document.querySelector('#breakline-area');
+bl_area.onchange = () => update_area();
+input_area.onkeyup = () => update_area();
+document.querySelectorAll('input[name=encode-area]').forEach(v => {
+    const i = v;
+    i.onclick = () => {
+        input_area.encode = i.value;
+        update_area();
+    };
+});
+document.querySelectorAll('input[name=binary-area-hide]').forEach(v => {
+    const i = v;
+    i.onclick = () => {
+        if (i.checked)
+            dump_area.hide(i.value);
+        else
+            dump_area.show(i.value);
+    };
+    if (bd.is_hidden(i.value))
+        i.checked = true;
+});
+function update_area() {
+    dump_area.update(input_area.data, +bl_area.value);
+}
+function set_encode_area() {
+    document.querySelectorAll('input[name=encode-area]').forEach(v => {
+        const i = v;
+        i.checked = i.value === input_binary.encode;
+    });
+}
+function set_hide_area() {
+    document.querySelectorAll('input[name=binary-area-hide]').forEach(v => {
+        const i = v;
+        i.checked = dump_area.is_hidden(i.value);
+    });
+}
+set_hide_area();
+set_encode_area();
+update_area();
+/************************** */
+
+const input_area_radio = document.querySelector('#data-text-area-radio');
+const dump_area_radio = document.querySelector('#dump-text-area-radio');
+input_area_radio.onkeyup = () => {
+    dump_area_radio.update(input_area_radio.data, 8);
+};
 
 })();
 
 /******/ })()
 ;
-//# sourceMappingURL=input.bundle.js.map
+//# sourceMappingURL=test.bundle.js.map

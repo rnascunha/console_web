@@ -2,65 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Binary Dump</title>
+    <title>Input - Console Web</title>
   <link rel="icon" href="favicon.ico"><script defer src="input.bundle.js"></script></head>
   <body>
     <div id="header">
-      <h1 id="title">Binary Dump</h1>
-      <div id="options">
-        <span id="share">&#128279;</span>
-      </div>
+      <h1>Input Dump</h1>
+      <div id="link">&#x1F517;</div>
     </div>
-    <div>
-      <text-binary id="input-binary" placeholder="Data"></text-binary>
-      <label><input type="radio" name="encode" value="binary" />Binary</label>
-      <label><input type="radio" name="encode" value="octal" />Octal</label>
-      <label><input type="radio" name="encode" value="decimal" />Decimal</label>
-      <label><input type="radio" name="encode" value="hexa" />Hexa</label>
-      <label><input type="radio" name="encode" value="text" />Text</label>
-    </div>
-    <div>
-      <b>Hide:</b>
-      <label
-        ><input
-          type="checkbox"
-          name="binary-hide"
-          value="binary"
-        />Binary</label
-      >
-      <label
-        ><input type="checkbox" name="binary-hide" value="octal" />Octal</label
-      >
-      <label
-        ><input
-          type="checkbox"
-          name="binary-hide"
-          value="decimal"
-        />Decimal</label
-      >
-      <label
-        ><input type="checkbox" name="binary-hide" value="hexa" />Hexa</label
-      >
-      <label
-        ><input type="checkbox" name="binary-hide" value="text" />Text</label
-      >
-    </div>
-    <label
-      >Break line:
-      <input id="breakline" type="number" min="1" max="16" value="8"
-    /></label>
-    <div style="overflow: auto">
-      <binary-dump id="data-dump"></binary-dump>
-    </div>
-    <!-- <text-select-binary
-      id="data-input-select"
-      selected="text"
-      placeholder="Data"
-    ></text-select-binary>
-    <div style="overflow: auto">
-      <binary-dump id="data-dump-select"></binary-dump>
-    </div> -->
+    <div id="input-dump"></div>
   </body>
 </html>
