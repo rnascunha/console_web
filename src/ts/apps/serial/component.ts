@@ -143,7 +143,7 @@ export class SerialConsoleComponent extends ComponentBase {
     const port = this._console?.port;
     if (port === undefined) return;
     if (this._console?.port.state === 'open')
-      this.container.setTitle(`${port.name} (console)`);
-    else this.container.setTitle(`${port.name} (console/closed)`);
+      this.title = `${port.name} (console)`;
+    else this.title = `${port.name} (console/closed)`;
   }
 }

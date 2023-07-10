@@ -1,6 +1,6 @@
 import { DockDumpComponent } from './golden-components/component-utility';
 import { SerialConsoleComponent } from './apps/serial/component';
-import { SetupComponent } from './tools/setup/component';
+import { SetupComponent } from './setup/component';
 
 interface OtherComponent {
   name: string;

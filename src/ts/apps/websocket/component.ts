@@ -16,16 +16,16 @@ export class WSComponent extends AppComponent {
     this._view = new WebsocketView(new Websocket(value.url), value.state);
     this.rootHtmlElement.appendChild(this._view.container);
 
-    this.set_title(`${this.socket.url} (connecting)`);
+    this.title = `${this.socket.url} (connecting)`;
     this.container.on('beforeComponentRelease', () => {
       this._view.close();
     });
 
     this._view.on('open', () => {
-      this.set_title(`${this.socket.url}`);
+      this.title = this.socket.url;
     });
     this._view.on('close', () => {
-      this.set_title(`${this.socket.url} (closed)`);
+      this.title = `${this.socket.url} (closed)`;
     });
 
     this._view.on('state', args => {
@@ -39,13 +39,7 @@ export class WSComponent extends AppComponent {
 
   set socket(s: Websocket) {
     this._view.socket = s;
-    this.set_title(`${this.socket.url} (connecting)`);
-  }
-
-  set_title(title: string): void {
-    this.container.setTitle(title);
-    if (this.container.layoutManager.isSubWindow)
-      window.document.title = this.container.title;
+    this.title = `${this.socket.url} (connecting)`;
   }
 
   public reused(url: string): boolean {

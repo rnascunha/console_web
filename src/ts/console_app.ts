@@ -16,13 +16,12 @@ import {
 import { type AppOpenParameters, type App, AppList } from './apps/app';
 import { type Tool, ToolList } from './tools/tools';
 import { open as open_db, type DB } from './libs/db';
-import { dispatch_setup } from './setup';
+import { Setup } from './setup/setup';
 
 // Binary dump window
 import { BinaryDump } from './web-components/binary-dump/binary-dump';
 import { create_window } from './helper/window';
 import { base64_decode } from './libs/base64';
-import type { DraggablePopup } from './web-components/draggable-popup/draggable-popup';
 
 const console_layout: LayoutConfig = {
   settings: {
@@ -140,18 +139,19 @@ export class ConsoleApp {
       if (ev.key === 'Enter') this.open();
     };
 
-    let setup_window: DraggablePopup | null = null;
-    container.querySelector('#setup')?.addEventListener('click', () => {
-      if (setup_window !== null) {
-        setup_window.center();
-        return;
-      }
-      if (this._db !== undefined) {
-        setup_window = dispatch_setup(this._db);
-        setup_window.addEventListener('close', () => {
-          setup_window = null;
+    const setup = new Setup();
+    setup.on('delete_db', () => {
+      this._db
+        ?.clear(true)
+        .then(() => {
+          setup.info('Database delete');
+        })
+        .catch(e => {
+          setup.info((e as Error).message);
         });
-      }
+    });
+    container.querySelector('#setup')?.addEventListener('click', () => {
+      setup.open(this._layout);
     });
 
     if (this._layout.isSubWindow) {
@@ -172,7 +172,7 @@ export class ConsoleApp {
     const comp_type = this.get_component(comp_name);
     if (comp_type === undefined) throw new Error('Component not found');
 
-    const use_virtual = false; // container.componentType === 'SetupComponent';
+    const use_virtual = false;
     const component = new comp_type( // eslint-disable-line
       container,
       container.initialState,
@@ -181,6 +181,7 @@ export class ConsoleApp {
     if (use_virtual) {
       // Somthing here
     }
+
     return {
       component,
       virtual: use_virtual,

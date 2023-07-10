@@ -16,6 +16,15 @@ export abstract class ComponentBase implements GoldenLayout.VirtuableComponent {
     return this._root_element;
   }
 
+  set title(name: string) {
+    this.container.setTitle(name);
+    if (this.container.layoutManager.isSubWindow) window.document.title = name;
+  }
+
+  get title(): string {
+    return this.container.title;
+  }
+
   constructor(container: ComponentContainer, virtual: boolean) {
     this._container = container;
     if (virtual) {

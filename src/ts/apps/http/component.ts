@@ -20,9 +20,7 @@ export class HTTPComponent extends AppComponent {
       window.console_app.set_state(data.url.split('://')[0], args);
     });
 
-    this.container.setTitle(`${this._view.url}`);
-    if (this.container.layoutManager.isSubWindow)
-      window.document.title = this.container.title;
+    this.title = this._view.url;
   }
 
   public is_reusable(url: string): boolean {

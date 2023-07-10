@@ -28,7 +28,6 @@ import { SerialApp } from './apps/serial/app';
 import { is_serial_supported } from './apps/serial/functions';
 
 import { ConsoleApp } from './console_app';
-import './setup';
 import { InputDumpTool } from './tools/input_dump/tool';
 
 declare global {
