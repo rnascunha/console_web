@@ -16,10 +16,7 @@ export class InputDockDumpComponent extends ComponentBase {
 
     this._state = JSON.parse(state as string);
 
-    this.container.setTitle('Input Dump');
-    if (this.container.layoutManager.isSubWindow)
-      window.document.title = 'Input Dump';
-
+    this.title = 'Input Dump';
     const body = new InputDump(this._state as InputDumpOptions);
 
     this.rootHtmlElement.appendChild(body);

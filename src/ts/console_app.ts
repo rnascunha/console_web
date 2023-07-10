@@ -113,6 +113,12 @@ export class ConsoleApp {
       this._layout.addComponent(tool.name, tool.open());
     });
 
+    container.querySelector('#time-tool')?.addEventListener('click', () => {
+      const tool = this._tool_list.tool('timestamp');
+      if (tool === undefined) return;
+      this._layout.addComponent(tool.name, tool.open());
+    });
+
     container.querySelector('#close')?.addEventListener('click', () => {
       this.hide_header();
     });

@@ -4,6 +4,7 @@ export class Tool {
   private readonly _name: string;
   private readonly _component: any;
   private _state: JsonValue = {};
+
   constructor(name: string, component: any) {
     this._name = name;
     this._component = component;

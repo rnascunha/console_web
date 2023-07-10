@@ -62,7 +62,6 @@ export class SerialComponent extends AppComponent {
             { typeId: LayoutManager.LocationSelector.TypeId.Root },
           ]
         ) as LayoutManager.Location;
-        console.log('p', p);
         this.find_console_component(state_obj.id, p.parentItem);
         this._console?.container.on('beforeComponentRelease', () => {
           this._view.emit('close_console', undefined);

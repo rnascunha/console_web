@@ -49,6 +49,8 @@ body {
   margin: 0px;
   flex-grow: 1;
   text-align: center;
+  text-transform: uppercase;
+  font-family: monospace;
 }
 
 #options {
@@ -66,11 +68,6 @@ body {
 .option:hover {
   background-color: black;
   color: white;
-}
-
-.setup-body {
-  padding: 5px;
-  background-color: lightgrey;
 }
 
 #error {

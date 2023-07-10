@@ -10,6 +10,7 @@ import './web-components/input-file/input-file';
 import './web-components/input-dump/input-dump';
 
 // Importing style
+import '../css/reset.css';
 import '../css/style.css';
 import '../css/serial.css';
 import '../css/window.css';
@@ -29,6 +30,7 @@ import { is_serial_supported } from './apps/serial/functions';
 
 import { ConsoleApp } from './console_app';
 import { InputDumpTool } from './tools/input_dump/tool';
+import { TimestampTool } from './tools/timestamp/tool';
 
 declare global {
   const __COMMIT_HASH__: string; // eslint-disable-line
@@ -62,5 +64,5 @@ function get_app_list(): App[] {
 }
 
 function run(): void {
-  new ConsoleApp(get_app_list(), [new InputDumpTool()]); // eslint-disable-line no-new
+  new ConsoleApp(get_app_list(), [new InputDumpTool(), new TimestampTool()]); // eslint-disable-line no-new
 }

@@ -12,7 +12,7 @@ const template = (function () {
       height: 100%;
       background-color: grey !important;
     }
-
+    
     #footer {
       align-self: flex-end;
     }
@@ -22,6 +22,7 @@ const template = (function () {
     <div id=info></div>
   </div>
   <div id=footer>
+    <a target=_blank href=https://github.com/rnascunha/console_web>GitHub</a>
     <small>Version: <b>${__COMMIT_HASH__}</b></small>
   </div>`;
   return template;
