@@ -1,4 +1,9 @@
-import { timeFormat, utcFormat } from 'd3';
+import {
+  format,
+  format_utc,
+  dateFormatOptionsDefault,
+  type FormatDateOutput,
+} from '../../helper/timezone';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -28,22 +33,43 @@ const template = (function () {
 })();
 
 export interface CalendarTimestampOptions {
-  dateFormat?: (date: Date) => string;
-  timeFormat?: (date: Date) => string;
-  timestampFormat?: (date: Date) => string;
+  formatter: (date: Date) => FormatDateOutput;
+  timezone?: string;
 }
 
 export const calendarTimestampOptionsDefault: CalendarTimestampOptions = {
-  dateFormat: timeFormat('%d/%m/%Y %a'),
-  timeFormat: timeFormat('%H:%M:%S %Z'),
-  timestampFormat: utcFormat('%s'),
+  formatter: format(),
 };
 
 export const calendarTimestampUTCOptionsDefault: CalendarTimestampOptions = {
-  dateFormat: utcFormat('%d/%m/%Y %a'),
-  timeFormat: utcFormat('%H:%M:%S'),
-  timestampFormat: utcFormat('%s'),
+  formatter: format_utc(),
 };
+
+export function get_calendar_options(
+  timezone?: string
+): CalendarTimestampOptions {
+  return {
+    formatter: format({ ...dateFormatOptionsDefault, timeZone: timezone }),
+    timezone,
+  };
+}
+
+export function get_calendar_options_no_timestamp(
+  timezone?: string
+): CalendarTimestampOptions {
+  const fmt = format({ ...dateFormatOptionsDefault, timeZone: timezone });
+  return {
+    formatter: function (d: Date) {
+      const f = fmt(d);
+      return {
+        date: f.date,
+        time: f.time,
+        timestamp: '',
+      };
+    },
+    timezone,
+  };
+}
 
 export class CalendarTimestamp extends HTMLElement {
   private readonly _time: HTMLElement;
@@ -69,10 +95,15 @@ export class CalendarTimestamp extends HTMLElement {
     ) as HTMLElement;
   }
 
-  public update(d: Date = new Date()): void {
-    this._time.textContent = this._options.timeFormat?.(d) ?? '';
-    this._date.textContent = this._options.dateFormat?.(d) ?? '';
-    this._timestamp.textContent = this._options.timestampFormat?.(d) ?? '';
+  get timezone(): string | undefined {
+    return this._options.timezone;
+  }
+
+  public update(date: Date = new Date()): void {
+    const value = this._options.formatter(date);
+    this._time.textContent = value.time;
+    this._date.textContent = value.date;
+    this._timestamp.textContent = value.timestamp;
   }
 }
 
