@@ -6,10 +6,12 @@ let commit_hash = require('child_process')
   .toString()
   .trim();
 
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
 module.exports = {
   entry: {
     main: path.resolve(__dirname, './src/ts/main.ts'),
-    test: path.resolve(__dirname, './src/tools/test/input.ts'),
+    test: path.resolve(__dirname, './src/tools/test/test.ts'),
     input: path.resolve(__dirname, './src/tools/input/input.ts'),
   },
 
@@ -66,6 +68,7 @@ module.exports = {
     new webpack.DefinePlugin({
       env: JSON.stringify(process.env),
     }),
+    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       chunks: ['main'],
       favicon: path.resolve(__dirname, './favicon.ico'),
@@ -75,7 +78,7 @@ module.exports = {
       chunks: ['test'],
       filename: 'test.html',
       favicon: path.resolve(__dirname, './favicon.ico'),
-      template: path.resolve(__dirname, './src/tools/test/input.html'),
+      template: path.resolve(__dirname, './src/tools/test/test.html'),
     }),
     new HtmlWebpackPlugin({
       chunks: ['input'],

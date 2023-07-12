@@ -8,6 +8,7 @@ import './web-components/binary-input/text-area-binary';
 import './web-components/binary-input/text-area-radio-binary';
 import './web-components/input-file/input-file';
 import './web-components/input-dump/input-dump';
+import './web-components/calendar/calendar-timestamp';
 
 // Importing style
 import '../css/reset.css';

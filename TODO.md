@@ -38,3 +38,4 @@
 - [ ] Popout at a poped out window error (disable?);
 - [x] Serial issueing 2 disconnect messages
 - [ ] Necessary to treat loading big files (`input-dump` tool for example). Need to slice?
+- [ ] How to import `css` files as modules? Use to import local styles at `tools`/`apps`/`setup` inside shadowDOMs.

@@ -1,0 +1,22 @@
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#calendar {
+  background-color: lightgrey;
+  padding: 2px;
+  border: 2px solid black;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.title {
+  background-color: blue;
+  border-radius: 10px 10px 0px 0px;
+  font-weight: bold;
+}

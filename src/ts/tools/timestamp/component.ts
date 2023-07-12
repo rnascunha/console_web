@@ -1,5 +1,97 @@
 import { ComponentBase } from '../../golden-components/component-base';
 import type { ComponentContainer, JsonValue } from 'golden-layout';
+import {
+  timeZones,
+  local_timezone,
+  type TimeZoneInfo,
+} from '../../helper/timezone';
+import {
+  CalendarTimestamp,
+  type CalendarTimestampOptions,
+  calendarTimestampOptionsDefault,
+  calendarTimestampUTCOptionsDefault,
+} from '../../web-components/calendar/calendar-timestamp';
+
+// function clock_header(title: string): HTMLElement {
+//   const span = document.createElement('span');
+//   span.textContent = title;
+//   span.classList.add('clock-header');
+
+//   return span;
+// }
+
+const temp_header = (function () {
+  const template = document.createElement('template');
+  template.innerHTML = `
+  <style>
+    :host {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .title {
+      width: 100%;
+    }
+
+    .close {
+      cursor: pointer;
+      border-radius: 50%;
+      padding: 0px 3px;
+    }
+
+    .close:hover {
+      background-color: black;
+      color: white;
+    }
+  </style>
+  <span class=title></span>
+  <span class=close>&#10006;</span>`;
+
+  return template;
+})();
+
+function clock_header(title: string, closeable: boolean = false): HTMLElement {
+  const span = document.createElement('span');
+  span.classList.add('clock-header');
+  span.attachShadow({ mode: 'open' });
+  span.shadowRoot?.appendChild(temp_header.content.cloneNode(true));
+  (span.shadowRoot?.querySelector('.title') as HTMLElement).textContent = title;
+  if (!closeable) {
+    (span.shadowRoot?.querySelector('.close') as HTMLElement).style.display =
+      'none';
+  }
+  return span;
+}
+
+function create_clock(
+  title: string,
+  options: CalendarTimestampOptions,
+  clock_options: { update?: Date; closeable?: boolean }
+): CalendarTimestamp {
+  const clock = new CalendarTimestamp(options);
+  clock.classList.add('clock-body');
+  clock.appendChild(clock_header(title, clock_options.closeable));
+
+  if (clock_options.update !== undefined) clock.update(clock_options.update);
+
+  return clock;
+}
+
+function timezone_name(tz: TimeZoneInfo): string {
+  return (
+    tz.local +
+    ' (' +
+    tz.shortOffset +
+    (tz.shortOffset !== tz.shortGeneric ? `/${tz.shortGeneric}` : '') +
+    ')'
+  );
+}
+
+const default_clock_options: CalendarTimestampOptions = {
+  ...calendarTimestampOptionsDefault,
+  timestampFormat: undefined,
+};
 
 const template = (function () {
   const template = document.createElement('template');
@@ -9,11 +101,26 @@ const template = (function () {
       height: 100%;
       background-color: grey !important;
     }
+
+    .clock-body {
+      background-color: lightgrey;
+      padding: 2px;
+      border: 2px solid black;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .clock-header {
+      background-color: blue;
+      border-radius: 10px 10px 0px 0px;
+      font-weight: bold;
+    }
   </style>
   <div>
-    <div id=utc></div>
-    <div id=iso></div>
-    <div id=local></div>
+    <h2>Clocks</h2>
+    <select id=select-clock></select>
+    <button id=add-clock>Add</button>
+    <div id=clocks></div>
   </div>
   <br>
   <div>
@@ -42,6 +149,8 @@ export class TimestampComponent extends ComponentBase {
   ) {
     super(container, virtual);
 
+    console.log(timeZones);
+
     // this._state = JSON.parse(state as string);
 
     this.title = 'Timestamp';
@@ -53,26 +162,61 @@ export class TimestampComponent extends ComponentBase {
     /**
      *
      */
-    const utc = this.rootHtmlElement.shadowRoot?.querySelector(
-      '#utc'
-    ) as HTMLElement;
-    const iso = this.rootHtmlElement.shadowRoot?.querySelector(
-      '#iso'
-    ) as HTMLElement;
-    const local = this.rootHtmlElement.shadowRoot?.querySelector(
-      '#local'
+    const clock_select = this.rootHtmlElement.shadowRoot?.querySelector(
+      '#select-clock'
+    ) as HTMLSelectElement;
+    Object.entries(timeZones).forEach(([tz, type]) => {
+      clock_select.appendChild(
+        new Option(timezone_name(type), tz, undefined, tz === local_timezone())
+      );
+    });
+
+    const add_clock = this.rootHtmlElement.shadowRoot?.querySelector(
+      '#add-clock'
+    ) as HTMLButtonElement;
+    const clocks: CalendarTimestamp[] = [];
+    add_clock.addEventListener('click', ev => {
+      const c = create_clock(clock_select.value, default_clock_options, {
+        update: new Date(),
+        closeable: true,
+      });
+      clocks.push(c);
+      clocks_container.appendChild(c);
+      // (c.shadowRoot?.querySelector('.close') as HTMLElement).addEventListener(
+      c.addEventListener('click', ev => {
+        const source = ev.composedPath()[0] as HTMLElement;
+        if (source.classList.contains('close')) {
+          clocks.splice(clocks.indexOf(c), 1);
+          clocks_container.removeChild(c);
+        }
+      });
+    });
+
+    const clocks_container = this.rootHtmlElement.shadowRoot?.querySelector(
+      '#clocks'
     ) as HTMLElement;
 
     const date = new Date();
-    utc.textContent = date.toString();
-    iso.textContent = date.toISOString();
-    local.textContent = date.toLocaleString();
+    const utc = create_clock('UTC', calendarTimestampUTCOptionsDefault, {
+      update: date,
+      closeable: false,
+    });
+    const local = create_clock(
+      `${local_timezone()} (local)`,
+      default_clock_options,
+      { update: date, closeable: false }
+    );
+
+    clocks_container.appendChild(utc);
+    clocks_container.appendChild(local);
 
     const token = setInterval(function () {
       const date = new Date();
-      utc.textContent = date.toString();
-      iso.textContent = date.toISOString();
-      local.textContent = date.toLocaleString();
+      utc.update(date);
+      local.update(date);
+      clocks.forEach(clk => {
+        clk.update(date);
+      });
     }, 1000);
 
     this.container.on('beforeComponentRelease', () => {
@@ -120,18 +264,10 @@ export class TimestampComponent extends ComponentBase {
     const timezones = this.rootHtmlElement.shadowRoot?.querySelector(
       '#timezones'
     ) as HTMLSelectElement;
-    Intl.supportedValuesOf('timeZone').forEach((tz: string) => {
-      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat
-      const name = Intl.DateTimeFormat('ia', {
-        timeZoneName: 'shortOffset',
-        timeZone: tz,
-      })
-        .formatToParts()
-        .find(i => i.type === 'timeZoneName')?.value;
-
+    Object.entries(timeZones).forEach(([tz, type]) => {
       timezones.appendChild(
         new Option(
-          `${tz} (${name ?? ''})`,
+          `${tz} (${type.shortOffset})`,
           tz,
           undefined,
           tz === Intl.DateTimeFormat().resolvedOptions().timeZone
