@@ -9,15 +9,11 @@ import {
   get_calendar_options,
   type CalendarTimestampOptions,
 } from '../../web-components/calendar/calendar-timestamp';
+import { TimeZoneInfo, timeZones } from '../../helper/timezone';
 
 const template = (function () {
   const template = document.createElement('template');
   template.innerHTML = `
-  <style>
-    select {
-      max-width: 100px;
-    }
-  </style>
   <input type="datetime-local" id=datetime />
   <select id=datetime-timezone></select>
   <input type=number min=0 id=timestamp />
@@ -42,7 +38,7 @@ export class TimestampApp extends EventEmitter<TimestampAppEvents> {
   private readonly _output: HTMLElement;
   private readonly _clock: CalendarTimestamp;
 
-  private readonly _state: TimestampState[];
+  private readonly _state: TimestampState[] = [];
 
   constructor(container: HTMLElement, timestamps: TimestampState[] = []) {
     super();
@@ -66,31 +62,34 @@ export class TimestampApp extends EventEmitter<TimestampAppEvents> {
       get_calendar_options(select.value),
       {
         closeable: false,
-        update: new Date(+this._timestamp.value * 1000),
+        update: timestamp_s_to_date(this._timestamp.value),
       }
     );
     this._output.appendChild(this._clock);
 
     this._input.addEventListener('change', () => {
-      this.update(new Date(this._input.value));
+      this.update(new Date(this._input.value), select.value);
     });
 
     this._timestamp.addEventListener('change', ev => {
-      this.update(new Date(+this._timestamp.value * 1000));
+      this.update(timestamp_s_to_date(this._timestamp.value), select.value);
     });
 
     add_button?.addEventListener('click', () => {
       this.add(select.value, get_calendar_options(select.value), {
         closeable: true,
-        update: new Date(+this._timestamp.value * 1000),
+        update: timestamp_s_to_date(this._timestamp.value),
       });
     });
 
     now.addEventListener('click', () => {
-      this.update(new Date());
+      this.update(new Date(), select.value);
     });
 
-    this._state = timestamps;
+    select.addEventListener('change', () => {
+      this.update(timestamp_s_to_date(this._timestamp.value), select.value);
+    });
+
     timestamps.forEach(v => {
       this.add(v.timezone, get_calendar_options(v.timezone), {
         closeable: true,
@@ -98,12 +97,12 @@ export class TimestampApp extends EventEmitter<TimestampAppEvents> {
       });
     });
 
-    this.update(new Date());
+    this.update(new Date(), select.value);
   }
 
-  private update(date: Date): void {
-    this._timestamp.value = Math.floor(date.getTime() / 1000).toString();
-    this._input.value = date.toISOString().slice(0, -5);
+  private update(date: Date, tz: string): void {
+    this._timestamp.value = date_to_timestamp_s(date).toString();
+    this._input.value = date_to_calendar_string(date, tz); // date.toISOString().slice(0, -5);
     this._clock.update(date);
   }
 
@@ -117,7 +116,7 @@ export class TimestampApp extends EventEmitter<TimestampAppEvents> {
 
     const state: TimestampState = {
       timezone: options.timezone as string,
-      timestamp: clock_options.update?.getTime() as number,
+      timestamp: date_to_timestamp_s(clock_options.update as Date),
     };
     this._state.push(state);
     this.emit('state', this._state);
@@ -130,4 +129,20 @@ export class TimestampApp extends EventEmitter<TimestampAppEvents> {
       }
     });
   }
+}
+
+function date_to_timestamp_s(date: Date): number {
+  return Math.floor(date.getTime() / 1000);
+}
+
+function timestamp_s_to_date(timestamp: string): Date {
+  return new Date(+timestamp * 1000);
+}
+
+function date_to_calendar_string(date: Date, tz: string): string {
+  const tz_info: TimeZoneInfo | undefined = timeZones[tz];
+  if (tz_info === undefined) return date.toISOString().slice(0, -5);
+  return new Date(Math.floor(date.getTime()) + tz_info.minutes * 60000)
+    .toISOString()
+    .slice(0, -5);
 }

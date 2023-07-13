@@ -12,6 +12,12 @@ const template = (function () {
       background-color: grey !important;
     }
 
+    select{
+      max-width: 25ch;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .clock-body {
       background-color: lightgrey;
       padding: 2px;
@@ -44,6 +50,8 @@ export class TimestampComponent extends ComponentBase {
     super(container, virtual);
 
     this._state = JSON.parse(state as string);
+
+    this.rootHtmlElement.style.overflow = 'auto';
 
     this.title = 'Timestamp';
     this.rootHtmlElement.attachShadow({ mode: 'open' });
@@ -82,13 +90,6 @@ export class TimestampComponent extends ComponentBase {
       clock_app.stop();
     });
 
-    /**
-     *
-     */
-
-    /**
-     *
-     */
     this.container.stateRequestEvent = () => JSON.stringify(this._state);
   }
 }
