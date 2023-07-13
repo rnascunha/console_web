@@ -1,7 +1,7 @@
 import { ComponentBase } from '../../golden-components/component-base';
 import type { ComponentContainer, JsonValue } from 'golden-layout';
-import { timeZones } from '../../helper/timezone';
 import { ClockApp } from './clock';
+import { TimestampApp } from './timestamp';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -26,26 +26,15 @@ const template = (function () {
       font-weight: bold;
     }
   </style>
+  <h2>Clocks</h2>
   <div id=clock-app></div>
-  <br>
-  <div>
-    <input type="datetime-local" id=datetime />
-    <button id=submit-date>Add</button>
-    <div id=output></div>
-  </div>
-  <div>
-    <input type=number min=0 id=timestamp />
-    <div id=output-date></div>
-  </div>
-  <div>
-    <select id=timezones></select>
-  </div>
-  `;
+  <h2>Timestamps</h2>
+  <div id=timestamp-app></div>`;
   return template;
 })();
 
 export class TimestampComponent extends ComponentBase {
-  private _state: Record<string, any>;
+  private readonly _state: Record<string, any>;
 
   constructor(
     container: ComponentContainer,
@@ -77,6 +66,18 @@ export class TimestampComponent extends ComponentBase {
       window.console_app.set_tool_state('timestamp', this._state, true);
     });
 
+    const timestamp_app = new TimestampApp(
+      this.rootHtmlElement.shadowRoot?.querySelector(
+        '#timestamp-app'
+      ) as HTMLElement,
+      this._state.timestamp ?? []
+    );
+
+    timestamp_app.on('state', state => {
+      this._state.timestamp = state;
+      window.console_app.set_tool_state('timestamp', this._state, true);
+    });
+
     this.container.on('beforeComponentRelease', () => {
       clock_app.stop();
     });
@@ -84,61 +85,10 @@ export class TimestampComponent extends ComponentBase {
     /**
      *
      */
-    const input = this.rootHtmlElement.shadowRoot?.querySelector(
-      '#datetime'
-    ) as HTMLInputElement;
-
-    const isoString = new Date().toISOString();
-    input.value = isoString.substring(0, isoString.indexOf('T') + 6);
-    const output = this.rootHtmlElement.shadowRoot?.querySelector(
-      '#output'
-    ) as HTMLElement;
-    input.addEventListener('change', ev => {
-      const d = new Date(input.value);
-      output.textContent = `${d.toString()} ${Math.floor(
-        d.getTime() / 1000
-      ).toString()}`;
-    });
 
     /**
      *
      */
-    const timestamp = this.rootHtmlElement.shadowRoot?.querySelector(
-      '#timestamp'
-    ) as HTMLInputElement;
-    timestamp.value = Math.floor(new Date().getTime() / 1000).toString();
-    const output_timestamp = this.rootHtmlElement.shadowRoot?.querySelector(
-      '#output-date'
-    ) as HTMLElement;
-    output_timestamp.textContent = new Date(+timestamp.value * 1000).toString();
-    timestamp.addEventListener('change', ev => {
-      const dd = new Date(+timestamp.value * 1000);
-      output_timestamp.textContent = dd.toString();
-    });
-
-    /**
-     *
-     */
-    const timezones = this.rootHtmlElement.shadowRoot?.querySelector(
-      '#timezones'
-    ) as HTMLSelectElement;
-    Object.entries(timeZones).forEach(([tz, type]) => {
-      timezones.appendChild(
-        new Option(
-          `${tz} (${type.shortOffset})`,
-          tz,
-          undefined,
-          tz === Intl.DateTimeFormat().resolvedOptions().timeZone
-        )
-      );
-    });
-
-    // this.rootHtmlElement.appendChild(body);
-    // body.addEventListener('state', ev => {
-    //   this._state = (ev as CustomEvent).detail;
-    //   window.console_app.set_tool_state('timestamp-tool', this._state, true);
-    // });
-
     this.container.stateRequestEvent = () => JSON.stringify(this._state);
   }
 }
