@@ -27,7 +27,8 @@
 
 ### New Tools
 
-- [ ] Tool to convert date/time/timestamp. UTC and other timezones.
+- [x] Tool to convert date/time/timestamp. UTC and other timezones.
+- [ ] Add more time functionties to timestamp tool. Ex.: Cronometer, map with clock citys/timezones
 - [ ] Generate Cripto keys (CA, private/public keys);
 - [ ] Darta parses: JSON...
 

@@ -4,13 +4,17 @@ const template = (function () {
   <style>
     :host {
       position: absolute;
+      box-sizing: border-box;
+      height: fit-content;
+      max-height: 90%;
+      overflow: auto;
     }
 
     #header {
       display: flex;
       justify-content: space-between;
       cursor: move;
-      z-index: 10;
+      z-index: 20;
       border-bottom: 1px solid black;
     }
 
@@ -28,12 +32,17 @@ const template = (function () {
     #body {
       padding: 0;
       margin: 0;
+      overflow: hidden;
+      height: 100%;
+      box-sizing: border-box;
     }
 
     #body::slotted(*) {
-      z-index: 9;
+      z-index: 19;
       margin: 0;
       padding: 0;
+      overflow: hidden;
+      box-sizing: border-box;
     }
 
   </style>
@@ -88,8 +97,8 @@ export class DraggablePopup extends HTMLElement {
     const parent = this.parentElement?.getClientRects() as DOMRectList;
     const node = this.getClientRects();
 
-    const left = parent[0].width / 2 - node[0].width / 2;
-    const top = parent[0].height / 2 - node[0].height / 2;
+    const left = Math.max(parent[0].width / 2 - node[0].width / 2, 0);
+    const top = Math.max(parent[0].height / 2 - node[0].height / 2, 0);
 
     this.style.top = `${top}px`;
     this.style.left = `${left}px`;

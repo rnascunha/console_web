@@ -9,7 +9,7 @@ import {
   get_calendar_options,
   type CalendarTimestampOptions,
 } from '../../web-components/calendar/calendar-timestamp';
-import { TimeZoneInfo, timeZones } from '../../helper/timezone';
+import { type TimeZoneInfo, timeZones } from '../../helper/timezone';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -118,8 +118,10 @@ export class TimestampApp extends EventEmitter<TimestampAppEvents> {
       timezone: options.timezone as string,
       timestamp: date_to_timestamp_s(clock_options.update as Date),
     };
+
     this._state.push(state);
     this.emit('state', this._state);
+
     c.addEventListener('click', ev => {
       const source = ev.composedPath()[0] as HTMLElement;
       if (source.classList.contains('close')) {

@@ -24,5 +24,8 @@ export class DockDumpComponent extends ComponentBase {
     });
     body.classList.add('window-body');
     this.rootHtmlElement.appendChild(body);
+
+    this.rootHtmlElement.style.overflow = 'auto';
+    this.rootHtmlElement.style.height = '100%';
   }
 }

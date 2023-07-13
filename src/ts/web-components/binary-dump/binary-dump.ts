@@ -56,6 +56,7 @@ const template = (function () {
       }
 
       #base64-container {
+        background-color: lightgray;
         grid-area: base64;
         display: flex;
         align-items: center;
