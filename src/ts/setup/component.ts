@@ -1,5 +1,6 @@
 import { type ComponentContainer, type JsonValue } from 'golden-layout';
 import { ComponentBase } from '../golden-components/component-base';
+import image from '../../../img/github.png';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -12,6 +13,13 @@ const template = (function () {
       height: 100%;
       background-color: grey !important;
     }
+
+    #github {
+      height: 25px;
+      width: 25px;
+      background-color: white;
+      border-radius: 50%;
+    }
     
     #footer {
       align-self: flex-end;
@@ -22,8 +30,10 @@ const template = (function () {
     <div id=info></div>
   </div>
   <div id=footer>
-    <a target=_blank href=https://github.com/rnascunha/console_web>GitHub</a>
     <small>Version: <b>${__COMMIT_HASH__}</b></small>
+    <a target=_blank href=https://github.com/rnascunha/console_web>
+      <img id=github src="${image as string}" alt=GitHub></img>
+    </a>
   </div>`;
   return template;
 })();
@@ -41,6 +51,8 @@ export class SetupComponent extends ComponentBase {
     this.rootHtmlElement.shadowRoot?.appendChild(
       template.content.cloneNode(true)
     );
+
+    console.log(image);
 
     this.title = 'Setup';
 

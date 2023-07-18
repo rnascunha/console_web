@@ -64,7 +64,7 @@ module.exports = {
       },
       {
         // monaco-editor
-        test: /\.ttf$/,
+        test: /\.ttf$|\.png/,
         type: 'asset/resource',
       },
       {
