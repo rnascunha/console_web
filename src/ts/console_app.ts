@@ -119,6 +119,12 @@ export class ConsoleApp {
       this._layout.addComponent(tool.name, tool.open());
     });
 
+    container.querySelector('#coder-tool')?.addEventListener('click', () => {
+      const tool = this._tool_list.tool('coder');
+      if (tool === undefined) return;
+      this._layout.addComponent(tool.name, tool.open());
+    });
+
     container.querySelector('#close')?.addEventListener('click', () => {
       this.hide_header();
     });

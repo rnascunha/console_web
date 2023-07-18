@@ -6,7 +6,7 @@ let commit_hash = require('child_process')
   .toString()
   .trim();
 
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -51,6 +51,7 @@ module.exports = {
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
+        exclude: /editor\.main\.css$/,
       },
       {
         test: /\.js$/,
@@ -61,6 +62,21 @@ module.exports = {
         test: /\.less$/,
         use: ['style-loader', 'css-loader', 'less-loader'],
       },
+      {
+        // monaco-editor
+        test: /\.ttf$/,
+        type: 'asset/resource',
+      },
+      {
+        // monaco-editor
+        test: /editor\.main\.css$/,
+        use: {
+          loader: 'css-loader',
+          options: {
+            exportType: 'css-style-sheet',
+          },
+        },
+      },
     ],
   },
 
@@ -68,7 +84,7 @@ module.exports = {
     new webpack.DefinePlugin({
       env: JSON.stringify(process.env),
     }),
-    new CleanWebpackPlugin(),
+    new MonacoWebpackPlugin(),
     new HtmlWebpackPlugin({
       chunks: ['main'],
       favicon: path.resolve(__dirname, './favicon.ico'),

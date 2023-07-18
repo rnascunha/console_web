@@ -17,11 +17,11 @@ import '../css/serial.css';
 import '../css/window.css';
 
 // Importing third party library style
-import '../../node_modules/xterm/css/xterm.css';
+import 'xterm/css/xterm.css';
 import '../css/golden-layout.less';
 
 // Importing app
-import { type App } from './apps/app';
+import type { App } from './apps/app';
 import { WSComponent } from './apps/websocket/component';
 import { WSApp } from './apps/websocket/app';
 import { HTTPComponent } from './apps/http/component';
@@ -32,6 +32,7 @@ import { is_serial_supported } from './apps/serial/functions';
 import { ConsoleApp } from './console_app';
 import { InputDumpTool } from './tools/input_dump/tool';
 import { TimestampTool } from './tools/timestamp/tool';
+import { CoderTool } from './tools/coder/tool';
 
 declare global {
   const __COMMIT_HASH__: string; // eslint-disable-line
@@ -65,5 +66,10 @@ function get_app_list(): App[] {
 }
 
 function run(): void {
-  new ConsoleApp(get_app_list(), [new InputDumpTool(), new TimestampTool()]); // eslint-disable-line no-new
+  // eslint-disable-next-line no-new
+  new ConsoleApp(get_app_list(), [
+    new InputDumpTool(),
+    new TimestampTool(),
+    new CoderTool(),
+  ]);
 }

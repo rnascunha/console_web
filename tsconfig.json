@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "moduleResolution": "node",
+    "module": "ESNext",
     "resolveJsonModule": true,
     "strict": true,
     "strictNullChecks": true,
@@ -19,6 +20,6 @@
     "target": "ES2015",
     "lib": ["DOM", "es2017", "es2018", "es2019", "es2023"]
   },
-  "include": ["src/ts/**/*.ts", "src/tools/**/**/*.ts"],
+  "include": ["src/global.d.ts", "src/ts/**/*.ts", "src/tools/**/**/*.ts"],
   "exclude": ["node_modules"]
 }

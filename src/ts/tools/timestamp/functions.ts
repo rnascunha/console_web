@@ -40,15 +40,32 @@ export function create_select_timezone(
   select: HTMLSelectElement,
   default_tz: string = localTimezone
 ): void {
-  timeZoneInfoSorted.forEach(tz => {
-    select.appendChild(
-      new Option(
-        timezone_name(tz),
-        tz.local,
-        undefined,
-        tz.local === default_tz
-      )
+  const d = Object.values(timeZones).reduce<Record<string, any>>((acc, v) => {
+    const [co, ci] = v.local.split('/');
+    if (!(co in acc)) acc[co] = [];
+    acc[co].push({
+      value: v.local,
+      city: `${ci} ${v.shortOffset.replace('GMT', '')}`,
+      minutes: v.minutes,
+    });
+    return acc;
+  }, {});
+
+  Object.entries(d).forEach(([k, v]) => {
+    v.sort((a: any, b: any) =>
+      a.minutes < b.minutes ? -1 : a.minutes > b.minutes ? 1 : 0
     );
+    const co = new Option(k);
+    co.disabled = true;
+    co.style.backgroundColor = 'grey';
+    co.style.color = 'white';
+    co.style.textAlign = 'center';
+    select.appendChild(co);
+    v.forEach((t: any) => {
+      select.appendChild(
+        new Option(t.city, t.value, undefined, t.value === default_tz)
+      );
+    });
   });
 }
 
