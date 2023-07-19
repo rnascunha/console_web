@@ -107,23 +107,10 @@ export class ConsoleApp {
       proto_container.appendChild(app.element);
     });
 
-    container.querySelector('#tools')?.addEventListener('click', () => {
-      const tool = this._tool_list.tool('input_dump');
-      if (tool === undefined) return;
-      this._layout.addComponent(tool.name, tool.open());
-    });
-
-    container.querySelector('#time-tool')?.addEventListener('click', () => {
-      const tool = this._tool_list.tool('timestamp');
-      if (tool === undefined) return;
-      this._layout.addComponent(tool.name, tool.open());
-    });
-
-    container.querySelector('#coder-tool')?.addEventListener('click', () => {
-      const tool = this._tool_list.tool('coder');
-      if (tool === undefined) return;
-      this._layout.addComponent(tool.name, tool.open());
-    });
+    this.init_tool('#tools', 'input_dump');
+    this.init_tool('#time-tool', 'timestamp');
+    this.init_tool('#coder-tool', 'coder');
+    this.init_tool('#json-tool', 'json');
 
     container.querySelector('#close')?.addEventListener('click', () => {
       this.hide_header();
@@ -408,6 +395,14 @@ export class ConsoleApp {
         (app_el as HTMLElement).style.display = 'inline-block';
         app.focus();
       } else (app_el as HTMLElement).style.display = 'none';
+    });
+  }
+
+  private init_tool(id: string, name: string): void {
+    this._container.querySelector(id)?.addEventListener('click', () => {
+      const tool = this._tool_list.tool(name);
+      if (tool === undefined) return;
+      this._layout.addComponent(tool.name, tool.open());
     });
   }
 

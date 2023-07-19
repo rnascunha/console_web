@@ -17,6 +17,19 @@
 - [ ] Add keyboard shortcuts.
 - [ ] Document it :| (code and manual)
 
+### Brainstorm
+
+- [ ] On site clipboard to copy "things" to be copied in app;
+- [ ] Notification board;
+- [ ] Statistic data (per app, interface...);
+- [ ] Different outputs/parsers:
+  - [x] Data (how is now)
+  - [ ] Console
+  - [ ] Parser: JSON, www-encoded, ...
+- [ ] Diffrent inputs/parsers, ...
+  - [x] Binary (how is now),
+  - [ ] JSON.
+
 ### Fix
 
 - [ ] Popout at a poped out window error (disable?);
