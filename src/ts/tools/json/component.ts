@@ -89,6 +89,8 @@ export class JSONComponent extends ComponentBase {
 
     this.title = 'JSON';
 
+    console.log(this.container.initialState);
+
     const shadow = this.rootHtmlElement.attachShadow({ mode: 'open' });
     shadow.adoptedStyleSheets = [style];
     shadow.appendChild(template.content.cloneNode(true));
@@ -99,6 +101,8 @@ export class JSONComponent extends ComponentBase {
   }
 
   private init(): void {
+    console.log(this.container.parent.headerConfig);
+
     const shadow = this.rootHtmlElement.shadowRoot as ShadowRoot;
     const content = shadow.querySelector('#container') as HTMLElement;
     const error = shadow.querySelector('#error') as HTMLElement;
@@ -118,14 +122,13 @@ export class JSONComponent extends ComponentBase {
       editor.layout();
     });
 
-    console.log(
-      'ID',
-      editor.getId(),
-      editor.getModel()?.id,
-      editor.getModel()?.getLanguageId(),
-      editor.getModel()?.getVersionId(),
-      editor.getModel()?.uri
-    );
+    // console.log(
+    //   editor.getId(),
+    //   editor.getModel()?.id,
+    //   editor.getModel()?.getLanguageId(),
+    //   editor.getModel()?.getVersionId(),
+    //   editor.getModel()?.uri
+    // );
     // monaco.editor.setModelMarkers()
 
     // const el = document.createElement('div');

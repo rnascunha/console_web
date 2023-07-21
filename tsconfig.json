@@ -20,6 +20,11 @@
     "target": "ES2015",
     "lib": ["DOM", "es2017", "es2018", "es2019", "es2023"]
   },
-  "include": ["src/global.d.ts", "src/ts/**/*.ts", "src/tools/**/**/*.ts"],
+  "include": [
+    "src/global.d.ts",
+    "src/ts/**/*.ts",
+    "src/tools/**/*.ts",
+    "src/tests/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }

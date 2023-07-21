@@ -106,16 +106,13 @@ export class SerialConsoleComponent extends ComponentBase {
     this._id = state as number;
     this._console = null;
 
-    /**
-     * As the container is not at DOM yet, this is a
-     * workaroud to delay until after the constructor
-     * (event open didn't work)
-     */
-    setTimeout(() => {
+    container.on('open', () => {
       const port = (
         window.console_app.list.protocol('serial') as SerialApp
       ).list.port_by_id(this._id) as SerialConn;
       this._console = new SerialViewConsole(port, this.rootHtmlElement);
+      // Why need the setTimeout??
+      setTimeout(() => this._console?.terminal.fit(), 1);
       this.set_name();
       this.container.on('resize', () => this._console?.terminal.fit());
       this.container.on('beforeComponentRelease', () =>
@@ -127,7 +124,7 @@ export class SerialConsoleComponent extends ComponentBase {
       this._console.on('close', () => {
         this.set_name();
       });
-    }, 0);
+    });
   }
 
   public get console(): SerialViewConsole | null {

@@ -24,7 +24,7 @@
 - [ ] Statistic data (per app, interface...);
 - [ ] Different outputs/parsers:
   - [x] Data (how is now)
-  - [ ] Console
+  - [ ] Terminal
   - [ ] Parser: JSON, www-encoded, ...
 - [ ] Diffrent inputs/parsers, ...
   - [x] Binary (how is now),

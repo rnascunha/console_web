@@ -18,7 +18,7 @@ import '../css/window.css';
 
 // Importing third party library style
 import 'xterm/css/xterm.css';
-import '../css/golden-layout.less';
+import style from '../css/golden-layout.less';
 
 // Importing app
 import type { App } from './apps/app';
@@ -55,6 +55,8 @@ else
 function is_secure_connection(): boolean {
   return window.location.protocol === 'https:';
 }
+
+document.adoptedStyleSheets = [style];
 
 function get_app_list(): App[] {
   const apps: App[] = [];

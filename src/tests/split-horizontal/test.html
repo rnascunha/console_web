@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Split Vertical</title>
+    <title>Split Horizontal</title>
     <style>
       html,
       body {
@@ -18,43 +18,42 @@
       #container {
         height: 100%;
         display: flex;
-        flex-direction: column;
       }
 
       .chuck {
         display: inline-block;
-        height: 100px;
-        width: 100%;
+        width: 100px;
+        height: 100%;
         background-color: blue;
       }
 
       #split {
-        width: 100%;
+        height: 100%;
         border: 1px solid black;
         --border-width: 6px;
         --border-color: red;
       }
 
-      #top {
-        width: 100%;
-        height: 400px;
+      #left {
+        height: 100%;
+        width: 400px;
         background-color: brown;
       }
 
-      #bottom {
-        width: 100%;
+      #right {
+        height: 100%;
         background-color: aqua;
-        min-height: 100px;
+        min-width: 100px;
       }
     </style>
   </head>
   <body>
     <div id="container">
       <div class="chuck"></div>
-      <split-vertical id="split">
-        <div id="top">top</div>
-        <div id="bottom" slot="bottom">bottom</div>
-      </split-vertical>
+      <split-horizontal id="split">
+        <div id="left">left</div>
+        <div id="right" slot="right">right</div>
+      </split-horizontal>
       <div class="chuck"></div>
     </div>
   </body>

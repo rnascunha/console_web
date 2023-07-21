@@ -9,10 +9,12 @@ let commit_hash = require('child_process')
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = {
+  extends: [
+    require.resolve('./src/tests/webpack.test'),
+    require.resolve('./src/tools/webpack.tool'),
+  ],
   entry: {
     main: path.resolve(__dirname, './src/ts/main.ts'),
-    test: path.resolve(__dirname, './src/tools/test/test.ts'),
-    input: path.resolve(__dirname, './src/tools/input/input.ts'),
   },
 
   output: {
@@ -58,10 +60,10 @@ module.exports = {
         enforce: 'pre',
         use: ['source-map-loader'],
       },
-      {
-        test: /\.less$/,
-        use: ['style-loader', 'css-loader', 'less-loader'],
-      },
+      // {
+      //   test: /\.less$/,
+      //   use: ['style-loader', 'css-loader', 'less-loader'],
+      // },
       {
         // monaco-editor
         test: /\.ttf$|\.png/,
@@ -77,6 +79,18 @@ module.exports = {
           },
         },
       },
+      {
+        test: /golden\-layout\.less$/,
+        use: [
+          {
+            loader: 'css-loader',
+            options: {
+              exportType: 'css-style-sheet',
+            },
+          },
+          'less-loader',
+        ],
+      },
     ],
   },
 
@@ -89,18 +103,6 @@ module.exports = {
       chunks: ['main'],
       favicon: path.resolve(__dirname, './favicon.ico'),
       template: path.resolve(__dirname, './src/index.html'),
-    }),
-    new HtmlWebpackPlugin({
-      chunks: ['test'],
-      filename: 'test.html',
-      favicon: path.resolve(__dirname, './favicon.ico'),
-      template: path.resolve(__dirname, './src/tools/test/test.html'),
-    }),
-    new HtmlWebpackPlugin({
-      chunks: ['input'],
-      filename: 'input.html',
-      favicon: path.resolve(__dirname, './favicon.ico'),
-      template: path.resolve(__dirname, './src/tools/input/input.html'),
     }),
     new webpack.DefinePlugin({
       __COMMIT_HASH__: JSON.stringify(commit_hash),
