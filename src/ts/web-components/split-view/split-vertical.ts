@@ -65,11 +65,10 @@ export class SplitVertical extends HTMLElement {
     this._bottom.style.userSelect = 'none';
     this._bottom.style.pointerEvents = 'none';
 
-    // const dy = ev.clientY - this._y;
-
-    // const h = ((this._height + dy) * 100) / this.getBoundingClientRect().height;
     const h = (ev.offsetY * 100) / this.getBoundingClientRect().height;
     this._top.style.height = `${h}%`;
+
+    this.dispatchEvent(new Event('resizing'));
   }
 
   private on_up(ev: MouseEvent): void {
@@ -84,6 +83,8 @@ export class SplitVertical extends HTMLElement {
 
     this.removeEventListener('mousemove', this.on_move);
     this.removeEventListener('mouseup', this.on_up);
+
+    this.dispatchEvent(new Event('resized'));
   }
 }
 

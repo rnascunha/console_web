@@ -9,6 +9,7 @@ import './web-components/binary-input/text-area-radio-binary';
 import './web-components/input-file/input-file';
 import './web-components/input-dump/input-dump';
 import './web-components/calendar/calendar-timestamp';
+import './web-components/split-view/split-vertical';
 
 // Importing style
 import '../css/reset.css';

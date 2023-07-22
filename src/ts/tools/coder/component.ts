@@ -1,9 +1,16 @@
-import type { ComponentContainer, JsonValue } from 'golden-layout';
+import {
+  GoldenLayout,
+  ItemType,
+  type ComponentContainer,
+  type JsonValue,
+  type LayoutConfig,
+} from 'golden-layout';
 import { ComponentBase } from '../../golden-components/component-base';
-
-import style from 'monaco-editor/min/vs/editor/editor.main.css' assert { type: 'css' };
-
+import { MonacoComponent } from '../../golden-components/monaco';
+import { MarkersComponent } from './markers';
 import * as monaco from 'monaco-editor';
+
+import style from '../../../css/golden-layout.less';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -31,7 +38,41 @@ const template = (function () {
   return template;
 })();
 
+const layout_config: LayoutConfig = {
+  settings: {
+    responsiveMode: 'always',
+  },
+  root: {
+    type: ItemType.column,
+    content: [
+      {
+        type: ItemType.component,
+        componentType: 'MonacoComponent',
+        isClosable: false,
+        hasHeaders: false,
+        componentState: {
+          value: '{"test": 1, "icon": "my icon"}',
+          language: 'json',
+          // theme: 'vs-dark',
+        },
+        id: 'editor',
+      },
+      {
+        type: ItemType.component,
+        componentType: 'MarkersComponent',
+        header: {
+          popout: false,
+        },
+        size: '30%',
+        id: 'markers',
+      },
+    ],
+  },
+};
+
 export class CoderComponent extends ComponentBase {
+  private readonly _layout: GoldenLayout;
+
   constructor(
     container: ComponentContainer,
     state: JsonValue | undefined,
@@ -42,26 +83,35 @@ export class CoderComponent extends ComponentBase {
     this.title = 'Coder';
 
     const shadow = this.rootHtmlElement.attachShadow({ mode: 'open' });
-    shadow.adoptedStyleSheets = [style];
     shadow.appendChild(template.content.cloneNode(true));
+    shadow.adoptedStyleSheets = [style];
 
-    container.on('open', () => {
-      this.init();
-    });
-  }
+    const content = shadow.querySelector('#container') as HTMLElement;
+    this._layout = new GoldenLayout(content);
+    this._layout.resizeWithContainerAutomatically = true;
 
-  private init(): void {
-    const content = this.rootHtmlElement.shadowRoot?.querySelector(
-      '#container'
-    ) as HTMLElement;
-    const editor = monaco.editor.create(content, {
-      value: ['function x() {', '\tconsole.log("Hello world!");', '}'].join(
-        '\n'
-      ),
-      language: 'javascript',
-    });
-    this.container.on('resize', () => {
-      editor.layout();
+    this._layout.registerComponentConstructor(
+      'MonacoComponent',
+      MonacoComponent
+    );
+    this._layout.registerComponentConstructor(
+      'MarkersComponent',
+      MarkersComponent
+    );
+
+    this._layout.loadLayout(layout_config);
+    const editor = (
+      this._layout.findFirstComponentItemById('editor')
+        ?.component as MonacoComponent
+    ).editor;
+    const markers = this._layout.findFirstComponentItemById('markers')
+      ?.component as MarkersComponent;
+
+    monaco.editor.onDidChangeMarkers(() => {
+      const ms = monaco.editor.getModelMarkers({
+        resource: editor.getModel()?.uri,
+      });
+      markers.update(ms);
     });
   }
 }
