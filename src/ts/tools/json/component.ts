@@ -89,8 +89,6 @@ export class JSONComponent extends ComponentBase {
 
     this.title = 'JSON';
 
-    console.log(this.container.initialState);
-
     const shadow = this.rootHtmlElement.attachShadow({ mode: 'open' });
     shadow.adoptedStyleSheets = [style];
     shadow.appendChild(template.content.cloneNode(true));

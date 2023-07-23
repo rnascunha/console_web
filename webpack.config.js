@@ -9,7 +9,6 @@ let commit_hash = require('child_process')
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const config = {
-  extends: [require.resolve('./src/tools/webpack.tool')],
   entry: {
     main: path.resolve(__dirname, './src/ts/main.ts'),
   },
@@ -105,6 +104,6 @@ const config = {
 
 module.exports = (env, args) => {
   if (args.mode === 'development')
-    config.extends.push(require.resolve('./src/tests/webpack.test'));
+    config.extends = [require.resolve('./src/tests/webpack.test')];
   return config;
 };

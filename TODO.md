@@ -13,6 +13,7 @@
 - [x] Github Actions auto publish tool
 - [x] change project name (Console Web?)
 - [ ] Save output data to file. Make it loadable inside de application.
+- [ ] Chunks are too big. Split it.
 - [x] Add persistent data.
 - [ ] Add keyboard shortcuts.
 - [ ] Document it :| (code and manual)
@@ -72,3 +73,4 @@
 - [ ] Add more time functionties to timestamp tool. Ex.: Cronometer, map with clock citys/timezones
 - [ ] Generate Cripto keys (CA, private/public keys);
 - [ ] Darta parses: JSON...
+- [ ] ESP32 features: flash binary...

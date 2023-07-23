@@ -158,6 +158,8 @@ export class ConsoleApp {
                                       "body" auto`;
       this._layout.checkAddDefaultPopinButton();
     } else this._layout.loadLayout(console_layout);
+
+    this.open_link();
   }
 
   private bind_component(
@@ -403,6 +405,23 @@ export class ConsoleApp {
       const tool = this._tool_list.tool(name);
       if (tool === undefined) return;
       this._layout.addComponent(tool.name, tool.open());
+    });
+  }
+
+  private open_link(): void {
+    const url = new URL(window.location.href);
+
+    url.searchParams.forEach((value, key) => {
+      switch (key) {
+        case 'header':
+          if (value === 'false') this.hide_header();
+          break;
+        case 'tool': {
+          const tool = this._tool_list.tool(value);
+          if (tool !== undefined && typeof tool.open_link === 'function')
+            this._layout.addComponent(tool.name, tool.open_link(url));
+        }
+      }
     });
   }
 

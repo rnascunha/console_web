@@ -1,6 +1,6 @@
 import type { JsonValue } from 'golden-layout';
 
-export class Tool {
+export abstract class Tool {
   private readonly _name: string;
   private readonly _component: any;
   private _state: JsonValue = {};
@@ -18,13 +18,15 @@ export class Tool {
     return this._component;
   }
 
-  set_state(state: JsonValue): void {
+  public set_state(state: JsonValue): void {
     this._state = state;
   }
 
-  open(): JsonValue {
-    return JSON.stringify(this._state);
+  public open(): JsonValue {
+    return this._state;
   }
+
+  public open_link?(url: URL): JsonValue;
 }
 
 export class ToolList {

@@ -66,6 +66,7 @@ const template = (function () {
       <label><input type=checkbox name=encode value=base64></label>
     </div>
     <div id=options>
+      <button id=get-link>Link 🔗</button>
       <input-file id=file>File</input-file>
       <fieldset>
         <legend>Bytes</legend>
@@ -99,19 +100,13 @@ export class InputDump extends HTMLElement {
   constructor(options: InputDumpOptions = {}) {
     super();
 
-    this.attachShadow({ mode: 'open' });
-    this.shadowRoot?.appendChild(template.content.cloneNode(true));
+    const shadow = this.attachShadow({ mode: 'open' });
+    shadow.appendChild(template.content.cloneNode(true));
 
-    this._input = this.shadowRoot?.querySelector(
-      '#input'
-    ) as BinaryInputAreaRadio;
-    this._dump = this.shadowRoot?.querySelector('#dump') as BinaryDump;
-    this._breakline = this.shadowRoot?.querySelector(
-      '#breakline'
-    ) as HTMLInputElement;
-    this._size_bytes = this.shadowRoot?.querySelector(
-      '#size-bytes'
-    ) as HTMLSpanElement;
+    this._input = shadow.querySelector('#input') as BinaryInputAreaRadio;
+    this._dump = shadow.querySelector('#dump') as BinaryDump;
+    this._breakline = shadow.querySelector('#breakline') as HTMLInputElement;
+    this._size_bytes = shadow.querySelector('#size-bytes') as HTMLSpanElement;
 
     Promise.all([
       customElements.whenDefined('binary-dump'),
@@ -131,10 +126,15 @@ export class InputDump extends HTMLElement {
           update();
         };
 
-        (this.shadowRoot?.querySelector('#file') as InputFile).on(
-          'change',
-          file_handler
-        );
+        shadow.querySelector('#get-link')?.addEventListener('click', ev => {
+          this.dispatchEvent(
+            new CustomEvent('get-link', {
+              detail: this.state,
+            })
+          );
+        });
+
+        (shadow.querySelector('#file') as InputFile).on('change', file_handler);
 
         const update = (): void => {
           const d = this._input.data;
@@ -142,12 +142,7 @@ export class InputDump extends HTMLElement {
           this._size_bytes.textContent = d.length.toString();
           this.dispatchEvent(
             new CustomEvent('state', {
-              detail: {
-                data: base64_encode(this._input.data),
-                encode: this._input.encode,
-                breakline: +this._breakline.value,
-                hide: this._dump.hided,
-              },
+              detail: this.state,
             })
           );
         };
@@ -163,7 +158,7 @@ export class InputDump extends HTMLElement {
         });
         this._dump.hide(...(options.hide ?? []));
 
-        this.shadowRoot?.querySelectorAll('input[name=encode]').forEach(v => {
+        shadow.querySelectorAll('input[name=encode]').forEach(v => {
           const i = v as HTMLInputElement;
           i.onclick = () => {
             if (i.checked) this._dump.show(i.value as Encoding);

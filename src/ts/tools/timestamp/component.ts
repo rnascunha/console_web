@@ -2,6 +2,7 @@ import { ComponentBase } from '../../golden-components/component-base';
 import type { ComponentContainer, JsonValue } from 'golden-layout';
 import { ClockApp } from './clock';
 import { TimestampApp } from './timestamp';
+import type { TimestampOptions } from './types';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -32,6 +33,7 @@ const template = (function () {
       font-weight: bold;
     }
   </style>
+  <button id=get-link>Link 🔗</button>
   <h2>Clocks</h2>
   <div id=clock-app></div>
   <h2>Timestamps</h2>
@@ -49,23 +51,28 @@ export class TimestampComponent extends ComponentBase {
   ) {
     super(container, virtual);
 
-    this._state = JSON.parse(state as string);
+    this._state = state as TimestampOptions;
 
     this.rootHtmlElement.style.overflow = 'auto';
 
     this.title = 'Timestamp';
-    this.rootHtmlElement.attachShadow({ mode: 'open' });
-    this.rootHtmlElement.shadowRoot?.appendChild(
-      template.content.cloneNode(true)
-    );
+    const shadow = this.rootHtmlElement.attachShadow({ mode: 'open' });
+    shadow.appendChild(template.content.cloneNode(true));
+
+    shadow.querySelector('#get-link')?.addEventListener('click', () => {
+      const link = make_link(
+        this.container.componentType as string,
+        this._state,
+        true
+      );
+      navigator.clipboard.writeText(link).finally(() => {});
+    });
 
     /**
      *
      */
     const clock_app = new ClockApp(
-      this.rootHtmlElement.shadowRoot?.querySelector(
-        '#clock-app'
-      ) as HTMLElement,
+      shadow.querySelector('#clock-app') as HTMLElement,
       this._state.clocks ?? []
     );
 
@@ -75,9 +82,7 @@ export class TimestampComponent extends ComponentBase {
     });
 
     const timestamp_app = new TimestampApp(
-      this.rootHtmlElement.shadowRoot?.querySelector(
-        '#timestamp-app'
-      ) as HTMLElement,
+      shadow.querySelector('#timestamp-app') as HTMLElement,
       this._state.timestamp ?? []
     );
 
@@ -90,6 +95,28 @@ export class TimestampComponent extends ComponentBase {
       clock_app.stop();
     });
 
-    this.container.stateRequestEvent = () => JSON.stringify(this._state);
+    this.container.stateRequestEvent = () => this._state;
   }
+}
+
+function make_link(
+  name: string,
+  state: TimestampOptions,
+  fulllink: boolean = true
+): string {
+  let link = `${fulllink ? window.location.origin : ''}${
+    window.location.pathname
+  }?tool=${name}`;
+
+  if (state.clocks !== undefined && state.clocks?.length > 0)
+    link += `&clocks=${state.clocks.join(',')}`;
+
+  if (state.timestamp !== undefined && state.timestamp?.length > 0)
+    link += `&timestamp=${state.timestamp
+      .map(v => {
+        return `${v.timezone},${v.timestamp}`;
+      })
+      .join(';')}`;
+
+  return link;
 }
