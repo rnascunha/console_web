@@ -6,9 +6,10 @@ let commit_hash = require('child_process')
   .toString()
   .trim();
 
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
-const config = {
+const common = {
   entry: {
     main: path.resolve(__dirname, './src/ts/main.ts'),
   },
@@ -17,20 +18,6 @@ const config = {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
-  },
-
-  devtool: 'cheap-module-source-map',
-
-  devServer: {
-    port: 3000,
-    static: [
-      {
-        directory: path.resolve(__dirname, 'dist'),
-      },
-    ],
-    devMiddleware: {
-      writeToDisk: true,
-    },
   },
 
   resolve: {
@@ -45,11 +32,6 @@ const config = {
           loader: 'ts-loader',
         },
         exclude: /node_modules/,
-      },
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
-        exclude: /editor\.main\.css$/,
       },
       {
         test: /\.js$/,
@@ -102,8 +84,50 @@ const config = {
   ],
 };
 
+const production = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        exclude: /editor\.main\.css$/,
+      },
+    ],
+  },
+  plugins: [new MiniCssExtractPlugin()],
+};
+
+const development = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+        exclude: /editor\.main\.css$/,
+      },
+    ],
+  },
+};
+
 module.exports = (env, args) => {
-  if (args.mode === 'development')
-    config.extends = [require.resolve('./src/tests/webpack.test')];
-  return config;
+  if (args.mode === 'development') {
+    common.extends = [require.resolve('./src/tests/webpack.test')];
+    common.module.rules.splice(0, 0, ...development.module.rules);
+    (common.devtool = 'cheap-module-source-map'),
+      (common.devServer = {
+        port: 3000,
+        static: [
+          {
+            directory: path.resolve(__dirname, 'dist'),
+          },
+        ],
+        devMiddleware: {
+          writeToDisk: true,
+        },
+      });
+  } else if (args.mode === 'production') {
+    common.module.rules.splice(0, 0, ...production.module.rules);
+    common.plugins.splice(0, 0, ...production.plugins);
+  } else throw new Error('Mode not defined');
+  return common;
 };

@@ -16,8 +16,6 @@ export class InputDockDumpComponent extends ComponentBase {
   ) {
     super(container, virtual);
 
-    console.log(container.componentType);
-
     this.title = 'Input Dump';
     this._input_dump = new InputDump(state as InputDumpOptions);
 
