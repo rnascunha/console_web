@@ -8,11 +8,8 @@ let commit_hash = require('child_process')
 
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
-module.exports = {
-  extends: [
-    require.resolve('./src/tests/webpack.test'),
-    require.resolve('./src/tools/webpack.tool'),
-  ],
+const config = {
+  extends: [require.resolve('./src/tools/webpack.tool')],
   entry: {
     main: path.resolve(__dirname, './src/ts/main.ts'),
   },
@@ -60,10 +57,6 @@ module.exports = {
         enforce: 'pre',
         use: ['source-map-loader'],
       },
-      // {
-      //   test: /\.less$/,
-      //   use: ['style-loader', 'css-loader', 'less-loader'],
-      // },
       {
         // monaco-editor
         test: /\.ttf$|\.png/,
@@ -108,4 +101,10 @@ module.exports = {
       __COMMIT_HASH__: JSON.stringify(commit_hash),
     }),
   ],
+};
+
+module.exports = (env, args) => {
+  if (args.mode === 'development')
+    config.extends.push(require.resolve('./src/tests/webpack.test'));
+  return config;
 };

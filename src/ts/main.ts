@@ -9,13 +9,10 @@ import './web-components/binary-input/text-area-radio-binary';
 import './web-components/input-file/input-file';
 import './web-components/input-dump/input-dump';
 import './web-components/calendar/calendar-timestamp';
-import './web-components/split-view/split-vertical';
+import './web-components/dropdown-menu/dropdown-menu';
 
 // Importing style
-import '../css/reset.css';
-import '../css/style.css';
-import '../css/serial.css';
-import '../css/window.css';
+import '../css/all.css';
 
 // Importing third party library style
 import 'xterm/css/xterm.css';

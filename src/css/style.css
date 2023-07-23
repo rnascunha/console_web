@@ -14,62 +14,6 @@ body {
     'body' auto;
 }
 
-#header {
-  display: flex;
-  align-items: center;
-}
-
-#open-header {
-  display: none;
-  height: 30px;
-  width: 30px;
-  position: absolute;
-  top: -15px;
-  right: -15px;
-  border-radius: 15px;
-  z-index: 100;
-  cursor: pointer;
-  background: radial-gradient(
-    circle,
-    rgba(249, 255, 0, 1) 13%,
-    rgba(133, 132, 51, 0.1) 84%
-  );
-  transition: all ease 0.5s;
-}
-
-#open-header:hover {
-  height: 60px;
-  width: 60px;
-  top: -30px;
-  right: -30px;
-  border-radius: 30px;
-}
-
-#title {
-  margin: 0px;
-  flex-grow: 1;
-  text-align: center;
-  text-transform: uppercase;
-  font-family: monospace;
-}
-
-#options {
-  display: inline-flex;
-  align-items: center;
-}
-
-.option {
-  cursor: pointer;
-  border-radius: 10px;
-  padding: 3px;
-  font-size: x-large;
-}
-
-.option:hover {
-  background-color: black;
-  color: white;
-}
-
 #error {
   background-color: red;
   color: white;
@@ -88,26 +32,4 @@ body {
 
 .btn-not-pressed {
   border-style: outset;
-}
-
-/**
- *
- */
-#golden {
-  overflow: hidden;
-  height: 100%;
-  /* background: url(../../img/background.jpg); */
-}
-
-/* .lm_goldenlayout {
-  background-color: transparent !important;
-} */
-
-.golden-content {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  padding: 0px;
-  margin: 0px;
 }

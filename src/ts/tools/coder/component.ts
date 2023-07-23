@@ -51,8 +51,8 @@ const layout_config: LayoutConfig = {
         isClosable: false,
         hasHeaders: false,
         componentState: {
-          value: '{"test": 1, "icon": "my icon"}',
-          language: 'json',
+          value: "function hello(){\n\tconsole.log('Hello, world');\n}",
+          language: 'javascript',
           // theme: 'vs-dark',
         },
         id: 'editor',

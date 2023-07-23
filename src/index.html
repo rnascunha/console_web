@@ -17,12 +17,24 @@
       </div>
       <h1 id="title">Console Web</h1>
       <div id="options">
-        <span id="coder-tool" class="option">&#x2328;</span>
-        <span id="json-tool" class="option">&#x24BF;</span>
-        <span id="time-tool" class="option">&#x1F310;</span>
-        <span id="tools" class="option">&#9874;</span>
-        <span id="setup" class="option">&#x2699;</span>
-        <span id="close" class="option">&#10006;</span>
+        <dropdown-menu id="menu-tools">
+          <span id="tools-header" title="tools" slot="menu"
+            ><span style="font-size: x-large">&#9874;</span
+            ><span>&#9660;</span></span
+          >
+          <span id="binary-dump" title="Binary Dump" class="option tool"
+            >&#x232F;</span
+          >
+          <span id="time-tool" title="Timestamp" class="option tool"
+            >&#x1F310;</span
+          >
+          <span id="coder-tool" title="Coder" class="option tool"
+            >&#x2328;</span
+          >
+          <span id="json-tool" title="JSON" class="option tool">&#x24BF;</span>
+        </dropdown-menu>
+        <span id="setup" title="Setup" class="option">&#x2699;</span>
+        <span id="close" title="Close Header" class="option">&#10006;</span>
       </div>
     </div>
     <div id="golden"></div>

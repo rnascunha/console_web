@@ -107,7 +107,7 @@ export class ConsoleApp {
       proto_container.appendChild(app.element);
     });
 
-    this.init_tool('#tools', 'input_dump');
+    this.init_tool('#binary-dump', 'input_dump');
     this.init_tool('#time-tool', 'timestamp');
     this.init_tool('#coder-tool', 'coder');
     this.init_tool('#json-tool', 'json');
