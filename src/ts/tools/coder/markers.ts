@@ -68,7 +68,12 @@ export class MarkersComponent extends ComponentBase {
 
   public update(markers: monaco.editor.IMarkerData[]): void {
     this._output.innerHTML = '';
-    if (markers.length === 0) return;
+    if (markers.length === 0) {
+      this.title = 'Problems';
+      return;
+    }
+
+    this.title = `Problems (${markers.length})`;
 
     markers.forEach(m => {
       const pre = document.createElement('pre');

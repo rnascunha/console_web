@@ -8,9 +8,13 @@ import {
 import { ComponentBase } from '../../golden-components/component-base';
 import { MonacoComponent } from '../../golden-components/monaco';
 import { MarkersComponent } from './markers';
+import { OutputComponent } from './output';
+import type { CoderOptions } from './types';
+
 import * as monaco from 'monaco-editor';
 
 import style from '../../../css/golden-layout.less';
+import { base64_encode_string } from '../../libs/base64';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -23,6 +27,7 @@ const template = (function () {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    display: flex;
   }
 
   #container {
@@ -33,7 +38,31 @@ const template = (function () {
     padding: 0;
   }
 
+  #menu {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    font-size: x-large;
+    color: white;
+  }
+
+  .icon {
+    padding: 2px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .icon:hover {
+    background-color: white;
+    color: black;
+  }
+
   </style>
+  <div id=menu>
+    <span id=execute class=icon>&#x25B6;</span>
+    <span id=get-link class=icon>&#x1F517;</span>
+  </div>
   <div id=container></div>`;
   return template;
 })();
@@ -49,22 +78,40 @@ const layout_config: LayoutConfig = {
         type: ItemType.component,
         componentType: 'MonacoComponent',
         isClosable: false,
-        hasHeaders: false,
         componentState: {
-          value: "function hello(){\n\tconsole.log('Hello, world');\n}",
+          value: '',
           language: 'javascript',
           // theme: 'vs-dark',
         },
         id: 'editor',
       },
       {
-        type: ItemType.component,
-        componentType: 'MarkersComponent',
+        type: ItemType.stack,
+        size: '30%',
+        isClosable: false,
         header: {
           popout: false,
         },
-        size: '30%',
-        id: 'markers',
+        content: [
+          {
+            type: ItemType.component,
+            componentType: 'MarkersComponent',
+            isClosable: false,
+            header: {
+              popout: false,
+            },
+            id: 'markers',
+          },
+          {
+            type: ItemType.component,
+            componentType: 'OutputComponent',
+            isClosable: false,
+            header: {
+              popout: false,
+            },
+            id: 'output',
+          },
+        ],
       },
     ],
   },
@@ -82,6 +129,8 @@ export class CoderComponent extends ComponentBase {
 
     this.title = 'Coder';
 
+    const opt = state as CoderOptions;
+
     const shadow = this.rootHtmlElement.attachShadow({ mode: 'open' });
     shadow.appendChild(template.content.cloneNode(true));
     shadow.adoptedStyleSheets = [style];
@@ -98,14 +147,22 @@ export class CoderComponent extends ComponentBase {
       'MarkersComponent',
       MarkersComponent
     );
+    this._layout.registerComponentConstructor(
+      'OutputComponent',
+      OutputComponent
+    );
 
     this._layout.loadLayout(layout_config);
     const editor = (
       this._layout.findFirstComponentItemById('editor')
         ?.component as MonacoComponent
     ).editor;
+    editor.setValue(opt.value ?? '');
+
     const markers = this._layout.findFirstComponentItemById('markers')
       ?.component as MarkersComponent;
+    const output = this._layout.findFirstComponentItemById('output')
+      ?.component as OutputComponent;
 
     monaco.editor.onDidChangeMarkers(() => {
       const ms = monaco.editor.getModelMarkers({
@@ -113,5 +170,44 @@ export class CoderComponent extends ComponentBase {
       });
       markers.update(ms);
     });
+
+    editor.onDidChangeModelContent(() => {
+      window.console_app.set_tool_state(
+        'coder',
+        { value: editor.getValue() },
+        true
+      );
+    });
+
+    shadow.querySelector('#execute')?.addEventListener('click', () => {
+      output.container.focus();
+      try {
+        console.log(eval(editor.getValue()));
+        output.update('Code run');
+      } catch (e) {
+        output.update((e as Error).message);
+      }
+    });
+
+    shadow.querySelector('#get-link')?.addEventListener('click', () => {
+      navigator.clipboard
+        .writeText(make_link('coder', { value: editor.getValue() }, true))
+        .finally(() => {});
+    });
   }
+}
+
+function make_link(
+  name: string,
+  state: CoderOptions,
+  fulllink: boolean = true
+): string {
+  let link = `${fulllink ? window.location.origin : ''}${
+    window.location.pathname
+  }?tool=${name}`;
+
+  if (state.value !== undefined && state.value.length > 0)
+    link += `&value=${base64_encode_string(state.value)}`;
+
+  return link;
 }
