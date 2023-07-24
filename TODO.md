@@ -42,7 +42,8 @@
 - [x] Serial issueing 2 disconnect messages
 - [ ] Necessary to treat loading big files (`input-dump` tool for example). Need to slice?
 - [x] How to import `css` files as modules? Use to import local styles at `tools`/`apps`/`setup` inside shadowDOMs.
-- [ ] Flywindows (`draggable-popout`) should be resizeable. Also big content should scroll only the body (not all the window as is now).
+- [x] Flywindows (`draggable-popout`) should be resizeable.
+- [ ] Content should scroll only the body (not all the window as is now).
 
 ## Apps
 
