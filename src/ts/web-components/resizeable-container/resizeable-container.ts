@@ -1,3 +1,7 @@
+/**
+ * https://htmldom.dev/make-a-resizable-element/
+ */
+
 const template = (function () {
   const template = document.createElement('template');
   template.innerHTML = `
