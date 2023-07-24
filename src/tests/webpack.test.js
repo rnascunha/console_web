@@ -6,6 +6,10 @@ module.exports = {
     split_vertical: path.resolve(__dirname, './split-vertical/test.ts'),
     split_horizontal: path.resolve(__dirname, './split-horizontal/test.ts'),
     dropdown_menu: path.resolve(__dirname, './dropdown-menu/test.ts'),
+    resizeable_container: path.resolve(
+      __dirname,
+      './resizeable-container/test.ts'
+    ),
     test: path.resolve(__dirname, './test/test.ts'),
   },
   plugins: [
@@ -23,6 +27,11 @@ module.exports = {
       chunks: ['dropdown_menu'],
       filename: 'dropdown_menu.html',
       template: path.resolve(__dirname, './dropdown-menu/test.html'),
+    }),
+    new HtmlWebpackPlugin({
+      chunks: ['resizeable_container'],
+      filename: 'resizeable_container.html',
+      template: path.resolve(__dirname, './resizeable-container/test.html'),
     }),
     new HtmlWebpackPlugin({
       chunks: ['test'],

@@ -21,8 +21,13 @@ export function create_window(
 
   dp.appendChild(header);
 
+  const resizer = document.createElement('resizeable-container');
   body.classList.add('window-body');
-  dp.appendChild(body);
+  resizer.appendChild(body);
+  dp.appendChild(resizer);
+
+  // body.classList.add('window-body');
+  // dp.appendChild(body);
 
   if (options?.hide_undock === true) {
     dp.hide_undock();

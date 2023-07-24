@@ -10,6 +10,7 @@ import './web-components/input-file/input-file';
 import './web-components/input-dump/input-dump';
 import './web-components/calendar/calendar-timestamp';
 import './web-components/dropdown-menu/dropdown-menu';
+import './web-components/resizeable-container/resizeable-container';
 
 // Importing style
 import '../css/all.css';

@@ -8,7 +8,7 @@ const template = (function () {
       height: fit-content;
       max-height: 90%;
       overflow: auto;
-      resize: both;
+      /* resize: both; */
     }
 
     #header {

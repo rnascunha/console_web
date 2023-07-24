@@ -71,13 +71,13 @@ const template = (function () {
       }
 
       .hovered {
-        background-color: blueviolet;
+        background-color: rgba(138, 43, 226, 0.6);
         font-weight: bold;
         border-radius: 8px;
       }
       
       .selected {
-        background-color: coral;
+        background-color: rgba(255, 127, 80, 0.6);
         font-weight: bold;
         border-radius: 8px;
       }

@@ -18,9 +18,14 @@
 - [ ] Add keyboard shortcuts.
 - [ ] Document it :| (code and manual)
 
+### Setup
+
+- [ ] Erase data by app, tool.
+
 ### Brainstorm
 
 - [ ] On site clipboard to copy "things" to be copied in app;
+- [ ] Make 'variable' to be used all over the application;
 - [ ] Notification board;
 - [ ] Statistic data (per app, interface...);
 - [ ] Different outputs/parsers:
