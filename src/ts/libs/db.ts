@@ -15,7 +15,7 @@ export async function open(
     openRequest.onupgradeneeded = ev => {
       const db: IDBDatabase = (ev.target as IDBOpenDBRequest).result;
 
-      ['protocol', 'apps', 'tools'].forEach(os => {
+      ['protocol', 'apps', 'tools', 'setup'].forEach(os => {
         const transaction = db.createObjectStore(os).transaction;
         // transaction.oncomplete = () => {};
         transaction.onerror = ev => {

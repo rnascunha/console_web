@@ -60,8 +60,8 @@ const template = (function () {
 
   </style>
   <div id=menu>
-    <span id=execute class=icon>&#x25B6;</span>
-    <span id=get-link class=icon>&#x1F517;</span>
+    <span id=execute title="Execute" class=icon>&#x25B6;</span>
+    <span id=get-link title="Link" class=icon>&#x1F517;</span>
   </div>
   <div id=container></div>`;
   return template;

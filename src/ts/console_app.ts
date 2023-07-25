@@ -16,7 +16,7 @@ import {
 import { type AppOpenParameters, type App, AppList } from './apps/app';
 import { type Tool, ToolList } from './tools/tools';
 import { open as open_db, type DB } from './libs/db';
-import { Setup } from './setup/setup';
+import { Setup, type SetupOptions } from './setup/setup';
 
 // Binary dump window
 import { BinaryDump } from './web-components/binary-dump/binary-dump';
@@ -67,11 +67,14 @@ export class ConsoleApp {
     this._app_list = new AppList(app_list);
     this._tool_list = new ToolList(tool_list);
 
+    const setup = new Setup();
+
     this.load_db()
       .then(async () => {
-        await this.update_state();
+        await this.update_state(setup);
       })
       .finally(() => {
+        this.open_link(setup);
         this._sel_protocols.dispatchEvent(new Event('change'));
       });
 
@@ -138,7 +141,6 @@ export class ConsoleApp {
       if (ev.key === 'Enter') this.open();
     };
 
-    const setup = new Setup();
     setup.on('delete_db', () => {
       this._db
         ?.clear(true)
@@ -153,13 +155,15 @@ export class ConsoleApp {
       setup.open(this._layout);
     });
 
+    setup.on('state', state => {
+      this._db?.write('setup', 'state', state).finally(() => {});
+    });
+
     if (this._layout.isSubWindow) {
       container.style.gridTemplate = `"header" 0px
                                       "body" auto`;
       this._layout.checkAddDefaultPopinButton();
     } else this._layout.loadLayout(console_layout);
-
-    this.open_link();
   }
 
   private bind_component(
@@ -336,12 +340,13 @@ export class ConsoleApp {
     }
   }
 
-  private async update_state(): Promise<void> {
+  private async update_state(setup: Setup): Promise<void> {
     if (this._db === undefined) return;
 
     await Promise.allSettled([
       this._db.read_entries('apps'),
       this._db.read_entries('tools'),
+      this._db.read_entries('setup'),
     ]).then(results => {
       if (results[0].status === 'fulfilled') {
         Object.entries(results[0].value).forEach(
@@ -356,6 +361,9 @@ export class ConsoleApp {
             this.set_tool_state(tool_name, state, false);
           }
         );
+      }
+      if (results[2].status === 'fulfilled') {
+        setup.set_state(results[2].value.state as SetupOptions);
       }
     });
   }
@@ -408,13 +416,16 @@ export class ConsoleApp {
     });
   }
 
-  private open_link(): void {
+  private open_link(setup: Setup): void {
     const url = new URL(window.location.href);
 
     url.searchParams.forEach((value, key) => {
       switch (key) {
         case 'header':
           if (value === 'false') this.hide_header();
+          break;
+        case 'coder-theme':
+          setup.update_state({ coder_theme: value });
           break;
         case 'tool': {
           const tool = this._tool_list.tool(value);
