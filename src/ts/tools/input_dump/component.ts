@@ -17,11 +17,14 @@ export class InputDockDumpComponent extends ComponentBase {
     super(container, virtual);
 
     this.title = 'Input Dump';
+
     this._input_dump = new InputDump(state as InputDumpOptions);
+    setTimeout(() => {
+      this._input_dump.focus();
+    }, 0);
 
     this.rootHtmlElement.appendChild(this._input_dump);
     this._input_dump.addEventListener('state', ev => {
-      this._input_dump.state = (ev as CustomEvent).detail;
       window.console_app.set_tool_state(
         'input_dump',
         this._input_dump.state,

@@ -1,3 +1,5 @@
+import './text-binary';
+
 import { type Encoding, encoding } from '../../libs/binary-dump';
 import type { BinaryInput } from './text-binary';
 

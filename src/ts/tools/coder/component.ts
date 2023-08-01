@@ -15,6 +15,7 @@ import * as monaco from 'monaco-editor';
 
 import style from '../../../css/golden-layout.less';
 import { base64_encode_string } from '../../libs/base64';
+import { download } from '../../helper/download';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -51,6 +52,7 @@ const template = (function () {
     padding: 2px 4px;
     border-radius: 4px;
     cursor: pointer;
+    margin: 3px auto;
   }
 
   .icon:hover {
@@ -58,9 +60,30 @@ const template = (function () {
     color: black;
   }
 
+  /* Chrome, Safari, Edge, Opera */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  input[type=number] {
+    text-align: center;
+    -moz-appearance: textfield;
+    width: 90%;
+    outline: none;
+    padding: 0;
+    border-radius: 4px;
+  }
+
   </style>
   <div id=menu>
     <span id=execute title="Execute" class=icon>&#x25B6;</span>
+    <span id=save title="Save file" class=icon>&#x1F4BE;</span>
+    <span id=indent title="Format (Ctrl + Shift + i)" class=icon>&#11078;</span>
+    <input type=number min=0 max=10 value=0 title="Indent space" />
+    <span id=copy title=Copy class=icon>&boxbox;</span>
     <span id=get-link title="Link" class=icon>&#x1F517;</span>
   </div>
   <div id=container></div>`;
@@ -81,7 +104,6 @@ const layout_config: LayoutConfig = {
         componentState: {
           value: '',
           language: 'javascript',
-          // theme: 'vs-dark',
         },
         id: 'editor',
       },
@@ -194,6 +216,47 @@ export class CoderComponent extends ComponentBase {
         .writeText(make_link('coder', { value: editor.getValue() }, true))
         .finally(() => {});
     });
+
+    shadow.querySelector('#indent')?.addEventListener('click', () => {
+      editor
+        .getAction('editor.action.formatDocument')
+        ?.run()
+        .finally(() => {});
+    });
+
+    shadow.querySelector('#copy')?.addEventListener('click', () => {
+      navigator.clipboard.writeText(editor.getValue()).finally(() => {});
+    });
+
+    shadow.querySelector('#save')?.addEventListener('click', ev => {
+      download('coder.js', editor.getValue());
+    });
+
+    // editor.addAction({
+    //   // An unique identifier of the contributed action.
+    //   id: 'save-file',
+    //   // A label of the action that will be presented to the user.
+    //   label: 'My Label!!!',
+
+    //   // An optional array of keybindings for the action.
+    //   keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+
+    //   // A precondition for this action.
+    //   precondition: undefined,
+
+    //   // A rule to evaluate on top of the precondition in order to dispatch the keybindings.
+    //   keybindingContext: undefined,
+
+    //   contextMenuGroupId: 'navigation',
+
+    //   contextMenuOrder: 1.5,
+
+    //   // Method that will be executed when the action is triggered.
+    //   // @param editor The editor instance is passed in as a convenience
+    //   run: function (ed) {
+    //     download('coder.js', ed.getValue());
+    //   },
+    // });
   }
 }
 

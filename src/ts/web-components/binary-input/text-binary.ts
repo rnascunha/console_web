@@ -70,6 +70,8 @@ export class BinaryInput extends HTMLElement {
       this._input.placeholder = this.getAttribute('placeholder') as string;
     }
 
+    if (this.hasAttribute('focus')) this.focus();
+
     this._input.disabled = this.hasAttribute('disabled');
   }
 
@@ -146,7 +148,7 @@ export class BinaryInput extends HTMLElement {
   private format(str: string): void {
     this._input.value = format(split(str, this._encode), this._encode, {
       separator: ' ',
-      pad: this.encode === 'base64' ? '' : '0',
+      // pad: this.encode === 'base64' ? '' : '0',
     });
   }
 }

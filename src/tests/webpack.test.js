@@ -10,6 +10,7 @@ module.exports = {
       __dirname,
       './resizeable-container/test.ts'
     ),
+    inputs: path.resolve(__dirname, './inputs/test.ts'),
     test: path.resolve(__dirname, './test/test.ts'),
   },
   plugins: [
@@ -32,6 +33,11 @@ module.exports = {
       chunks: ['resizeable_container'],
       filename: 'resizeable_container.html',
       template: path.resolve(__dirname, './resizeable-container/test.html'),
+    }),
+    new HtmlWebpackPlugin({
+      chunks: ['inputs'],
+      filename: 'inputs.html',
+      template: path.resolve(__dirname, './inputs/test.html'),
     }),
     new HtmlWebpackPlugin({
       chunks: ['test'],

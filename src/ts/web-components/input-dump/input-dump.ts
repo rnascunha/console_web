@@ -1,3 +1,7 @@
+import '../binary-dump/binary-dump';
+import '../binary-input/text-area-radio-binary';
+import '../input-file/input-file';
+
 import { base64_decode, base64_encode } from '../../libs/base64';
 import { encoding, type Encoding } from '../../libs/binary-dump';
 import { AlertMessage } from '../alert-message/alert-message';
@@ -171,6 +175,10 @@ export class InputDump extends HTMLElement {
         update();
       })
       .finally(() => {});
+  }
+
+  public override focus(): void {
+    this._input.focus();
   }
 
   public set state(s: InputDumpOptions) {

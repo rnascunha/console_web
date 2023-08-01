@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Binary Input Tests</title>
+    <style>
+      .container {
+        border: 1px solid black;
+        border-radius: 10px;
+        padding: 5px;
+        margin: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="text-binary-container" class="container">
+      <text-binary id="text-binary" placeholder="Data" focus></text-binary>
+      <select id="encoding"></select>
+      <binary-dump id="text-binary-output"></binary-dump>
+    </div>
+    <div id="text-area-binary-container" class="container">
+      <text-area-binary
+        id="text-area-binary"
+        placeholder="Data"
+        focus
+      ></text-area-binary>
+      <select id="encoding-area"></select>
+      <binary-dump id="text-area-binary-output"></binary-dump>
+    </div>
+    <div id="text-area-radio-binary-container" class="container">
+      <text-area-radio-binary
+        id="text-area-radio-binary"
+        placeholder="Data"
+        focus
+      ></text-area-radio-binary>
+      <binary-dump id="text-area-radio-binary-output"></binary-dump>
+    </div>
+    <input-dump></input-dump>
+  </body>
+</html>

@@ -1,3 +1,5 @@
+import './text-area-binary';
+
 import { type Encoding, encoding } from '../../libs/binary-dump';
 import type { BinaryAreaInput } from './text-area-binary';
 
