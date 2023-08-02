@@ -29,6 +29,20 @@ const template = (function () {
       flex-grow: 1;
     }
 
+    #file {
+      border: 1px solid black;
+      border-radius: 3px;
+      width: 100%;
+      display: inline-block;
+      box-sizing: border-box;
+    }
+
+    #file-content {
+      display: inline-block;
+      width: 100%;
+      user-select: none;
+    }
+
     #hide {
       display: flex;
       flex-direction: column;
@@ -71,7 +85,7 @@ const template = (function () {
     </div>
     <div id=options>
       <button id=get-link>Link 🔗</button>
-      <input-file id=file>File</input-file>
+      <input-file id=file><span id=file-content>File</span></input-file>
       <fieldset>
         <legend>Bytes</legend>
         <span id=size-bytes>0</span>

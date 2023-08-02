@@ -7,6 +7,10 @@ const template = (function () {
   const template = document.createElement('template');
   template.innerHTML = `
   <style>
+    #container {
+      overflow: auto;
+    }
+
     .marker {
       color: white;
       margin: 0;

@@ -4,22 +4,14 @@ const template = (function () {
   <style>
     :host {
       position: relative;
-      border: 1px solid black;
-      border-radius: 3px;
-      box-sizing: border-box;
     }
 
     input {
       position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
+      top: -10000px;
       left: 0;
-      opacity: 0;
-      box-sizing: border-box;
     }
-  </style><slot></slot>
-  <input type=file />`;
+  </style><label><slot></slot><input type=file /></label>`;
 
   return template;
 })();
@@ -32,6 +24,17 @@ class InputFile extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.shadowRoot?.appendChild(template.content.cloneNode(true));
     this._input = this.shadowRoot?.querySelector('input') as HTMLInputElement;
+  }
+
+  public connectedCallback(): void {
+    if (this.hasAttribute('accept'))
+      this._input.setAttribute('accept', this.getAttribute('accept') as string);
+
+    if (this.hasAttribute('multiple'))
+      this._input.setAttribute(
+        'multiple',
+        this.getAttribute('multiple') as string
+      );
   }
 
   public on(

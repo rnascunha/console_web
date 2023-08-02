@@ -1,12 +1,15 @@
 import type { ComponentContainer, JsonValue } from 'golden-layout';
 import { ComponentBase } from '../../golden-components/component-base';
+import { roll_to_bottom } from '../../helper/element';
 
 const template = (function () {
   const template = document.createElement('template');
   template.innerHTML = `
   <style>
-    #container {
+    #output {
       color: white;
+      overflow: auto;
+      height: 100%;
     }
     
     .time:after {
@@ -47,5 +50,7 @@ export class OutputComponent extends ComponentBase {
     pre.appendChild(output);
 
     this._output.appendChild(pre);
+
+    roll_to_bottom(this._output);
   }
 }

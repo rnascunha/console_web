@@ -15,7 +15,7 @@ import * as monaco from 'monaco-editor';
 
 import style from '../../../css/golden-layout.less';
 import { base64_encode_string } from '../../libs/base64';
-import { download } from '../../helper/download';
+import { download, open_file_picker } from '../../helper/download';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -53,6 +53,8 @@ const template = (function () {
     border-radius: 4px;
     cursor: pointer;
     margin: 3px auto;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .icon:hover {
@@ -80,7 +82,8 @@ const template = (function () {
   </style>
   <div id=menu>
     <span id=execute title="Execute" class=icon>&#x25B6;</span>
-    <span id=save title="Save file" class=icon>&#x1F4BE;</span>
+    <span id=save title="Save file (Ctrl + S)" class=icon>&#x1F4BE;</span>
+    <input-file id=load title="Load file (Ctrl + O)" class=icon accept='.js'><span style=cursor:pointer>&#x1F4C2;</span></input-file>
     <span id=indent title="Format (Ctrl + Shift + i)" class=icon>&#11078;</span>
     <input type=number min=0 max=10 value=0 title="Indent space" />
     <span id=copy title=Copy class=icon>&boxbox;</span>
@@ -228,35 +231,53 @@ export class CoderComponent extends ComponentBase {
       navigator.clipboard.writeText(editor.getValue()).finally(() => {});
     });
 
-    shadow.querySelector('#save')?.addEventListener('click', ev => {
+    shadow.querySelector('#save')?.addEventListener('click', () => {
       download('coder.js', editor.getValue());
     });
 
-    // editor.addAction({
-    //   // An unique identifier of the contributed action.
-    //   id: 'save-file',
-    //   // A label of the action that will be presented to the user.
-    //   label: 'My Label!!!',
+    customElements
+      .whenDefined('input-file')
+      .then(() => {
+        (shadow.querySelector('#load') as InputFile).on('change', async ev => {
+          try {
+            const target = ev.target as HTMLInputElement;
+            const code = await read_file(target.files as FileList);
+            editor.setValue(code);
 
-    //   // An optional array of keybindings for the action.
-    //   keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+            target.value = '';
+          } catch (e) {}
+        });
+      })
+      .finally(() => {});
 
-    //   // A precondition for this action.
-    //   precondition: undefined,
+    editor.addAction({
+      id: 'save-file',
+      label: 'Save File',
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+      precondition: undefined,
+      keybindingContext: undefined,
+      contextMenuGroupId: 'navigation',
+      contextMenuOrder: 1.5,
+      run: function (ed) {
+        download('coder.js', ed.getValue());
+      },
+    });
 
-    //   // A rule to evaluate on top of the precondition in order to dispatch the keybindings.
-    //   keybindingContext: undefined,
-
-    //   contextMenuGroupId: 'navigation',
-
-    //   contextMenuOrder: 1.5,
-
-    //   // Method that will be executed when the action is triggered.
-    //   // @param editor The editor instance is passed in as a convenience
-    //   run: function (ed) {
-    //     download('coder.js', ed.getValue());
-    //   },
-    // });
+    editor.addAction({
+      id: 'load-file',
+      label: 'Load File',
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyO],
+      precondition: undefined,
+      keybindingContext: undefined,
+      contextMenuGroupId: 'navigation',
+      contextMenuOrder: 1.5,
+      run: async function (ed) {
+        const files = await open_file_picker({ accept: '.js' });
+        if (files === null) return;
+        const code = await read_file(files);
+        editor.setValue(code);
+      },
+    });
   }
 }
 
@@ -273,4 +294,10 @@ function make_link(
     link += `&value=${base64_encode_string(state.value)}`;
 
   return link;
+}
+
+async function read_file(files: FileList): Promise<string> {
+  if (files.length === 0) throw new Error('No file selected');
+  const file = files[0];
+  return await file.text();
 }

@@ -1,6 +1,7 @@
 import { time } from '../../helper/time';
 import { binary_to_ascii } from '../../libs/binary-dump';
 import { base64_encode2 } from '../../libs/base64';
+import { roll_to_bottom } from '../../helper/element';
 
 type TypeData = 'comm' | 'recv' | 'send' | 'error' | 'warn';
 
@@ -168,7 +169,7 @@ export default class DataDisplay extends HTMLElement {
   }
 
   public go_to_bottom(): void {
-    this._data.scrollTo(0, this._data.scrollHeight);
+    roll_to_bottom(this._data);
   }
 }
 
