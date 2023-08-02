@@ -1,7 +1,6 @@
 import type { JsonValue } from 'golden-layout';
 import { Tool } from '../tools';
-import { CoderComponent } from './component';
-import type { CoderOptions } from './types';
+import { CoderComponent, type CoderOptions } from './component';
 import { base64_decode } from '../../libs/base64';
 
 export class CoderTool extends Tool {

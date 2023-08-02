@@ -1,5 +1,5 @@
 import type { ComponentContainer, JsonValue } from 'golden-layout';
-import { ComponentBase } from '../../golden-components/component-base';
+import { ComponentBase } from './component-base';
 
 import * as monaco from 'monaco-editor';
 
@@ -7,8 +7,9 @@ const template = (function () {
   const template = document.createElement('template');
   template.innerHTML = `
   <style>
-    #container {
+    #markers {
       overflow: auto;
+      height: 100%;
     }
 
     .marker {
@@ -33,7 +34,7 @@ const template = (function () {
       background-color: black;
     }
   </style>
-  <div id=container></div>`;
+  <div id=markers></div>`;
 
   return template;
 })();
@@ -66,7 +67,7 @@ export class MarkersComponent extends ComponentBase {
 
     this.rootHtmlElement.appendChild(template.content.cloneNode(true));
     this._output = this.rootHtmlElement.querySelector(
-      '#container'
+      '#markers'
     ) as HTMLElement;
   }
 

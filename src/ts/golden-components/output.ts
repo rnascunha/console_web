@@ -1,6 +1,6 @@
 import type { ComponentContainer, JsonValue } from 'golden-layout';
-import { ComponentBase } from '../../golden-components/component-base';
-import { roll_to_bottom } from '../../helper/element';
+import { ComponentBase } from './component-base';
+import { roll_to_bottom } from '../helper/element';
 
 const template = (function () {
   const template = document.createElement('template');

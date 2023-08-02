@@ -7,15 +7,18 @@ import {
 } from 'golden-layout';
 import { ComponentBase } from '../../golden-components/component-base';
 import { MonacoComponent } from '../../golden-components/monaco';
-import { MarkersComponent } from './markers';
-import { OutputComponent } from './output';
-import type { CoderOptions } from './types';
+import { MarkersComponent } from '../../golden-components/markers';
+import { OutputComponent } from '../../golden-components/output';
 
 import * as monaco from 'monaco-editor';
 
 import style from '../../../css/golden-layout.less';
 import { base64_encode_string } from '../../libs/base64';
 import { download, open_file_picker } from '../../helper/download';
+
+export interface CoderOptions {
+  value?: string;
+}
 
 const template = (function () {
   const template = document.createElement('template');

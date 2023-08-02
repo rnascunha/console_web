@@ -26,6 +26,7 @@
 
 - [ ] On site clipboard to copy "things" to be copied in app;
 - [ ] Make 'variable' to be used all over the application;
+- [ ] Make search/execute prompt.
 - [ ] Notification board;
 - [ ] Statistic data (per app, interface...);
 - [ ] Different outputs/parsers:
@@ -43,7 +44,8 @@
 - [ ] Necessary to treat loading big files (`input-dump` tool for example). Need to slice?
 - [x] How to import `css` files as modules? Use to import local styles at `tools`/`apps`/`setup` inside shadowDOMs.
 - [x] Flywindows (`draggable-popout`) should be resizeable.
-- [ ] Content should scroll only the body (not all the window as is now).
+- [ ] Content (at flywindows) should scroll only the body (not all the window as is now).
+- [ ] GoldenLayout inside another (coder, json) does not work correctly.
 
 ## Apps
 
