@@ -4,6 +4,11 @@ const template = (function () {
   <style>
     :host {
       position: relative;
+      --cursor-input: auto;
+    }
+
+    ::slotted(*) {
+      cursor: var(--cursor-input);
     }
 
     input {
@@ -35,6 +40,13 @@ class InputFile extends HTMLElement {
         'multiple',
         this.getAttribute('multiple') as string
       );
+
+    if (this.hasAttribute('webkitdirectory'))
+      this._input.setAttribute('webkitdirectory', '');
+  }
+
+  get files(): FileList | null {
+    return this._input.files;
   }
 
   public on(

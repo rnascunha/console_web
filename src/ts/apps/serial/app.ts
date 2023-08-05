@@ -9,7 +9,7 @@ const serial_template = (function () {
   const template = document.createElement('template');
   template.innerHTML = `
     <select class="sel-serial-port" name=serial></select>
-    <button class="serial-request">&#128279;</button>`;
+    <button class="serial-request" title="Request ports">&#x1F504;</button>`;
   return template;
 })();
 

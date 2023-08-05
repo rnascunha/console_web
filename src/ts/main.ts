@@ -33,6 +33,7 @@ import { InputDumpTool } from './tools/input_dump/tool';
 import { TimestampTool } from './tools/timestamp/tool';
 import { CoderTool } from './tools/coder/tool';
 import { JSONTool } from './tools/json/tool';
+import { ESP32ParserTool } from './tools/esp32_parser/tool';
 
 declare global {
   const __COMMIT_HASH__: string; // eslint-disable-line
@@ -74,5 +75,6 @@ function run(): void {
     new TimestampTool(),
     new CoderTool(),
     new JSONTool(),
+    new ESP32ParserTool(),
   ]);
 }
