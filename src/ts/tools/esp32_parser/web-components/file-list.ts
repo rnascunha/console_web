@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 import type { ESPFlashFile } from '../files';
 import { ESPFlashFileElement } from './file';
+=======
+import type { ESPFlashFile } from '../types';
+import { ESPFlashFileElement } from './file';
+import { output_file } from '../parse';
+>>>>>>> 1294873 (Backing up.)
 
 const template = (function () {
   const template = document.createElement('template');
@@ -12,7 +18,11 @@ const template = (function () {
       width: 100%;
       max-width: 600px;
       padding: 3px;
+<<<<<<< HEAD
       border: 1px solid white;
+=======
+      border: 2px solid white;
+>>>>>>> 1294873 (Backing up.)
       border-radius: 3px;
       color: white;
     }
@@ -36,6 +46,24 @@ const template = (function () {
       border-radius: 3px;
       text-align: center;
     }
+
+    .parser-content {
+      display: inline-flex;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .parser-container {
+      border-radius: 3px;
+    }
+
+    label {
+      user-select: none;
+    }
+
+    button {
+      cursor: pointer;
+    }
   </style>
   <div id=header>
     <button id=add-file title="Add file">✚</button>
@@ -45,10 +73,11 @@ const template = (function () {
   <div id=execute>
     <label><input id=verify type=checkbox checked />Verify</label>
     <label><input id=monitor type=checkbox checked />Monitor</label>
-    <button title="Upload selected">▶selected</button>
-    <button title="Upload all">▶all</button>
+    <button title="Upload selected">Selected ▶</button>
+    <button title="Upload all">All ▶</button>
   </div>
-  <div id=progress>Progress</div>`;
+  <div id=progress>Progress</div>
+  <span id=parsed></span>`;
 
   return template;
 })();
@@ -74,10 +103,32 @@ export class ESPFlashFileList extends HTMLElement {
 
     container.addEventListener('delete', ev => {
       const file = (ev as CustomEvent).detail as ESPFlashFile;
+<<<<<<< HEAD
       this._files = this._files.filter(f => f.file === file.file);
       console.log(this._files);
       if (this._files.length === 0) this.close();
     });
+=======
+      this._files = this._files.filter(f => f.file !== file.file);
+      if (this._files.length === 0) this.close();
+    });
+
+    const parsed = shadow.querySelector('#parsed') as HTMLElement;
+    container.addEventListener('parse', ev => {
+      output_file((ev as CustomEvent).detail as ESPFlashFile)
+        .then(el => {
+          parsed.innerHTML = '';
+          parsed.appendChild(el);
+        })
+        .finally(() => {});
+      // this.dispatchEvent(
+      //   new CustomEvent('parse', {
+      //     detail: (ev as CustomEvent).detail,
+      //     bubbles: true,
+      //   })
+      // );
+    });
+>>>>>>> 1294873 (Backing up.)
   }
 
   private close(): void {

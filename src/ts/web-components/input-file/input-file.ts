@@ -45,6 +45,14 @@ class InputFile extends HTMLElement {
       this._input.setAttribute('webkitdirectory', '');
   }
 
+  get value(): string {
+    return this._input.value;
+  }
+
+  set value(val: string) {
+    this._input.value = val;
+  }
+
   get files(): FileList | null {
     return this._input.files;
   }

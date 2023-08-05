@@ -45,7 +45,7 @@ const common = {
       },
       {
         // monaco-editor
-        test: /editor\.main\.css$/,
+        test: /editor\.main\.css$|xterm.css$/,
         use: {
           loader: 'css-loader',
           options: {
@@ -90,7 +90,7 @@ const production = {
       {
         test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
-        exclude: /editor\.main\.css$/,
+        exclude: /editor\.main\.css$|xterm.css$/,
       },
     ],
   },
@@ -103,7 +103,7 @@ const development = {
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
-        exclude: /editor\.main\.css$/,
+        exclude: /editor\.main\.css$|xterm.css$/,
       },
     ],
   },

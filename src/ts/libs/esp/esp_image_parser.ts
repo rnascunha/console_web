@@ -88,11 +88,12 @@ function esp_image_parse(image: ArrayBuffer): espt.ESPImageParsed {
   if (mw !== espt.ESP_IMAGE_HEADER_MAGIC) {
     throw new ESPError(
       error_code.WRONG_MAGIC_WORD,
-      `Image header magic word doesn't match ['${mw
+      "Image header magic word doesn't match",
+      `0x${mw
         .toString(16)
-        .padStart(2, '0')}' != '${espt.ESP_IMAGE_HEADER_MAGIC.toString(
+        .padStart(2, '0')} != 0x${espt.ESP_IMAGE_HEADER_MAGIC.toString(
         16
-      ).padStart(2, '0')}']`
+      ).padStart(2, '0')}`
     );
   }
 

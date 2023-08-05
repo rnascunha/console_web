@@ -1,7 +1,9 @@
+// ESP constants
 export const header_size = 24;
 export const header_segment_size = 8;
 export const description_size = 256;
 export const ESP_IMAGE_HEADER_MAGIC = 0xe9; // eslint-disable-line
+export const ESP_APP_DESC_MAGIC_WORD = 0xabcd5432; // eslint-disable-line
 
 /**
  * @brief ESP chip ID

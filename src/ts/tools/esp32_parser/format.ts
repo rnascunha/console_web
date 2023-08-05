@@ -133,7 +133,11 @@ function output_file_data(
 
   Object.values(format).forEach(val => {
     const value = val.value(data, format);
+<<<<<<< HEAD
     max_value = Math.max(max_name, value.length);
+=======
+    max_value = Math.max(max_value, value.length);
+>>>>>>> 1294873 (Backing up.)
     max_name = Math.max(max_name, val.name.length);
     output.push({ name: val.name, value });
   });
@@ -228,9 +232,14 @@ export function output_image_text(
   return pre;
 }
 
+<<<<<<< HEAD
 export function output_image_html(
   file: File,
   data: ESPImage,
+=======
+function create_segment_html(
+  seg: Record<string, OutputSegment>,
+>>>>>>> 1294873 (Backing up.)
   filter: Segments[] = [
     'file',
     'header_segment',
@@ -239,14 +248,11 @@ export function output_image_html(
     'description',
   ]
 ): HTMLElement {
-  const adata: Record<string, OutputSegment> = output_calc(data);
-  adata.file = output_file_data('file', file, names.file.data);
-
   const pre = document.createElement('pre');
   pre.classList.add('parser-content');
   filter.forEach(f => {
-    if (!segments.includes(f)) return;
-    const v = adata[f];
+    if (!segments.includes(f) || seg[f] === undefined) return;
+    const v = seg[f];
 
     const fs = document.createElement('fieldset');
     fs.classList.add('parser-container');
@@ -269,3 +275,29 @@ export function output_image_html(
 
   return pre;
 }
+<<<<<<< HEAD
+=======
+
+export function output_file_html(file: File): HTMLElement {
+  return create_segment_html({
+    file: output_file_data('file', file, names.file.data),
+  });
+}
+
+export function output_image_html(
+  file: File,
+  data: ESPImage,
+  filter: Segments[] = [
+    'file',
+    'header_segment',
+    'hash',
+    'header',
+    'description',
+  ]
+): HTMLElement {
+  const adata: Record<string, OutputSegment> = output_calc(data);
+  adata.file = output_file_data('file', file, names.file.data);
+
+  return create_segment_html(adata, filter);
+}
+>>>>>>> 1294873 (Backing up.)

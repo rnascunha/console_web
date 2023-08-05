@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import type { ESPFlashFile } from '../files';
+=======
+import { type ESPFlashFile, files_info } from '../types';
+>>>>>>> 1294873 (Backing up.)
 
 const template = (function () {
   const template = document.createElement('template');
@@ -32,10 +36,11 @@ const template = (function () {
     #file {
       flex-grow: 1;
       text-align: center;
+      cursor: pointer;
     }
 
     #offset {
-      width: 8ch;
+      width: 10ch;
       outline: none;
       text-align: center;
       background-color: transparent;
@@ -45,8 +50,16 @@ const template = (function () {
   <span id=delete class="field hover" title=Delete>✖</span>
   <input type=checkbox id=selected class="field" checked />
   <span id=file></span>
-  <input id=offset class=field />
+  <input id=offset list=offset-list class=field />
+  <datalist id=offset-list></datalist>
   <span id=flash class="field hover" title=Upload>▶</span>`;
+  const dl = template.content.querySelector(
+    '#offset-list'
+  ) as HTMLDataListElement;
+  Object.values(files_info).forEach(v => {
+    dl.appendChild(new Option(v.type, `0x${v.offset.toString(16)}`));
+  });
+
   return template;
 })();
 
@@ -59,18 +72,36 @@ export class ESPFlashFileElement extends HTMLElement {
 
     const file_el = shadow.querySelector('#file') as HTMLElement;
     file_el.textContent = file.name;
+<<<<<<< HEAD
+=======
+    file_el.addEventListener('click', () => {
+      this.dispatchEvent(
+        new CustomEvent('parse', {
+          detail: file,
+          bubbles: true,
+        })
+      );
+    });
+>>>>>>> 1294873 (Backing up.)
 
     const offset_el = shadow.querySelector('#offset') as HTMLInputElement;
     offset_el.value = file.offset;
 
     shadow.querySelector('#delete')?.addEventListener('click', () => {
+<<<<<<< HEAD
       this.parentElement?.removeChild(this);
+=======
+>>>>>>> 1294873 (Backing up.)
       this.dispatchEvent(
         new CustomEvent('delete', {
           detail: file,
           bubbles: true,
         })
       );
+<<<<<<< HEAD
+=======
+      this.parentElement?.removeChild(this);
+>>>>>>> 1294873 (Backing up.)
     });
 
     shadow.querySelector('#flash')?.addEventListener('click', () => {

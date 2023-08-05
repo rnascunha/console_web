@@ -16,7 +16,7 @@ import './web-components/resizeable-container/resizeable-container';
 import '../css/all.css';
 
 // Importing third party library style
-import 'xterm/css/xterm.css';
+// import 'xterm/css/xterm.css';
 import style from '../css/golden-layout.less';
 
 // Importing app
