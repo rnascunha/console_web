@@ -1,11 +1,6 @@
-<<<<<<< HEAD
-import type { ESPFlashFile } from '../files';
-import { ESPFlashFileElement } from './file';
-=======
 import type { ESPFlashFile } from '../types';
 import { ESPFlashFileElement } from './file';
 import { output_file } from '../parse';
->>>>>>> 1294873 (Backing up.)
 
 const template = (function () {
   const template = document.createElement('template');
@@ -18,11 +13,7 @@ const template = (function () {
       width: 100%;
       max-width: 600px;
       padding: 3px;
-<<<<<<< HEAD
-      border: 1px solid white;
-=======
       border: 2px solid white;
->>>>>>> 1294873 (Backing up.)
       border-radius: 3px;
       color: white;
     }
@@ -103,12 +94,6 @@ export class ESPFlashFileList extends HTMLElement {
 
     container.addEventListener('delete', ev => {
       const file = (ev as CustomEvent).detail as ESPFlashFile;
-<<<<<<< HEAD
-      this._files = this._files.filter(f => f.file === file.file);
-      console.log(this._files);
-      if (this._files.length === 0) this.close();
-    });
-=======
       this._files = this._files.filter(f => f.file !== file.file);
       if (this._files.length === 0) this.close();
     });
@@ -121,14 +106,7 @@ export class ESPFlashFileList extends HTMLElement {
           parsed.appendChild(el);
         })
         .finally(() => {});
-      // this.dispatchEvent(
-      //   new CustomEvent('parse', {
-      //     detail: (ev as CustomEvent).detail,
-      //     bubbles: true,
-      //   })
-      // );
     });
->>>>>>> 1294873 (Backing up.)
   }
 
   private close(): void {

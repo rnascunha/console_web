@@ -88,25 +88,13 @@ export async function read_directory(files: FileList): Promise<ESPFlashFile[]> {
     });
     if (file === undefined)
       throw new ESPError(error_code.FILE_NOT_FOUND, 'File not found', name);
-<<<<<<< HEAD
-    output.push({ offset, name: name as string, file });
-=======
     output.push({
       offset,
       name: name as string,
       file,
       type: binary_file_type(data, name as string),
     });
->>>>>>> 1294873 (Backing up.)
   });
 
   return output;
 }
-<<<<<<< HEAD
-
-export function output_files(files: ESPFlashFile[]): HTMLElement {
-  const div = new ESPFlashFileList(files);
-  return div;
-}
-=======
->>>>>>> 1294873 (Backing up.)

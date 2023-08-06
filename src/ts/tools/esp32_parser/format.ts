@@ -133,11 +133,7 @@ function output_file_data(
 
   Object.values(format).forEach(val => {
     const value = val.value(data, format);
-<<<<<<< HEAD
-    max_value = Math.max(max_name, value.length);
-=======
     max_value = Math.max(max_value, value.length);
->>>>>>> 1294873 (Backing up.)
     max_name = Math.max(max_name, val.name.length);
     output.push({ name: val.name, value });
   });
@@ -232,14 +228,8 @@ export function output_image_text(
   return pre;
 }
 
-<<<<<<< HEAD
-export function output_image_html(
-  file: File,
-  data: ESPImage,
-=======
 function create_segment_html(
   seg: Record<string, OutputSegment>,
->>>>>>> 1294873 (Backing up.)
   filter: Segments[] = [
     'file',
     'header_segment',
@@ -275,8 +265,6 @@ function create_segment_html(
 
   return pre;
 }
-<<<<<<< HEAD
-=======
 
 export function output_file_html(file: File): HTMLElement {
   return create_segment_html({
@@ -300,4 +288,3 @@ export function output_image_html(
 
   return create_segment_html(adata, filter);
 }
->>>>>>> 1294873 (Backing up.)

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import type { ESPFlashFile } from '../files';
-=======
 import { type ESPFlashFile, files_info } from '../types';
->>>>>>> 1294873 (Backing up.)
 
 const template = (function () {
   const template = document.createElement('template');
@@ -72,8 +68,6 @@ export class ESPFlashFileElement extends HTMLElement {
 
     const file_el = shadow.querySelector('#file') as HTMLElement;
     file_el.textContent = file.name;
-<<<<<<< HEAD
-=======
     file_el.addEventListener('click', () => {
       this.dispatchEvent(
         new CustomEvent('parse', {
@@ -82,26 +76,18 @@ export class ESPFlashFileElement extends HTMLElement {
         })
       );
     });
->>>>>>> 1294873 (Backing up.)
 
     const offset_el = shadow.querySelector('#offset') as HTMLInputElement;
     offset_el.value = file.offset;
 
     shadow.querySelector('#delete')?.addEventListener('click', () => {
-<<<<<<< HEAD
-      this.parentElement?.removeChild(this);
-=======
->>>>>>> 1294873 (Backing up.)
       this.dispatchEvent(
         new CustomEvent('delete', {
           detail: file,
           bubbles: true,
         })
       );
-<<<<<<< HEAD
-=======
       this.parentElement?.removeChild(this);
->>>>>>> 1294873 (Backing up.)
     });
 
     shadow.querySelector('#flash')?.addEventListener('click', () => {
