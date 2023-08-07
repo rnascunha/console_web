@@ -30,7 +30,7 @@ export async function discover_file(file: File): Promise<ESPFlashFile> {
         : 'other';
     const offset =
       type === 'other'
-        ? '0x0'
+        ? '0'
         : `0x${files_info.partition_table.offset.toString(16)}`;
     return {
       name: file.name,
