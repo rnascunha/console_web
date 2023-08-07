@@ -46,6 +46,8 @@ function parse_header(header: ArrayBuffer): espt.ESPImageHeader {
       name: chip_id in espt.esp_chid_id ? espt.esp_chid_id[chip_id] : chip_id,
     },
     min_chip_rev: view.getUint8(14),
+    min_chip_rev_full: view.getUint16(15),
+    max_chip_rev_full: view.getUint16(17),
     hash_appended: view.getUint8(23),
   };
 }
@@ -58,9 +60,35 @@ function parse_header_segment(seg: ArrayBuffer): espt.ESPHeaderSegment {
   };
 }
 
-function parse_description(
+function parse_image_base(image: ArrayBuffer): espt.ESPImageBase {
+  const mw = new Uint8Array(image, 0, 1)[0];
+  if (mw !== espt.ESP_IMAGE_HEADER_MAGIC) {
+    throw new ESPError(
+      error_code.WRONG_MAGIC_WORD,
+      "Image header magic word doesn't match",
+      `0x${mw
+        .toString(16)
+        .padStart(2, '0')} != 0x${espt.ESP_IMAGE_HEADER_MAGIC.toString(
+        16
+      ).padStart(2, '0')}`
+    );
+  }
+
+  const header = image.slice(0, espt.header_size);
+  const header_segment = image.slice(
+    espt.header_size,
+    espt.header_size + espt.header_segment_size
+  );
+
+  return {
+    header: parse_header(header),
+    header_segment: parse_header_segment(header_segment),
+  };
+}
+
+function parse_app_description(
   description: ArrayBuffer
-): espt.ESPImageAppDescription {
+): espt.ESPAppDescription {
   return {
     magic_word: new Uint32Array(description, 0, 1)[0],
     secure_version: new Uint32Array(description, 4, 1)[0],
@@ -83,34 +111,34 @@ function parse_description(
   };
 }
 
-function esp_image_parse(image: ArrayBuffer): espt.ESPImageParsed {
-  const mw = new Uint8Array(image, 0, 1)[0];
-  if (mw !== espt.ESP_IMAGE_HEADER_MAGIC) {
-    throw new ESPError(
-      error_code.WRONG_MAGIC_WORD,
-      "Image header magic word doesn't match",
-      `0x${mw
-        .toString(16)
-        .padStart(2, '0')} != 0x${espt.ESP_IMAGE_HEADER_MAGIC.toString(
-        16
-      ).padStart(2, '0')}`
-    );
-  }
+function parse_bootloader_description(
+  desc: ArrayBuffer
+): espt.ESPBootloaderDescription {
+  // const dv = new DataView(desc);
+  return {
+    // magic_byte: dv.getUint8(0),
+    magic_byte: new Uint8Array(desc, 0, 1)[0],
+    // version: dv.getUint32(4),
+    version: new Uint32Array(desc, 4, 1)[0],
+    idf_ver: read_c_string(
+      new TextDecoder().decode(new Uint8Array(desc, 8, 32))
+    ),
+    date_time: read_c_string(
+      new TextDecoder().decode(new Uint8Array(desc, 40, 24))
+    ),
+  };
+}
 
-  const header = image.slice(0, espt.header_size);
-  const header_segment = image.slice(
-    espt.header_size,
-    espt.header_size + espt.header_segment_size
-  );
+function esp_image_parse(image: ArrayBuffer): espt.ESPImageApp {
+  const base: espt.ESPImageBase = parse_image_base(image);
   const description = image.slice(
     espt.header_size + espt.header_segment_size,
     espt.header_size + espt.header_segment_size + espt.description_size
   );
 
   return {
-    header: parse_header(header),
-    header_segment: parse_header_segment(header_segment),
-    description: parse_description(description),
+    ...base,
+    description: parse_app_description(description),
   };
 }
 
@@ -130,12 +158,24 @@ async function esp_hash(image: ArrayBuffer): Promise<string> {
   return hash;
 }
 
-export async function esp_image(image: ArrayBuffer): Promise<espt.ESPImage> {
+export async function esp_image(image: ArrayBuffer): Promise<espt.ESPImageApp> {
   const data = esp_image_parse(image);
-  const hash = data.header.hash_appended === 1 ? await esp_hash(image) : '';
+  if (data.header.hash_appended === 1) data.hash = await esp_hash(image);
+
+  return data;
+}
+
+export function esp_bootloader(image: ArrayBuffer): espt.ESPImageBootloader {
+  const base: espt.ESPImageBase = parse_image_base(image);
+  const description = image.slice(
+    espt.header_size + espt.header_segment_size,
+    espt.header_size +
+      espt.header_segment_size +
+      espt.bootloader_description_size
+  );
 
   return {
-    hash,
-    ...data,
+    ...base,
+    description: parse_bootloader_description(description),
   };
 }

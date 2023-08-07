@@ -1,4 +1,8 @@
-import type { ESPImage, ESPValue } from '../../libs/esp/types';
+import type {
+  ESPImageApp,
+  ESPImageBootloader,
+  ESPValue,
+} from '../../libs/esp/types';
 
 const config: Record<string, string> = {
   pre_segment: '--',
@@ -17,7 +21,14 @@ interface SegmentInfo {
   data: Record<string, Value>;
 }
 
-const segments = ['file', 'hash', 'header', 'header_segment', 'description'];
+const segments = [
+  'file',
+  'hash',
+  'header',
+  'header_segment',
+  'description',
+  'bootloader_description',
+];
 type Segments = (typeof segments)[number];
 
 const to_string = (arg: any): string => arg.toString();
@@ -84,7 +95,9 @@ const names: Record<string, SegmentInfo> = {
       // wp_pin: { name: 'WP pin', value: to_string },
       // spi_pin_drv: { name: 'SPI Pin DRV', value: arraybuffer_string },
       chip_id: { name: 'Chip ID', value: value_string },
-      min_chid_rev: { name: 'Min Chip Rev', value: to_string },
+      min_chip_rev: { name: 'Min Chip Rev', value: to_string },
+      min_chip_rev_full: { name: 'Min Chip Rev Full', value: to_string },
+      max_chip_rev_full: { name: 'Max Chip Rev Full', value: to_string },
       // hash_appended: { name: 'Hash appended', value: to_string },
     },
   },
@@ -106,6 +119,15 @@ const names: Record<string, SegmentInfo> = {
       date: { name: 'Date', value: to_string },
       idf_ver: { name: 'IDF version', value: to_string },
       app_elf_sha256: { name: 'APP Elf sha256', value: cut_hash },
+    },
+  },
+  bootloader_description: {
+    name: 'Description',
+    data: {
+      magic_byte: { name: 'Magic Byte', value: to_hex },
+      version: { name: 'Version', value: to_hex },
+      idf_ver: { name: 'IDF version', value: to_string },
+      date_time: { name: 'Date/Time', value: to_string },
     },
   },
 };
@@ -171,35 +193,61 @@ function output_segment_data(
   };
 }
 
-function output_calc(data: ESPImage): Record<string, OutputSegment> {
+function output_calc(
+  data: ESPImageApp | ESPImageBootloader,
+  filter: Segments[]
+): Record<string, OutputSegment> {
   const output: Record<string, OutputSegment> = {};
 
-  output.hash = output_segment_data(
-    'hash',
-    { hash: data.hash },
-    names.hash.data
-  );
-  output.header = output_segment_data('header', data.header, names.header.data);
-  output.header_segment = output_segment_data(
-    'header_segment',
-    data.header_segment,
-    names.header_segment.data
-  );
-  output.description = output_segment_data(
-    'description',
-    data.description,
-    names.description.data
-  );
+  filter.forEach(f => {
+    switch (f) {
+      case 'hash':
+        if ('hash' in data)
+          output.hash = output_segment_data(
+            'hash',
+            { hash: data.hash },
+            names.hash.data
+          );
+        break;
+      case 'header':
+        output.header = output_segment_data(
+          'header',
+          data.header,
+          names.header.data
+        );
+        break;
+      case 'header_segment':
+        output.header_segment = output_segment_data(
+          'header_segment',
+          data.header_segment,
+          names.header_segment.data
+        );
+        break;
+      case 'description':
+        output.description = output_segment_data(
+          'description',
+          data.description,
+          names.description.data
+        );
+        break;
+      case 'bootloader_description':
+        output.bootloader_description = output_segment_data(
+          'bootloader_description',
+          data.description,
+          names.bootloader_description.data
+        );
+    }
+  });
 
   return output;
 }
 
 export function output_image_text(
   file: File,
-  data: ESPImage,
+  data: ESPImageApp,
   filter: Segments[] = segments
 ): HTMLElement {
-  const adata: Record<string, OutputSegment> = output_calc(data);
+  const adata: Record<string, OutputSegment> = output_calc(data, filter);
   adata.file = output_file_data('file', file, names.file.data);
 
   const calc = Object.values(adata);
@@ -230,13 +278,7 @@ export function output_image_text(
 
 function create_segment_html(
   seg: Record<string, OutputSegment>,
-  filter: Segments[] = [
-    'file',
-    'header_segment',
-    'header',
-    'hash',
-    'description',
-  ]
+  filter: Segments[]
 ): HTMLElement {
   const pre = document.createElement('pre');
   pre.classList.add('parser-content');
@@ -267,23 +309,20 @@ function create_segment_html(
 }
 
 export function output_file_html(file: File): HTMLElement {
-  return create_segment_html({
-    file: output_file_data('file', file, names.file.data),
-  });
+  return create_segment_html(
+    {
+      file: output_file_data('file', file, names.file.data),
+    },
+    ['file']
+  );
 }
 
 export function output_image_html(
   file: File,
-  data: ESPImage,
-  filter: Segments[] = [
-    'file',
-    'header_segment',
-    'hash',
-    'header',
-    'description',
-  ]
+  data: ESPImageApp | ESPImageBootloader,
+  filter: Segments[]
 ): HTMLElement {
-  const adata: Record<string, OutputSegment> = output_calc(data);
+  const adata: Record<string, OutputSegment> = output_calc(data, filter);
   adata.file = output_file_data('file', file, names.file.data);
 
   return create_segment_html(adata, filter);

@@ -14,10 +14,13 @@ const template = (function () {
   :host {
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
   #header {
     background-color: grey;
+    padding: 2px 3px;
+    margin-bottom: 3px;
   }
 
   .header-icon {
@@ -34,14 +37,16 @@ const template = (function () {
   #container {
     flex-grow: 1;
     display: flex;
+    height: 100%;
+    overflow: hidden;
   }
 
   #parser {
     display: inline-flex;
     flex-direction: column;
-    gap: 3px;
-    overflow: auto;
+    gap: 2px;
     flex-grow: 1;
+    overflow: auto;
   }
 
   #error {
@@ -97,6 +102,10 @@ export class ESP32ParserComponent extends ComponentBase {
       shadow.querySelector('#console') as HTMLElement
     );
     terminal.write(new TextEncoder().encode('teste\r\n'));
+
+    this.container.on('resize', () => {
+      terminal.fit();
+    });
 
     const error = shadow.querySelector('#error') as HTMLElement;
     customElements
