@@ -64,6 +64,12 @@ function spi_output(arg: any, data: Record<string, any>): string {
   )} ${value_string(data.spi_speed)}`;
 }
 
+function chip_revision(arg: number, data: Record<string, any>): string {
+  return `${(data.max_chip_rev_full as number).toString()}.${(
+    data.min_chip_rev_full as number
+  ).toString()}`;
+}
+
 const names: Record<string, SegmentInfo> = {
   file: {
     name: 'File Info',
@@ -95,9 +101,9 @@ const names: Record<string, SegmentInfo> = {
       // wp_pin: { name: 'WP pin', value: to_string },
       // spi_pin_drv: { name: 'SPI Pin DRV', value: arraybuffer_string },
       chip_id: { name: 'Chip ID', value: value_string },
-      min_chip_rev: { name: 'Min Chip Rev', value: to_string },
-      min_chip_rev_full: { name: 'Min Chip Rev Full', value: to_string },
-      max_chip_rev_full: { name: 'Max Chip Rev Full', value: to_string },
+      // min_chip_rev: { name: 'Min Chip Rev', value: to_string },
+      // min_chip_rev_full: { name: 'Min Chip Rev Full', value: to_string },
+      max_chip_rev_full: { name: 'Chip Revision', value: chip_revision },
       // hash_appended: { name: 'Hash appended', value: to_string },
     },
   },
@@ -124,8 +130,8 @@ const names: Record<string, SegmentInfo> = {
   bootloader_description: {
     name: 'Description',
     data: {
-      magic_byte: { name: 'Magic Byte', value: to_hex },
-      version: { name: 'Version', value: to_hex },
+      magic_byte: { name: 'Magic Byte', value: to_string },
+      version: { name: 'Version', value: to_string },
       idf_ver: { name: 'IDF version', value: to_string },
       date_time: { name: 'Date/Time', value: to_string },
     },
@@ -224,18 +230,20 @@ function output_calc(
         );
         break;
       case 'description':
-        output.description = output_segment_data(
-          'description',
-          data.description,
-          names.description.data
-        );
+        if (data.description !== undefined)
+          output.description = output_segment_data(
+            'description',
+            data.description,
+            names.description.data
+          );
         break;
       case 'bootloader_description':
-        output.bootloader_description = output_segment_data(
-          'bootloader_description',
-          data.description,
-          names.bootloader_description.data
-        );
+        if (data.description !== undefined)
+          output.bootloader_description = output_segment_data(
+            'bootloader_description',
+            data.description,
+            names.bootloader_description.data
+          );
     }
   });
 

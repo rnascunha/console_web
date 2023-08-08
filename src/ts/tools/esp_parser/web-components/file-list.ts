@@ -53,6 +53,10 @@ const template = (function () {
       border-radius: 3px;
     }
 
+    .disable {
+      cursor: not-allowed;
+    }
+
     label {
       user-select: none;
     }
@@ -69,11 +73,18 @@ const template = (function () {
   <div id=execute>
     <label><input id=verify type=checkbox checked />Verify</label>
     <label><input id=monitor type=checkbox checked />Monitor</label>
-    <button title="Upload selected">Selected ▶</button>
-    <button title="Upload all">All ▶</button>
+    <button class=flash-btn title="Upload selected">Selected ▶</button>
+    <button class=flash-btn title="Upload all">All ▶</button>
   </div>
   <div id=progress>Progress</div>
   <span id=parsed></span>`;
+
+  template.content.querySelectorAll('.flash-btn').forEach(b => {
+    const btn = b as HTMLButtonElement;
+    btn.title = 'Serial API not supported';
+    btn.classList.add('disable');
+    btn.disabled = true;
+  });
 
   return template;
 })();

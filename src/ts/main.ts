@@ -16,8 +16,8 @@ import './web-components/resizeable-container/resizeable-container';
 import '../css/all.css';
 
 // Importing third party library style
-// import 'xterm/css/xterm.css';
-import style from '../css/golden-layout.less';
+import xterm_css from 'xterm/css/xterm.css';
+import golden_css from '../css/golden-layout.less';
 
 // Importing app
 import type { App } from './apps/app';
@@ -33,7 +33,7 @@ import { InputDumpTool } from './tools/input_dump/tool';
 import { TimestampTool } from './tools/timestamp/tool';
 import { CoderTool } from './tools/coder/tool';
 import { JSONTool } from './tools/json/tool';
-import { ESP32ParserTool } from './tools/esp32_parser/tool';
+import { ESPParserTool } from './tools/esp_parser/tool';
 
 declare global {
   const __COMMIT_HASH__: string; // eslint-disable-line
@@ -56,7 +56,7 @@ function is_secure_connection(): boolean {
   return window.location.protocol === 'https:';
 }
 
-document.adoptedStyleSheets = [style];
+document.adoptedStyleSheets = [golden_css, xterm_css];
 
 function get_app_list(): App[] {
   const apps: App[] = [];
@@ -75,6 +75,6 @@ function run(): void {
     new TimestampTool(),
     new CoderTool(),
     new JSONTool(),
-    new ESP32ParserTool(),
+    new ESPParserTool(),
   ]);
 }

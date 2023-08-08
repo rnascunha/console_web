@@ -23,6 +23,10 @@ export class DataTerminal {
     this._terminal.write(data);
   }
 
+  public write_str(data: string): void {
+    this._terminal.write(new TextEncoder().encode(data));
+  }
+
   public get terminal(): Terminal {
     return this._terminal;
   }

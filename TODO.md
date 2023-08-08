@@ -75,6 +75,12 @@
 - [x] Save parameters offline at browser.
 - [x] Direct link to tools.
 
+# ESP_parser
+
+- [x] Bootloader description just work for the newest IDF (v5.2). Handle old versions;
+- [ ] Parse `partition-table.bin` and `ota_data_initial.bin` binary files;
+- [ ] Make lib `esp` as a library;
+
 ### New Tools
 
 - [x] Tool to convert date/time/timestamp. UTC and other timezones.

@@ -238,13 +238,17 @@ export interface ESPBootloaderDescription {
 export interface ESPImageBase {
   header: ESPImageHeader;
   header_segment: ESPHeaderSegment;
+  hash?: string;
 }
 
+/**
+ * As only the newest IDF has a bootloader description (v5.2), this field is
+ * not required.
+ */
 export interface ESPImageBootloader extends ESPImageBase {
-  description: ESPBootloaderDescription;
+  description?: ESPBootloaderDescription;
 }
 
 export interface ESPImageApp extends ESPImageBase {
   description: ESPAppDescription;
-  hash?: string;
 }

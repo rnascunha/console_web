@@ -4,6 +4,7 @@ import { read_directory, discover_file } from './files';
 import { ESPFlashFileList } from './web-components/file-list';
 import { ESPError } from '../../libs/esp/error';
 import { DataTerminal } from '../../libs/terminal';
+import { is_serial_supported } from '../../apps/serial/functions';
 
 import terminal_style from 'xterm/css/xterm.css';
 
@@ -82,7 +83,7 @@ function error_message(err: ESPError): string {
   return `[${err.code}] ${err.message} [${err.args.toString() as string}]`;
 }
 
-export class ESP32ParserComponent extends ComponentBase {
+export class ESPParserComponent extends ComponentBase {
   constructor(
     container: ComponentContainer,
     state: JsonValue | undefined,
@@ -90,7 +91,7 @@ export class ESP32ParserComponent extends ComponentBase {
   ) {
     super(container, virtual);
 
-    this.title = 'ESP32 Parser';
+    this.title = 'ESP Parser';
 
     const shadow = this.rootHtmlElement.attachShadow({ mode: 'open' });
     shadow.appendChild(template.content.cloneNode(true));
@@ -101,7 +102,15 @@ export class ESP32ParserComponent extends ComponentBase {
     const terminal = new DataTerminal(
       shadow.querySelector('#console') as HTMLElement
     );
-    terminal.write(new TextEncoder().encode('teste\r\n'));
+    if (is_serial_supported()) {
+      terminal.write_str('ESPTool Flash\r\n');
+    } else {
+      terminal.write_str('ESPTool Flash\r\n');
+      terminal.write_str(
+        'Serial API is not supported at this browser! Use a chrome based browser.\r\n'
+      );
+      terminal.write_str('https://caniuse.com/web-serial\r\n');
+    }
 
     this.container.on('resize', () => {
       terminal.fit();
@@ -115,6 +124,7 @@ export class ESP32ParserComponent extends ComponentBase {
         input.on('change', async () => {
           const files = input.files as FileList;
           if (files.length === 0) return;
+
           try {
             const file = (input.files as FileList)[0];
             const esp_file = await discover_file(file);
@@ -130,6 +140,7 @@ export class ESP32ParserComponent extends ComponentBase {
         folder.on('change', async () => {
           try {
             if (folder.files === null) return;
+
             const data = await read_directory(folder.files);
             parser.appendChild(new ESPFlashFileList(data));
             error.textContent = '';

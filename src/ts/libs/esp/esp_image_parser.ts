@@ -7,6 +7,10 @@ import {
 import * as espt from './types';
 import { error_code, ESPError } from './error';
 
+function to_hex(n: number): string {
+  return `0x${n.toString(16).padStart(2, '0')}`;
+}
+
 function parse_header(header: ArrayBuffer): espt.ESPImageHeader {
   const view = new DataView(header);
   const spi_mode = view.getUint8(2);
@@ -46,8 +50,8 @@ function parse_header(header: ArrayBuffer): espt.ESPImageHeader {
       name: chip_id in espt.esp_chid_id ? espt.esp_chid_id[chip_id] : chip_id,
     },
     min_chip_rev: view.getUint8(14),
-    min_chip_rev_full: view.getUint16(15),
-    max_chip_rev_full: view.getUint16(17),
+    min_chip_rev_full: view.getUint16(15, true),
+    max_chip_rev_full: view.getUint16(17, true),
     hash_appended: view.getUint8(23),
   };
 }
@@ -60,37 +64,53 @@ function parse_header_segment(seg: ArrayBuffer): espt.ESPHeaderSegment {
   };
 }
 
-function parse_image_base(image: ArrayBuffer): espt.ESPImageBase {
+async function parse_image_base(
+  image: ArrayBuffer
+): Promise<espt.ESPImageBase> {
   const mw = new Uint8Array(image, 0, 1)[0];
-  if (mw !== espt.ESP_IMAGE_HEADER_MAGIC) {
+  if (mw !== espt.ESP_IMAGE_HEADER_MAGIC)
     throw new ESPError(
-      error_code.WRONG_MAGIC_WORD,
-      "Image header magic word doesn't match",
-      `0x${mw
-        .toString(16)
-        .padStart(2, '0')} != 0x${espt.ESP_IMAGE_HEADER_MAGIC.toString(
-        16
-      ).padStart(2, '0')}`
+      error_code.WRONG_MAGIC_BYTE_HEADER,
+      "Header magic byte doesn't match",
+      `${to_hex(mw)} != ${to_hex(espt.ESP_IMAGE_HEADER_MAGIC)}`
     );
-  }
 
-  const header = image.slice(0, espt.header_size);
+  const header_buffer = image.slice(0, espt.header_size);
   const header_segment = image.slice(
     espt.header_size,
     espt.header_size + espt.header_segment_size
   );
 
-  return {
-    header: parse_header(header),
+  const data: espt.ESPImageBase = {
+    header: parse_header(header_buffer),
     header_segment: parse_header_segment(header_segment),
   };
+
+  if (data.header.hash_appended === 1) {
+    try {
+      data.hash = await esp_hash(image);
+    } catch (e) {
+      if (!(e instanceof ESPError) || e.code !== error_code.NOT_SUPPORTED)
+        throw e;
+    }
+  }
+
+  return data;
 }
 
 function parse_app_description(
   description: ArrayBuffer
 ): espt.ESPAppDescription {
+  const magic_word = new Uint32Array(description, 0, 1)[0];
+  if (magic_word !== espt.ESP_APP_DESC_MAGIC_WORD)
+    throw new ESPError(
+      error_code.WRONG_MAGIC_WORD_APP,
+      "App description magic word doesn't match",
+      `${to_hex(magic_word)} != ${to_hex(espt.ESP_APP_DESC_MAGIC_WORD)}`
+    );
+
   return {
-    magic_word: new Uint32Array(description, 0, 1)[0],
+    magic_word,
     secure_version: new Uint32Array(description, 4, 1)[0],
     version: read_c_string(
       new TextDecoder().decode(new Uint8Array(description, 16, 32))
@@ -114,31 +134,24 @@ function parse_app_description(
 function parse_bootloader_description(
   desc: ArrayBuffer
 ): espt.ESPBootloaderDescription {
-  // const dv = new DataView(desc);
+  const dv = new DataView(desc);
+  const magic_byte = dv.getUint8(0);
+  if (magic_byte !== espt.ESP_BOOTLOADER_DESC_MAGIC_BYTE)
+    throw new ESPError(
+      error_code.WRONG_MAGIC_BYTE_BOOTLOADER,
+      "Bootloader magic byte doesn't match",
+      `${to_hex(magic_byte)} != ${to_hex(espt.ESP_BOOTLOADER_DESC_MAGIC_BYTE)}`
+    );
+
   return {
-    // magic_byte: dv.getUint8(0),
-    magic_byte: new Uint8Array(desc, 0, 1)[0],
-    // version: dv.getUint32(4),
-    version: new Uint32Array(desc, 4, 1)[0],
+    magic_byte,
+    version: dv.getUint32(4),
     idf_ver: read_c_string(
       new TextDecoder().decode(new Uint8Array(desc, 8, 32))
     ),
     date_time: read_c_string(
       new TextDecoder().decode(new Uint8Array(desc, 40, 24))
     ),
-  };
-}
-
-function esp_image_parse(image: ArrayBuffer): espt.ESPImageApp {
-  const base: espt.ESPImageBase = parse_image_base(image);
-  const description = image.slice(
-    espt.header_size + espt.header_segment_size,
-    espt.header_size + espt.header_segment_size + espt.description_size
-  );
-
-  return {
-    ...base,
-    description: parse_app_description(description),
   };
 }
 
@@ -159,23 +172,35 @@ async function esp_hash(image: ArrayBuffer): Promise<string> {
 }
 
 export async function esp_image(image: ArrayBuffer): Promise<espt.ESPImageApp> {
-  const data = esp_image_parse(image);
-  if (data.header.hash_appended === 1) data.hash = await esp_hash(image);
+  const base: espt.ESPImageBase = await parse_image_base(image);
+  const description = image.slice(
+    espt.header_size + espt.header_segment_size,
+    espt.header_size + espt.header_segment_size + espt.description_size
+  );
 
-  return data;
+  return {
+    ...base,
+    description: parse_app_description(description),
+  };
 }
 
-export function esp_bootloader(image: ArrayBuffer): espt.ESPImageBootloader {
-  const base: espt.ESPImageBase = parse_image_base(image);
-  const description = image.slice(
+export async function esp_bootloader(
+  image: ArrayBuffer
+): Promise<espt.ESPImageBootloader> {
+  const base: espt.ESPImageBase = await parse_image_base(image);
+  const desc = image.slice(
     espt.header_size + espt.header_segment_size,
     espt.header_size +
       espt.header_segment_size +
       espt.bootloader_description_size
   );
 
-  return {
-    ...base,
-    description: parse_bootloader_description(description),
-  };
+  try {
+    return {
+      ...base,
+      description: parse_bootloader_description(desc),
+    };
+  } catch (e) {
+    return base;
+  }
 }

@@ -1,4 +1,5 @@
 import { type ESPFlashFile, files_info } from '../types';
+import { is_serial_supported } from '../../../apps/serial/functions';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -29,6 +30,11 @@ const template = (function () {
       color: black;
     }
 
+    .disable {
+      cursor: not-allowed;
+      color: lightgrey;
+    }
+
     #file {
       flex-grow: 1;
       text-align: center;
@@ -55,6 +61,13 @@ const template = (function () {
   Object.values(files_info).forEach(v => {
     dl.appendChild(new Option(v.type, `0x${v.offset.toString(16)}`));
   });
+
+  if (!is_serial_supported()) {
+    const upload = template.content.querySelector('#flash') as HTMLElement;
+    upload.classList.remove('hover');
+    upload.classList.add('disable');
+    upload.title = 'Serial API not supported';
+  }
 
   return template;
 })();
@@ -90,14 +103,16 @@ export class ESPFlashFileElement extends HTMLElement {
       this.parentElement?.removeChild(this);
     });
 
-    shadow.querySelector('#flash')?.addEventListener('click', () => {
-      this.dispatchEvent(
-        new CustomEvent('flash', {
-          detail: file,
-          bubbles: true,
-        })
-      );
-    });
+    if (is_serial_supported()) {
+      shadow.querySelector('#flash')?.addEventListener('click', () => {
+        this.dispatchEvent(
+          new CustomEvent('flash', {
+            detail: file,
+            bubbles: true,
+          })
+        );
+      });
+    }
   }
 }
 

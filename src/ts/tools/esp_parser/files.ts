@@ -1,44 +1,49 @@
 import { ESPError, error_code } from '../../libs/esp/error';
 import { file_to_arraybuffer, file_to_text } from '../../helper/file';
 import { type ESPFlashFile, type ESPFileType, files_info } from './types';
-import { esp_image } from '../../libs/esp/esp_image_parser';
-import { ESP_APP_DESC_MAGIC_WORD } from '../../libs/esp/types';
+import { esp_bootloader, esp_image } from '../../libs/esp/esp_image_parser';
 
 const flash_args_file = 'flasher_args.json';
 
 export async function discover_file(file: File): Promise<ESPFlashFile> {
   const buffer = await file_to_arraybuffer(file);
   try {
-    const image = await esp_image(buffer);
-    const type =
-      image.description.magic_word === ESP_APP_DESC_MAGIC_WORD
-        ? 'app'
-        : 'bootloader';
-    const offset = files_info[type].offset;
+    await esp_image(buffer);
     return {
       name: file.name,
       file,
-      type,
-      offset: `0x${offset.toString(16)}`,
+      type: 'app',
+      offset: `0x${files_info.app.offset.toString(16)}`,
       buffer,
     };
   } catch (e) {
-    const type =
-      file.name ===
-      files_info.partition_table.name.split('/').slice(-1).join('') // partition-table.bin
-        ? 'partition-table'
-        : 'other';
-    const offset =
-      type === 'other'
-        ? '0'
-        : `0x${files_info.partition_table.offset.toString(16)}`;
-    return {
-      name: file.name,
-      file,
-      type,
-      offset,
-      buffer,
-    };
+    try {
+      await esp_bootloader(buffer);
+      return {
+        name: file.name,
+        file,
+        type: 'bootloader',
+        offset: `0x${files_info.bootloader.offset.toString(16)}`,
+        buffer,
+      };
+    } catch (e) {
+      const type =
+        file.name ===
+        files_info.partition_table.name.split('/').slice(-1).join('') // partition-table.bin
+          ? 'partition-table'
+          : 'other';
+      const offset =
+        type === 'other'
+          ? '0'
+          : `0x${files_info.partition_table.offset.toString(16)}`;
+      return {
+        name: file.name,
+        file,
+        type,
+        offset,
+        buffer,
+      };
+    }
   }
 }
 

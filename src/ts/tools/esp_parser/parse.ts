@@ -17,9 +17,10 @@ export async function output_file(file: ESPFlashFile): Promise<HTMLElement> {
         'description',
       ]);
     case 'bootloader':
-      return output_image_html(file.file, esp_bootloader(file.buffer), [
+      return output_image_html(file.file, await esp_bootloader(file.buffer), [
         'header',
         'file',
+        'hash',
         'header_segment',
         'bootloader_description',
       ]);
