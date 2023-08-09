@@ -2,7 +2,7 @@ import type {
   ESPImageApp,
   ESPImageBootloader,
   ESPValue,
-} from '../../libs/esp/types';
+} from '../../libs/esptool.ts/types';
 
 const config: Record<string, string> = {
   pre_segment: '--',
@@ -14,6 +14,7 @@ const config: Record<string, string> = {
 interface Value {
   name: string;
   value: (arg: any, data: Record<string, any>) => string;
+  title?: (arg: any, data: Record<string, any>) => string;
 }
 
 interface SegmentInfo {
@@ -86,6 +87,7 @@ const names: Record<string, SegmentInfo> = {
       hash: {
         name: 'hash',
         value: cut_hash,
+        title: to_string,
       },
     },
   },
@@ -117,14 +119,18 @@ const names: Record<string, SegmentInfo> = {
   description: {
     name: 'Description',
     data: {
+      project_name: { name: 'Project Name', value: to_string },
       magic_word: { name: 'Magic Word', value: to_hex },
       secure_version: { name: 'Secure Version', value: to_string },
-      project_name: { name: 'Project Name', value: to_string },
       version: { name: 'Version', value: to_string },
       time: { name: 'Time', value: to_string },
       date: { name: 'Date', value: to_string },
       idf_ver: { name: 'IDF version', value: to_string },
-      app_elf_sha256: { name: 'APP Elf sha256', value: cut_hash },
+      app_elf_sha256: {
+        name: 'APP Elf sha256',
+        value: cut_hash,
+        title: to_string,
+      },
     },
   },
   bootloader_description: {
@@ -141,6 +147,7 @@ const names: Record<string, SegmentInfo> = {
 interface Val {
   name: string;
   value: string;
+  title?: string;
 }
 
 interface OutputSegment {
@@ -188,7 +195,9 @@ function output_segment_data(
     const value = d.value(val, data);
     max_value = Math.max(max_value, value.length);
     max_name = Math.max(max_name, d.name.length);
-    output.push({ name: d.name, value });
+    const out: Val = { name: d.name, value };
+    if (d.title !== undefined) out.title = d.title(val, data);
+    output.push(out);
   });
 
   return {
@@ -305,6 +314,7 @@ function create_segment_html(
       dd.textContent = `${vv.name.padEnd(v.max_name, '.')}${
         config.middle
       }${vv.value.padStart(v.max_value, '.')}`;
+      if (vv.title !== undefined) dd.title = vv.title;
       div.appendChild(dd);
     });
 

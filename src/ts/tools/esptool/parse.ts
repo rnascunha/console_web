@@ -1,5 +1,8 @@
 import { file_to_arraybuffer } from '../../helper/file';
-import { esp_bootloader, esp_image } from '../../libs/esp/esp_image_parser';
+import {
+  esp_bootloader,
+  esp_image,
+} from '../../libs/esptool.ts/esp_image_parser';
 import { output_image_html, output_file_html } from './format';
 import type { ESPFlashFile } from './types';
 

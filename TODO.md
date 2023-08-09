@@ -18,6 +18,12 @@
 - [ ] Add keyboard shortcuts.
 - [ ] Document it :| (code and manual)
 
+### CSS (style)
+
+- [ ] Structure it better;
+- - [ ] Create css of icons;
+- - [ ] Theme like. Create --root variables;
+
 ### Setup
 
 - [ ] Erase data by app, tool.
@@ -79,7 +85,9 @@
 
 - [x] Bootloader description just work for the newest IDF (v5.2). Handle old versions;
 - [ ] Parse `partition-table.bin` and `ota_data_initial.bin` binary files;
+- [ ] Show segments (like esptool does);
 - [ ] Make lib `esp` as a library;
+- [x] Rename to `ESPTool`;
 
 ### New Tools
 

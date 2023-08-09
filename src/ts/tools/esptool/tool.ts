@@ -3,11 +3,11 @@ import './web-components/file-list';
 
 import type { JsonValue } from 'golden-layout';
 import { Tool } from '../tools';
-import { ESPParserComponent } from './component';
+import { ESPToolComponent } from './component';
 
-export class ESPParserTool extends Tool {
+export class ESPToolTool extends Tool {
   constructor() {
-    super('esp_parser', ESPParserComponent);
+    super('esptool', ESPToolComponent);
   }
 
   public override open_link(url: URL): JsonValue {

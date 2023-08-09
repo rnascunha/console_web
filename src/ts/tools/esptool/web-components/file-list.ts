@@ -2,6 +2,7 @@ import type { ESPFlashFile } from '../types';
 import { ESPFlashFileElement } from './file';
 import { output_file } from '../parse';
 import { discover_file } from '../files';
+import { is_serial_supported } from '../../../apps/serial/functions';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -79,12 +80,14 @@ const template = (function () {
   <div id=progress>Progress</div>
   <span id=parsed></span>`;
 
-  template.content.querySelectorAll('.flash-btn').forEach(b => {
-    const btn = b as HTMLButtonElement;
-    btn.title = 'Serial API not supported';
-    btn.classList.add('disable');
-    btn.disabled = true;
-  });
+  if (!is_serial_supported()) {
+    template.content.querySelectorAll('.flash-btn').forEach(b => {
+      const btn = b as HTMLButtonElement;
+      btn.title = 'Serial API not supported';
+      btn.classList.add('disable');
+      btn.disabled = true;
+    });
+  }
 
   return template;
 })();

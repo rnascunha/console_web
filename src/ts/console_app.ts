@@ -114,7 +114,7 @@ export class ConsoleApp {
     this.init_tool('#time-tool', 'timestamp');
     this.init_tool('#coder-tool', 'coder');
     this.init_tool('#json-tool', 'json');
-    this.init_tool('#esp-parser-tool', 'esp_parser');
+    this.init_tool('#esptool', 'esptool');
 
     container.querySelector('#close')?.addEventListener('click', () => {
       this.hide_header();

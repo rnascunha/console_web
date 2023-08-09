@@ -2,7 +2,7 @@ import { type ComponentContainer, type JsonValue } from 'golden-layout';
 import { ComponentBase } from '../../golden-components/component-base';
 import { read_directory, discover_file } from './files';
 import { ESPFlashFileList } from './web-components/file-list';
-import { ESPError } from '../../libs/esp/error';
+import { ESPError } from '../../libs/esptool.ts/error';
 import { DataTerminal } from '../../libs/terminal';
 import { is_serial_supported } from '../../apps/serial/functions';
 
@@ -62,8 +62,15 @@ const template = (function () {
     display: none;
   }
 
-  #console {
+  #serial {
     height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #console {
+    flex-grow: 1;
   }
 
   </style>
@@ -74,7 +81,15 @@ const template = (function () {
   </div>
   <div id=container>
     <div id=parser></div>
-    <div id=console></div>
+    <div id=serial>
+      <div id=serial-header>
+        <select>
+          <option>Port</option>
+        </select>
+        <button>Connect</button>
+      </div>
+      <div id=console></div>
+    </div>
   </div>`;
   return template;
 })();
@@ -83,7 +98,7 @@ function error_message(err: ESPError): string {
   return `[${err.code}] ${err.message} [${err.args.toString() as string}]`;
 }
 
-export class ESPParserComponent extends ComponentBase {
+export class ESPToolComponent extends ComponentBase {
   constructor(
     container: ComponentContainer,
     state: JsonValue | undefined,
@@ -91,7 +106,7 @@ export class ESPParserComponent extends ComponentBase {
   ) {
     super(container, virtual);
 
-    this.title = 'ESP Parser';
+    this.title = 'ESPTool';
 
     const shadow = this.rootHtmlElement.attachShadow({ mode: 'open' });
     shadow.appendChild(template.content.cloneNode(true));
@@ -99,22 +114,7 @@ export class ESPParserComponent extends ComponentBase {
     shadow.adoptedStyleSheets = [terminal_style];
 
     const parser = shadow.querySelector('#parser') as HTMLElement;
-    const terminal = new DataTerminal(
-      shadow.querySelector('#console') as HTMLElement
-    );
-    if (is_serial_supported()) {
-      terminal.write_str('ESPTool Flash\r\n');
-    } else {
-      terminal.write_str('ESPTool Flash\r\n');
-      terminal.write_str(
-        'Serial API is not supported at this browser! Use a chrome based browser.\r\n'
-      );
-      terminal.write_str('https://caniuse.com/web-serial\r\n');
-    }
-
-    this.container.on('resize', () => {
-      terminal.fit();
-    });
+    this.console();
 
     const error = shadow.querySelector('#error') as HTMLElement;
     customElements
@@ -152,5 +152,26 @@ export class ESPParserComponent extends ComponentBase {
         });
       })
       .finally(() => {});
+  }
+
+  private console(): void {
+    const shadow = this.rootHtmlElement.shadowRoot as ShadowRoot;
+
+    const terminal = new DataTerminal(
+      shadow.querySelector('#console') as HTMLElement
+    );
+    terminal.write_str('ESPTool Flash\r\n');
+
+    this.container.on('resize', () => {
+      terminal.fit();
+    });
+
+    if (!is_serial_supported()) {
+      terminal.write_str(
+        'Serial API is not supported at this browser! Use a chrome based browser.\r\n'
+      );
+      terminal.write_str('https://caniuse.com/web-serial\r\n');
+      // return;
+    }
   }
 }

@@ -1,7 +1,10 @@
-import { ESPError, error_code } from '../../libs/esp/error';
+import { ESPError, error_code } from '../../libs/esptool.ts/error';
 import { file_to_arraybuffer, file_to_text } from '../../helper/file';
 import { type ESPFlashFile, type ESPFileType, files_info } from './types';
-import { esp_bootloader, esp_image } from '../../libs/esp/esp_image_parser';
+import {
+  esp_bootloader,
+  esp_image,
+} from '../../libs/esptool.ts/esp_image_parser';
 
 const flash_args_file = 'flasher_args.json';
 
