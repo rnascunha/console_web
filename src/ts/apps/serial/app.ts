@@ -1,9 +1,10 @@
+import { ConsoleApp } from '../../console_app';
 import { App, type AppOpenParameters } from '../app';
 
 import { SerialComponent } from './component';
-import { SerialList } from './serial';
-import { install_serial_events } from './functions';
-import { type SerialState, serialStateDefault } from './view';
+import type { SerialList } from '../../libs/serial/serial';
+import { install_serial_events } from '../../libs/serial/functions';
+import { type SerialState, serial_state_default } from './view';
 
 const serial_template = (function () {
   const template = document.createElement('template');
@@ -15,11 +16,13 @@ const serial_template = (function () {
 
 export class SerialApp extends App {
   private readonly _sel_serial: HTMLSelectElement;
-  private readonly _serial_list: SerialList = new SerialList();
-  private _state: SerialState = serialStateDefault;
+  private readonly _serial_list: SerialList;
+  private _state: SerialState = serial_state_default;
 
   constructor() {
     super('serial', serial_template.content.cloneNode(true), SerialComponent);
+
+    this._serial_list = ConsoleApp.serial_list;
 
     this._sel_serial = (this.element as HTMLElement).querySelector(
       '.sel-serial-port'

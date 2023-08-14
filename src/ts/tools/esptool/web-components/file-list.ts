@@ -2,7 +2,7 @@ import type { ESPFlashFile } from '../types';
 import { ESPFlashFileElement } from './file';
 import { output_file } from '../parse';
 import { discover_file } from '../files';
-import { is_serial_supported } from '../../../apps/serial/functions';
+import { is_serial_supported } from '../../../libs/serial/functions';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -18,6 +18,7 @@ const template = (function () {
       border: 2px solid white;
       border-radius: 3px;
       color: white;
+      box-sizing: border-box;
     }
 
     #container {

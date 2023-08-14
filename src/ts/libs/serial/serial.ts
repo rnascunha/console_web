@@ -149,7 +149,7 @@ export class SerialList extends EventEmitter<SerialListEvents> {
       .catch(() => {});
   }
 
-  private get_ports(): void {
+  public get_ports(): void {
     navigator.serial
       .getPorts()
       .then(ports => {

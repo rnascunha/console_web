@@ -86,8 +86,10 @@
 - [x] Bootloader description just work for the newest IDF (v5.2). Handle old versions;
 - [ ] Parse `partition-table.bin` and `ota_data_initial.bin` binary files;
 - [ ] Show segments (like esptool does);
+- [ ] Support more chips, and read other features from chip;
 - [ ] Make lib `esp` as a library;
 - [x] Rename to `ESPTool`;
+- [ ] Make it possible drag files/directories.
 
 ### New Tools
 

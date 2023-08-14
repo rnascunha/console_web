@@ -2,26 +2,18 @@ import EventEmitter from '../../libs/event_emitter';
 import type DataDisplay from '../../web-components/data-display/data-display';
 import { ParseUntilTimeout, type ParseData } from '../../libs/stream_parser';
 import { DataTerminal } from '../../libs/terminal';
-import { esp32_signal_reset } from './functions';
-import type { SerialConn } from './serial';
+import { esp32_signal_reset } from '../../libs/serial/functions';
+import type { SerialConn } from '../../libs/serial/serial';
 import type { Encoding } from '../../libs/binary-dump';
 import type { BinaryInputSelect } from '../../web-components/binary-input/text-select-binary';
-
-const serialBaudrate: number[] = [
-  9600, 19200, 38400, 57600, 115200, 230400, 460800, 576000, 921600,
-];
-const serialDataBits = [7, 8];
-const serialFlowControl: FlowControlType[] = ['none', 'hardware'];
-const serialParity: ParityType[] = ['none', 'even', 'odd'];
-const serialStopBits = [1, 2];
-
-const serialDefaults: SerialOptions = {
-  baudRate: 115200,
-  dataBits: 8,
-  flowControl: 'none',
-  parity: 'none',
-  stopBits: 1,
-};
+import {
+  serialDefaults,
+  serialBaudrate,
+  serialDataBits,
+  serialFlowControl,
+  serialParity,
+  serialStopBits,
+} from '../../libs/serial/contants';
 
 export interface SerialState {
   open: SerialOptions;
@@ -31,7 +23,7 @@ export interface SerialState {
   };
 }
 
-export const serialStateDefault: SerialState = {
+export const serial_state_default: SerialState = {
   open: serialDefaults,
   input: {
     data: [],

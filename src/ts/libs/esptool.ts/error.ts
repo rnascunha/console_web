@@ -1,11 +1,11 @@
 export const error_code = {
   NO_ERROR: 0,
   WRONG_MAGIC_BYTE_HEADER: 1,
-  WRONG_MAGIC_WORD_APP: 1,
-  WRONG_MAGIC_BYTE_BOOTLOADER: 1,
-  HASH_NOT_MATCH: 2,
-  NOT_SUPPORTED: 3,
-  FILE_NOT_FOUND: 4,
+  WRONG_MAGIC_WORD_APP: 2,
+  WRONG_MAGIC_BYTE_BOOTLOADER: 3,
+  HASH_NOT_MATCH: 4,
+  NOT_SUPPORTED: 5,
+  FILE_NOT_FOUND: 6,
 };
 
 type ESPErrorCode = (typeof error_code)[keyof typeof error_code];

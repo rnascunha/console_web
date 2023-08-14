@@ -13,6 +13,7 @@ import {
   GoldenLayout,
   ResolvedComponentItemConfig,
 } from 'golden-layout';
+import { SerialList } from './libs/serial/serial';
 import { type AppOpenParameters, type App, AppList } from './apps/app';
 import { type Tool, ToolList } from './tools/tools';
 import { open as open_db, type DB } from './libs/db';
@@ -42,6 +43,8 @@ interface AppState {
 
 export class ConsoleApp {
   private readonly _layout: GoldenLayout;
+
+  private static readonly _serial_list: SerialList = new SerialList();
 
   private readonly _container: HTMLElement;
   private readonly _sel_protocols: HTMLSelectElement;
@@ -210,6 +213,10 @@ export class ConsoleApp {
 
   private get protocol(): string {
     return this._sel_protocols.value;
+  }
+
+  public static get serial_list(): SerialList {
+    return ConsoleApp._serial_list;
   }
 
   private open(): void {

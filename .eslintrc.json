@@ -18,6 +18,15 @@
         "format": ["snake_case", "camelCase"]
       },
       {
+        "selector": "enumMember",
+        "format": ["PascalCase", "UPPER_CASE"]
+      },
+      {
+        "selector": "variable",
+        "format": ["snake_case", "UPPER_CASE"],
+        "modifiers": ["const"]
+      },
+      {
         "selector": "typeLike",
         "format": ["PascalCase"]
       },

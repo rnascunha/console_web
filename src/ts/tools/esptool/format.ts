@@ -76,7 +76,11 @@ const names: Record<string, SegmentInfo> = {
     name: 'File Info',
     data: {
       name: { name: 'File', value: (f: File) => f.name },
-      size: { name: 'Size', value: (f: File) => byte_size(f.size) },
+      size: {
+        name: 'Size',
+        value: (f: File) => byte_size(f.size),
+        title: (f: File) => `${f.size}b`,
+      },
       // type: { name: 'Type', value: (f: File) => f.type },
       date: { name: 'Date', value: (f: File) => to_date(f.lastModified) },
     },
@@ -170,7 +174,9 @@ function output_file_data(
     const value = val.value(data, format);
     max_value = Math.max(max_value, value.length);
     max_name = Math.max(max_name, val.name.length);
-    output.push({ name: val.name, value });
+    const out: Val = { name: val.name, value };
+    if (val.title !== undefined) out.title = val.title(data, data);
+    output.push(out);
   });
 
   return {

@@ -1,5 +1,5 @@
 import { type ESPFlashFile, files_info } from '../types';
-import { is_serial_supported } from '../../../apps/serial/functions';
+import { is_serial_supported } from '../../../libs/serial/functions';
 
 const template = (function () {
   const template = document.createElement('template');
