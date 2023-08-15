@@ -154,6 +154,12 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     if (state !== undefined) this.set_state(state);
 
     this._port.on('open', () => {
+      this._port
+        .read()
+        .catch(e => {
+          this.error(e.message);
+        })
+        .finally(() => {});
       this.opened();
       this._parser.start();
       this.emit('state', this.state());
@@ -161,9 +167,6 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     this._port.on('close', () => {
       this.closed();
       this._parser.stop();
-    });
-    this._port.on('error', error => {
-      this.error(error);
     });
     this._port.on('data', data => {
       this._parser.process(data);

@@ -5,6 +5,7 @@ import { ESPFlashFileList } from './web-components/file-list';
 import { ESPError } from '../../libs/esptool.ts/error';
 import { DataTerminal } from '../../libs/terminal';
 import { ConsoleApp } from '../../console_app';
+import type { SerialConn } from '../../libs/serial/serial';
 import {
   install_serial_events,
   is_serial_supported,
@@ -130,6 +131,7 @@ const template = (function () {
         <button id=serial-bootloader>BOOT</button>
         <button id=serial-sync title=Sync>&#128257;</button>
         <button id=serial-chip title='Chip information'>&#x2139;</button>
+        <button id=serial-change-baud title='Change Baudrate'>BR</button>
       </div>
       <div id=console></div>
     </div>
@@ -233,20 +235,102 @@ export class ESPToolComponent extends ComponentBase {
       terminal.write_str('https://caniuse.com/web-serial\r\n');
       return;
     }
+
+    // HTML Elements
     const select = shadow.querySelector('#serial-select') as HTMLSelectElement;
+    const open = shadow.querySelector('#serial-open') as HTMLButtonElement;
+    const br = shadow.querySelector('#serial-baudrate') as HTMLInputElement;
+    const reset = shadow.querySelector('#serial-reset') as HTMLButtonElement;
+    const boot = shadow.querySelector(
+      '#serial-bootloader'
+    ) as HTMLButtonElement;
+    const sync = shadow.querySelector('#serial-sync') as HTMLButtonElement;
+    const info = shadow.querySelector('#serial-chip') as HTMLButtonElement;
+    const change_baud = shadow.querySelector(
+      '#serial-change-baud'
+    ) as HTMLButtonElement;
+
+    enum ESPToolState {
+      CLOSE,
+      OPEN,
+      BOOTLOADER,
+      SYNC,
+    }
+
+    const set_state = (state?: ESPToolState): void => {
+      if (state === undefined) {
+        open.dataset.state = 'close';
+        select.disabled = false;
+        br.disabled = false;
+        reset.disabled = true;
+        boot.disabled = true;
+        sync.disabled = true;
+        info.disabled = true;
+        change_baud.disabled = true;
+        return;
+      }
+
+      switch (state) {
+        case ESPToolState.CLOSE:
+          open.dataset.state = 'close';
+          select.disabled = false;
+          br.disabled = false;
+          reset.disabled = true;
+          boot.disabled = true;
+          sync.disabled = true;
+          info.disabled = true;
+          change_baud.disabled = true;
+          break;
+        case ESPToolState.OPEN:
+          open.dataset.state = 'open';
+          select.disabled = true;
+          br.disabled = true;
+          reset.disabled = false;
+          boot.disabled = false;
+          sync.disabled = false;
+          info.disabled = true;
+          change_baud.disabled = true;
+          break;
+        case ESPToolState.BOOTLOADER:
+          open.dataset.state = 'open';
+          select.disabled = true;
+          br.disabled = true;
+          reset.disabled = false;
+          boot.disabled = false;
+          sync.disabled = false;
+          info.disabled = true;
+          change_baud.disabled = true;
+          break;
+        case ESPToolState.SYNC:
+          open.dataset.state = 'open';
+          select.disabled = true;
+          br.disabled = true;
+          reset.disabled = false;
+          boot.disabled = true;
+          sync.disabled = true;
+          info.disabled = false;
+          change_baud.disabled = false;
+          break;
+      }
+    };
+
     const list = ConsoleApp.serial_list;
     install_serial_events(list, select);
+    const update_open = (serials: SerialConn[]): void => {
+      open.disabled = serials.length === 0;
+    };
+    list.on('disconnect', update_open);
+    list.on('connect', update_open);
+    update_open(list.ports);
     ConsoleApp.serial_list.get_ports();
 
     let esptool: ESPTool | undefined;
+    set_state(undefined);
 
-    const open = shadow.querySelector('#serial-open') as HTMLElement;
-    const br = shadow.querySelector('#serial-baudrate') as HTMLInputElement;
-
-    const open_cb = async (esptool: ESPTool): Promise<void> => {
+    const open_cb = async (esptool?: ESPTool): Promise<void> => {
       if (esptool === undefined) return;
+      set_state(ESPToolState.OPEN);
       terminal.write_str('Connected\r\n');
-      open.dataset.state = 'open';
 
       try {
         esptool.callback = (data: Uint8Array) => {
@@ -261,7 +345,7 @@ export class ESPToolComponent extends ComponentBase {
     };
 
     const close_cb = (): void => {
-      open.dataset.state = 'close';
+      set_state(ESPToolState.CLOSE);
       terminal.write_str('Closed\r\n');
     };
 
@@ -277,20 +361,33 @@ export class ESPToolComponent extends ComponentBase {
       const serial = list.port_by_id(id);
       if (serial === undefined || serial.state === 'open') return;
       esptool = new ESPTool(serial);
+      esptool.on('open', () => {
+        open_cb(esptool).finally(() => {});
+      });
+      esptool.on('close', () => {
+        close_cb();
+        esptool = undefined;
+      });
+      esptool.on('sync', () => {
+        set_state(ESPToolState.SYNC);
+      });
+      esptool.on('disconnect', () => {
+        set_state(undefined);
+        terminal.write_str('Serial device disconnected...\r\n');
+        esptool = undefined;
+      });
+      esptool.on('error', err => {
+        terminal.write_str(`ESPTool error [${err.message}]\r\n`);
+      });
 
-      esptool
-        .open(+br.value, open_cb, () => {
-          esptool = undefined;
-          close_cb();
-        })
-        .finally(() => {});
+      esptool.open(+br.value).finally(() => {});
     });
 
     this.container.on('beforeComponentRelease', () => {
       esptool?.close().finally(() => {});
     });
 
-    shadow.querySelector('#serial-reset')?.addEventListener('click', () => {
+    reset.addEventListener('click', () => {
       esptool?.signal_reset().finally(() => {
         terminal.write_str('Reseting device\r\n');
       });
@@ -302,30 +399,28 @@ export class ESPToolComponent extends ComponentBase {
         terminal.terminal.clear();
       });
 
-    shadow
-      .querySelector('#serial-bootloader')
-      ?.addEventListener('click', () => {
-        if (esptool === undefined) {
-          terminal.write_str('ESPTool not intiated...\r\n');
-          return;
-        }
-        terminal.write_str('Booting...\r\n');
-        esptool
-          .signal_bootloader()
-          .then(() => {
-            terminal.write_str('Booted...\r\n');
-          })
-          .finally(() => {});
-      });
+    boot.addEventListener('click', () => {
+      if (esptool === undefined) {
+        terminal.write_str('ESPTool not intiated...\r\n');
+        return;
+      }
+      terminal.write_str('Booting...\r\n');
+      esptool
+        .signal_bootloader()
+        .then(() => {
+          terminal.write_str('Booted...\r\n');
+        })
+        .finally(() => {});
+    });
 
-    shadow.querySelector('#serial-sync')?.addEventListener('click', () => {
+    sync.addEventListener('click', () => {
       if (esptool === undefined) {
         terminal.write_str('ESPTool not intiated...\r\n');
         return;
       }
       terminal.write_str('Syncing...\r\n');
       esptool
-        .sync()
+        .sync(20)
         .then(() => {
           terminal.write_str('Sync Success...\r\n');
         })
@@ -334,7 +429,7 @@ export class ESPToolComponent extends ComponentBase {
         });
     });
 
-    shadow.querySelector('#serial-chip')?.addEventListener('click', () => {
+    info.addEventListener('click', () => {
       if (esptool === undefined) {
         terminal.write_str('ESPTool not intiated...\r\n');
         return;
@@ -351,7 +446,26 @@ export class ESPToolComponent extends ComponentBase {
           terminal.write_str(`MAC...${mac_string(res.mac)}\r\n`);
         })
         .catch(e => {
-          terminal.write_str('Error reading chip info');
+          terminal.write_str('Error reading chip info\r\n');
+        })
+        .finally(() => {});
+    });
+
+    change_baud.addEventListener('click', () => {
+      if (esptool === undefined) {
+        terminal.write_str('ESPTool not intiated...\r\n');
+        return;
+      }
+
+      const new_baud = 460800;
+      terminal.write_str(`Changing baudrate to ${new_baud}... `);
+      esptool
+        .change_baudrate(new_baud)
+        .then(() => {
+          terminal.write_str('done\r\n');
+        })
+        .catch(() => {
+          terminal.write_str('FAIL\r\n');
         })
         .finally(() => {});
     });
@@ -379,5 +493,5 @@ async function read_chip_info(esptool: ESPTool): Promise<ChipInfo> {
       };
     } catch (e) {}
   }
-  throw new Error('Error reading chip info');
+  throw new Error('Error reading chip info\r\n');
 }

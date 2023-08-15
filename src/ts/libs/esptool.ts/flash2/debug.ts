@@ -1,15 +1,5 @@
 import * as type from './types';
 
-export function status_error_name(
-  code: type.RomLoadErrorCode | type.SoftwareLoadErrorCode
-): string {
-  if (code === 0) return 'Success';
-  if (type.rom_load_error[code] !== undefined) return type.rom_load_error[code];
-  if (type.software_load_error[code] !== undefined)
-    return type.software_load_error[code];
-  return 'unrecognized';
-}
-
 export function chip_name(chip_id: number): string {
   if (chip_id in type.chips) return type.chips[chip_id].name;
 

@@ -14,17 +14,20 @@ export function is_serial_supported(): boolean {
 }
 
 export function get_serial_info(port: SerialPort): SerialPortInfo {
+  // eslint-disable-next-line
   const { usbProductId, usbVendorId } = port.getInfo();
-  const vID: string = usbVendorId?.toString(16) as string;
-  const pID: string = usbProductId?.toString(16) as string;
-  const vName = (serialJSON as Record<string, any>)[vID]?.name;
-  const pName = (serialJSON as Record<string, any>)[vID]?.devices[pID];
+  const vendor_id: string = usbVendorId?.toString(16) as string;
+  const product_id: string = usbProductId?.toString(16) as string;
+  const vendor_name = (serialJSON as Record<string, any>)[product_id]?.name;
+  const product_name = (serialJSON as Record<string, any>)[product_id]?.devices[
+    product_id
+  ];
 
   return {
-    vendorID: vID,
-    productID: pID,
-    vendorName: vName,
-    productName: pName,
+    vendorID: vendor_id,
+    productID: product_id,
+    vendorName: vendor_name,
+    productName: product_name,
   };
 }
 

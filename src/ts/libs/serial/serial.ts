@@ -6,9 +6,10 @@ export type SerialState = 'open' | 'close';
 interface SerialConnEvents {
   open: SerialConn;
   close: SerialConn;
+  change_config: SerialOptions;
   data: Uint8Array;
   sent: Uint8Array;
-  error: any;
+  // error: any;
   disconnect: undefined;
 }
 
@@ -32,16 +33,22 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
   }
 
   public async open(opt: SerialOptions): Promise<void> {
-    await this._port.open(opt);
-    this._input_stream = this._port.readable;
-    this._reader =
-      this._input_stream?.getReader() as ReadableStreamDefaultReader<Uint8Array>;
-    this._output_stream = this._port.writable;
+    await this.open_internal(opt);
     this.emit('open', this);
-    await this.read();
   }
 
   public async close(): Promise<void> {
+    await this.close_internal();
+    this.emit('close', this);
+  }
+
+  public async change_config(opt: SerialOptions): Promise<void> {
+    await this.close_internal();
+    await this.open_internal(opt);
+    this.emit('change_config', opt);
+  }
+
+  private async close_internal(): Promise<void> {
     if (this.state === 'close') return;
 
     if (this._reader !== null) {
@@ -56,7 +63,12 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
     }
 
     await this._port.close();
-    this.emit('close', this);
+  }
+
+  private async open_internal(opt: SerialOptions): Promise<void> {
+    await this._port.open(opt);
+    this._input_stream = this._port.readable;
+    this._output_stream = this._port.writable;
   }
 
   public disconnect(): void {
@@ -65,14 +77,28 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
     this._output_stream = null;
   }
 
-  private async read(): Promise<void> {
+  public async read(): Promise<void> {
+    if (this._reader !== null) return;
+    this._reader =
+      this._input_stream?.getReader() as ReadableStreamDefaultReader<Uint8Array>;
     while (true) {
-      const { value, done } = await (
-        this._reader as ReadableStreamDefaultReader<Uint8Array>
-      ).read();
-      if (done) break;
+      const { value, done } = await this._reader.read();
+      if (done) {
+        if (this._reader !== null) {
+          this._reader.releaseLock();
+          this._reader = null;
+        }
+        break;
+      }
       this.emit('data', value);
     }
+  }
+
+  public async stop(): Promise<void> {
+    if (this._reader === null) return;
+
+    await this._reader.cancel();
+    this._reader = null;
   }
 
   public async write(data: Uint8Array): Promise<void> {
@@ -124,8 +150,10 @@ export class SerialList extends EventEmitter<SerialListEvents> {
 
     navigator.serial.ondisconnect = ev => {
       const port = this._ports.find(p => p.port === ev.target);
-      if (port !== undefined)
+      if (port !== undefined) {
+        port.emit('disconnect', undefined);
         this._ports = this._ports.filter(p => p.port !== ev.target);
+      }
       this.emit('disconnect', this._ports);
     };
 

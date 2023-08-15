@@ -37,34 +37,6 @@ export enum Register {
   CHIP_DETECT_MAGIC = 0x40001000,
 }
 
-export const rom_load_error: Record<number, string> = {
-  0x05: 'Received message is invalid',
-  0x06: 'Failed to act on received message',
-  0x07: 'Invalid CRC in message',
-  0x08: 'flash write error',
-  0x09: 'flash read error',
-  0x0a: 'flash read length error',
-  0x0b: 'Deflate error',
-} as const;
-
-export const software_load_error: Record<number, string> = {
-  0xc0: 'ESP_BAD_DATA_LEN',
-  0xc1: 'ESP_BAD_DATA_CHECKSUM',
-  0xc2: 'ESP_BAD_BLOCKSIZE',
-  0xc3: 'ESP_INVALID_COMMAND',
-  0xc4: 'ESP_FAILED_SPI_OP',
-  0xc5: 'ESP_FAILED_SPI_UNLOCK',
-  0xc6: 'ESP_NOT_IN_FLASH_MODE',
-  0xc7: 'ESP_INFLATE_ERROR',
-  0xc8: 'ESP_NOT_ENOUGH_DATA',
-  0xc9: 'ESP_TOO_MUCH_DATA',
-
-  0xff: 'ESP_CMD_NOT_IMPLEMENTED',
-} as const;
-
-export type RomLoadErrorCode = keyof typeof rom_load_error;
-export type SoftwareLoadErrorCode = keyof typeof software_load_error;
-
 export interface StatysBytes {
   status: Status;
   error?: number;

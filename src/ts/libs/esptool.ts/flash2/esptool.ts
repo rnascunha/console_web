@@ -1,9 +1,11 @@
 import type { SerialConn } from '../../serial/serial';
 import * as SLIP from './slip';
 import { sleep } from '../../../helper/time';
-import { Command, type Response, Register, chips } from './types';
+import { Command, type Response, Register, chips, Status } from './types';
 import { ErrorCode, ESPFlashError } from './error';
+import EventEmitter from '../../event_emitter';
 
+const ROM_BAUDRATE = 115200;
 const default_timeout = 3000;
 const sync_packet = [
   0x07, 0x07, 0x12, 0x20, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55,
@@ -11,20 +13,82 @@ const sync_packet = [
   0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55,
 ];
 
-export class ESPTool {
+interface ESPToolEvents {
+  open: ESPTool;
+  close: ESPTool;
+  bootloader: ESPTool;
+  sync: ESPTool;
+  error: Error;
+  disconnect: ESPTool;
+}
+
+export class ESPTool extends EventEmitter<ESPToolEvents> {
   private readonly _serial: SerialConn;
   private _callback?: (data: Uint8Array) => void;
 
   private readonly _is_stub: boolean = false;
+  private _baudrate: number = ROM_BAUDRATE;
+
   private _chip?: number;
   private _efuses?: Uint32Array;
 
   constructor(device: SerialConn) {
+    super();
+
     this._serial = device;
 
     this._serial.on('data', data => {
       if (this._callback !== undefined) this._callback(data);
     });
+  }
+
+  private async serial_read(): Promise<void> {
+    this._serial.read().catch(e => {
+      this.emit('error', e);
+    });
+  }
+
+  async open(baud: number): Promise<void> {
+    this._serial.on('open', () => {
+      this.emit('open', this);
+      this.serial_read().finally(() => {});
+    });
+    this._serial.on('close', () => {
+      this.emit('close', this);
+    });
+    this._serial.on('disconnect', () => {
+      this.emit('disconnect', this);
+    });
+
+    this._baudrate = baud;
+    await this._serial.open({
+      baudRate: baud,
+    });
+  }
+
+  async close(): Promise<void> {
+    await this._serial.close();
+    this._serial.clear_events();
+  }
+
+  async try_connect(): Promise<boolean> {
+    for (let i = 0; i < 10; ++i) {
+      try {
+        await this.signal_bootloader();
+        const was_silent = await this.wait_silent(20, 1000);
+        if (!was_silent) {
+          continue;
+        }
+        this.emit('bootloader', this);
+        await this.sync();
+        return true;
+      } catch (e) {
+        console.log(
+          `[${i.toString().padStart(2, '0')}] ${(e as ESPFlashError).message}`
+        );
+      }
+    }
+    return false;
   }
 
   async chip(): Promise<number> {
@@ -47,50 +111,16 @@ export class ESPTool {
     return chips[chip].efuses_to_mac(Array.from(efuses)) as number[];
   }
 
-  async open(
-    baud: number,
-    open_cb: (esptool: ESPTool) => any,
-    close_cb: () => any
-  ): Promise<void> {
-    this._serial.on('open', () => open_cb(this));
-    await this._serial.open({
-      baudRate: baud,
-    });
-
-    this._serial.on('close', () => {
-      close_cb();
-    });
-  }
-
-  async close(): Promise<void> {
-    await this._serial.close();
-    this._serial.clear_events();
-  }
-
-  async try_connect(): Promise<boolean> {
-    for (let i = 0; i < 10; ++i) {
-      try {
-        await this.signal_bootloader();
-        const was_silent = await this.wait_silent(20, 1000);
-        if (!was_silent) {
-          continue;
-        }
-        await this.sync();
-        return true;
-      } catch (e) {
-        console.log(
-          `[${i.toString().padStart(2, '0')}] ${(e as ESPFlashError).message}`
-        );
-      }
-    }
-    return false;
-  }
-
-  async set_port_baudrate(baud: number): Promise<void> {
-    await this._serial.close();
-    await this._serial.open({
-      baudRate: baud,
-    });
+  async change_baudrate(baud: number): Promise<void> {
+    const resp = await this.command(
+      Command.CHANGE_BAUDRATE,
+      SLIP.pack32(baud, this._is_stub ? this._baudrate : 0),
+      0
+    );
+    if (resp instanceof ESPFlashError) throw resp;
+    this._baudrate = baud;
+    await this._serial.change_config({ baudRate: baud });
+    this.serial_read().finally(() => {});
   }
 
   async signal_reset(): Promise<void> {
@@ -100,6 +130,7 @@ export class ESPTool {
     });
     await sleep(100);
     await this._serial.signals({ dataTerminalReady: true });
+    this.emit('open', this);
   }
 
   get callback(): ((data: Uint8Array) => void) | undefined {
@@ -128,14 +159,16 @@ export class ESPTool {
     await sleep(50);
     await this._serial.signals({
       dataTerminalReady: false,
-      requestToSend: false,
     });
   }
 
   async sync(retries = 5): Promise<void> {
     for (let i = 0; i < retries; i++) {
       const resp = await this.command(Command.SYNC, sync_packet, 0, 100);
-      if (!(resp instanceof ESPFlashError)) return;
+      if (!(resp instanceof ESPFlashError)) {
+        this.emit('sync', this);
+        return;
+      }
     }
     throw new ESPFlashError(ErrorCode.SYNC_ERROR);
   }
@@ -202,16 +235,20 @@ export class ESPTool {
     let remain: number[] = [];
 
     await this._serial.write(SLIP.command(op, new Uint8Array(data), checksum));
-
     while (timeout > 0) {
       const start = Date.now();
+
       const response = await this.read_timeout(timeout);
       timeout -= Date.now() - start;
 
       const packets = SLIP.parse(response, this._is_stub, remain);
+      if (op === Command.CHANGE_BAUDRATE) console.log('packets', packets);
       remain = packets.remain;
       const packet = packets.packets.find(p => p.command === op);
-      if (packet !== undefined) return packet;
+      if (packet !== undefined) {
+        if (packet.status.status === Status.SUCCESS) return packet;
+        return new ESPFlashError(packet.status.error as number);
+      }
     }
 
     return new ESPFlashError(ErrorCode.RESPONSE_NOT_RECEIVED);
