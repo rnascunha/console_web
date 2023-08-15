@@ -18,8 +18,8 @@ export function get_serial_info(port: SerialPort): SerialPortInfo {
   const { usbProductId, usbVendorId } = port.getInfo();
   const vendor_id: string = usbVendorId?.toString(16) as string;
   const product_id: string = usbProductId?.toString(16) as string;
-  const vendor_name = (serialJSON as Record<string, any>)[product_id]?.name;
-  const product_name = (serialJSON as Record<string, any>)[product_id]?.devices[
+  const vendor_name = (serialJSON as Record<string, any>)[vendor_id]?.name;
+  const product_name = (serialJSON as Record<string, any>)[vendor_id]?.devices[
     product_id
   ];
 
