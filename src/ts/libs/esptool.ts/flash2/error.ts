@@ -11,9 +11,13 @@ export enum ErrorCode {
   TIMEOUT = 0x0a00,
   RESPONSE_NOT_RECEIVED = 0x0b00,
   SYNC_ERROR = 0x0c00,
-  READ_REG_ERROR = 0x0d00,
-  CHIP_NOT_DEFINED = 0x0e00,
-  EFUSES_NOT_DEFINED = 0x0f00,
+  CHIP_NOT_DEFINED = 0x0d00,
+  EFUSES_NOT_DEFINED = 0x0e00,
+  STUB_ALREADY_UPLOAD = 0x0f00,
+  FIELD_MISSING = 0x1000,
+  UPLOAD_STUB_FAILED = 0x1100,
+  STUB_ONLY_COMMAND = 0x1200,
+  INVALID_ARGUMENT = 0x1300,
 }
 
 export const rom_load_error: Record<number, string> = {
@@ -56,9 +60,13 @@ const error_code_name: Record<ErrorCode, string> = {
   [ErrorCode.TIMEOUT]: 'Command timeout',
   [ErrorCode.RESPONSE_NOT_RECEIVED]: 'Command response not received',
   [ErrorCode.SYNC_ERROR]: 'Device not synced',
-  [ErrorCode.READ_REG_ERROR]: 'Error reading register',
   [ErrorCode.CHIP_NOT_DEFINED]: 'Chip not defined',
   [ErrorCode.EFUSES_NOT_DEFINED]: 'Efuses not defined',
+  [ErrorCode.STUB_ALREADY_UPLOAD]: 'Stub already uploaded',
+  [ErrorCode.FIELD_MISSING]: 'Field missing',
+  [ErrorCode.UPLOAD_STUB_FAILED]: 'Upload stub failed',
+  [ErrorCode.STUB_ONLY_COMMAND]: 'Command valid only to stub loader',
+  [ErrorCode.INVALID_ARGUMENT]: 'Invalid argument',
 } as const;
 
 function status_error_name(
@@ -74,8 +82,8 @@ function status_error_name(
 export class ESPFlashError extends Error {
   private readonly _code: ErrorCode | RomLoadErrorCode | SoftwareLoadErrorCode;
 
-  constructor(code: ErrorCode) {
-    super(status_error_name(code));
+  constructor(code: ErrorCode, message?: string) {
+    super(message ?? status_error_name(code));
     this._code = code;
   }
 

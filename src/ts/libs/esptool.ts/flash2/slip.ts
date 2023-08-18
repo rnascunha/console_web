@@ -18,6 +18,11 @@ interface DataPayload {
   checksum: number;
 }
 
+interface SplitPackets {
+  packets: number[][];
+  remain: number[];
+}
+
 // const stub_only_commands: type.Commands[] = [
 //   Commands.ERASE_FLASH,
 //   Commands.ERASE_REGION,
@@ -39,7 +44,10 @@ function uint16_to_bytes(size: number): number[] {
   return [size & 0xff, (size >> 8) & 0xff];
 }
 
-function checksum(data: Uint8Array, seed = CHECKSUM_SEED): number {
+export function checksum(
+  data: number[] | Uint8Array,
+  seed = CHECKSUM_SEED
+): number {
   for (const b of data) {
     seed ^= b;
   }
@@ -121,12 +129,34 @@ function parse_response(
 }
 
 export function parse(
-  raw_data: Uint8Array,
+  raw_data: Uint8Array | number[],
   is_stub: boolean,
   remain: number[] = []
 ): type.Packets {
-  const data = [...remain, ...Array.from(raw_data)];
+  const splited = split(raw_data, remain);
+
   const packets: type.Response[] = [];
+  splited.packets.forEach(p => {
+    const ans = parse_response(p, is_stub);
+    if (ans instanceof ESPFlashError) {
+      console.warn(`Parse error: ${ans.message}`);
+      return;
+    }
+    packets.push(ans);
+  });
+
+  return {
+    packets,
+    remain: splited.remain,
+  };
+}
+
+export function split(
+  raw_data: Uint8Array | number[],
+  remain: number[] = []
+): SplitPackets {
+  const data = [...remain, ...Array.from(raw_data)];
+  const packets: number[][] = [];
   let curr = [];
   for (let i = 0; i < data.length; ++i) {
     if (curr.length === 0 && data[i] !== PACKET_BORDER) continue;
@@ -137,9 +167,7 @@ export function parse(
         curr.pop();
         continue;
       }
-      const ans = parse_response(curr, is_stub);
-      if (!(ans instanceof ESPFlashError)) packets.push(ans);
-      else console.warn(ans.message);
+      packets.push(curr);
       curr = [];
     }
   }

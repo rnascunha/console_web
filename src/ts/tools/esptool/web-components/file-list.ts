@@ -45,6 +45,18 @@ const template = (function () {
       text-align: center;
     }
 
+    #error {
+      display: inline-block;
+      background-color: red;
+      color: white;
+      padding: 2px;
+      border-radius: 2px;
+    }
+
+    #error:empty {
+      display: none;
+    }
+
     .parser-content {
       display: inline-flex;
       align-items: flex-start;
@@ -73,10 +85,11 @@ const template = (function () {
   </div>
   <div id=container></div>
   <div id=execute>
+    <div id=error></div>
     <label><input id=verify type=checkbox checked />Verify</label>
     <label><input id=monitor type=checkbox checked />Monitor</label>
-    <button class=flash-btn title="Upload selected">Selected ▶</button>
-    <button class=flash-btn title="Upload all">All ▶</button>
+    <button id=flash-selected class=flash-btn title="Upload selected">Selected ▶</button>
+    <button id=flash-all class=flash-btn title="Upload all">All ▶</button>
   </div>
   <div id=progress>Progress</div>
   <span id=parsed></span>`;
@@ -95,6 +108,8 @@ const template = (function () {
 
 export class ESPFlashFileList extends HTMLElement {
   private _files: ESPFlashFile[];
+  private readonly _error: HTMLElement;
+
   constructor(files: ESPFlashFile[]) {
     super();
 
@@ -103,8 +118,18 @@ export class ESPFlashFileList extends HTMLElement {
     const shadow = this.attachShadow({ mode: 'open' });
     shadow.appendChild(template.content.cloneNode(true));
 
+    this._error = shadow.querySelector('#error') as HTMLElement;
+
     shadow.querySelector('#close')?.addEventListener('click', () => {
       this.close();
+    });
+
+    shadow.querySelector('#flash-all')?.addEventListener('click', () => {
+      this.dispatchEvent(
+        new CustomEvent('flash', {
+          detail: this._files,
+        })
+      );
     });
 
     const container = shadow.querySelector('#container') as HTMLElement;
@@ -146,6 +171,10 @@ export class ESPFlashFileList extends HTMLElement {
         });
       })
       .finally(() => {});
+  }
+
+  public error(message: string): void {
+    this._error.textContent = message;
   }
 
   private close(): void {

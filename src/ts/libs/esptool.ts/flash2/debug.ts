@@ -1,6 +1,6 @@
 import * as type from './types';
 
-export function chip_name(chip_id: number): string {
+export function chip_name(chip_id: type.Chip): string {
   if (chip_id in type.chips) return type.chips[chip_id].name;
 
   return `0x${chip_id.toString(16)}`;

@@ -35,6 +35,9 @@
 - [ ] Make search/execute prompt.
 - [ ] Notification board;
 - [ ] Statistic data (per app, interface...);
+- [ ] Create ReadableStream/WritableStream to deal with data received/sent;
+  - [ ] To be used at app;
+  - [ ] To process packets (like slip packet of ESPtool);
 - [ ] Different outputs/parsers:
   - [x] Data (how is now)
   - [ ] Terminal
