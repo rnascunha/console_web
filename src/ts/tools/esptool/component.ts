@@ -1,7 +1,11 @@
 import { type ComponentContainer, type JsonValue } from 'golden-layout';
 import { ComponentBase } from '../../golden-components/component-base';
 import { read_directory, discover_file } from './files';
-import { ESPFlashFileList } from './web-components/file-list';
+import {
+  ESPFlashFileList,
+  type ESPFlashFileListState,
+  type FlashFlags,
+} from './web-components/file-list';
 import { ESPError } from '../../libs/esptool.ts/error';
 import { DataTerminal } from '../../libs/terminal';
 import { ConsoleApp } from '../../console_app';
@@ -16,6 +20,8 @@ import { chip_name, mac_string } from '../../libs/esptool.ts/flash2/debug';
 import { type FlashImageProgress } from '../../libs/esptool.ts/flash2/types';
 import type { ESPFlashFile } from './types';
 import { file_to_arraybuffer } from '../../helper/file';
+
+import { ArrayBuffer as md5_digest } from 'spark-md5';
 
 import terminal_style from 'xterm/css/xterm.css';
 
@@ -168,6 +174,14 @@ enum ESPToolState {
   STUB,
 }
 
+const bg_color = '#999999';
+const bar_color = '#00cc00';
+
+function reset_file_list(list: ESPFlashFileList): void {
+  list.error('');
+  list.progress({ value: 0, text: '0/0', bar: bar_color, bg: bg_color });
+}
+
 export class ESPToolComponent extends ComponentBase {
   private _esptool?: ESPTool;
   private readonly _terminal: DataTerminal;
@@ -182,19 +196,30 @@ export class ESPToolComponent extends ComponentBase {
 
     this.title = 'ESPTool';
 
+    const sstate = window.console_app.get_tool_state('esptool');
+
     const shadow = this.rootHtmlElement.attachShadow({ mode: 'open' });
     shadow.appendChild(template.content.cloneNode(true));
 
     this._terminal = new DataTerminal();
 
     this.console();
-    this.parser();
+    this.parser(sstate.list);
+
+    shadow.addEventListener('state', ev => {
+      this.save_state();
+    });
   }
 
-  private parser(): void {
+  private parser(lists: ESPFlashFileListState[]): void {
     const shadow = this.rootHtmlElement.shadowRoot as ShadowRoot;
     const parser = shadow.querySelector('#parser') as HTMLElement;
     const error = shadow.querySelector('#error') as HTMLElement;
+
+    if (lists !== undefined)
+      lists.forEach(list => {
+        parser.appendChild(new ESPFlashFileList(list.files, list.flags));
+      });
 
     customElements
       .whenDefined('input-file')
@@ -213,6 +238,7 @@ export class ESPToolComponent extends ComponentBase {
             if (err instanceof ESPError) error.textContent = error_message(err);
             else console.log(err);
           }
+          this.save_state();
           input.value = '';
         });
         const folder = shadow.querySelector('#esp-folder') as InputFile;
@@ -223,21 +249,7 @@ export class ESPToolComponent extends ComponentBase {
             const data = await read_directory(folder.files);
             const file_list = new ESPFlashFileList(data);
             parser.appendChild(file_list);
-            file_list.addEventListener('flash', ev => {
-              if (this._state < ESPToolState.SYNC) {
-                file_list.error('ESPTool not synced');
-                return;
-              }
-              file_list.error('');
-              const files = (ev as CustomEvent).detail as ESPFlashFile[];
-              flash_files(this._esptool as ESPTool, files, this._terminal)
-                .then(() => {
-                  console.log('Image flashed');
-                })
-                .catch(err => {
-                  console.error(`Error flashing [${(err as Error).message}]`);
-                });
-            });
+            this.save_state();
             error.textContent = '';
           } catch (err) {
             if (err instanceof ESPError) error.textContent = error_message(err);
@@ -247,6 +259,55 @@ export class ESPToolComponent extends ComponentBase {
         });
       })
       .finally(() => {});
+
+    shadow.addEventListener('flash', ev => {
+      const file_list = ev.target as ESPFlashFileList;
+      if (this._state < ESPToolState.SYNC) {
+        file_list.error('ESPTool not synced');
+        return;
+      }
+      const files = (ev as CustomEvent).detail as ESPFlashFile[];
+      this.flash_image(file_list, files).finally(() => {});
+    });
+
+    shadow.addEventListener('delete', ev => {
+      const list = ev.target as ESPFlashFileList;
+      if (list.files.length === 0) parser.removeChild(list);
+      this.save_state();
+    });
+  }
+
+  private async flash_image(
+    file_list: ESPFlashFileList,
+    files: ESPFlashFile[]
+  ): Promise<void> {
+    reset_file_list(file_list);
+    try {
+      await flash_files(
+        this._esptool as ESPTool,
+        files,
+        this._terminal,
+        (file: string, data: FlashImageProgress) => {
+          file_list.progress({
+            value: data.percent,
+            text: `${file} ${data.seq}/${data.blocks}`,
+          });
+          this._terminal.write_str(
+            `${data.seq}/${data.blocks}|${data.written}/${data.file_size}...${data.percent}%\r\n`
+          );
+        },
+        file_list.flags
+      );
+      console.log('Image flashed');
+      file_list.progress({ value: 100, text: 'Files flashed' });
+    } catch (err) {
+      console.error(`Error flashing [${(err as Error).message}]`);
+      file_list.progress({
+        text: `Error [${(err as Error).message}]`,
+        bar: '#ff0000',
+        bg: '#cc5555',
+      });
+    }
   }
 
   private console(): void {
@@ -396,17 +457,13 @@ export class ESPToolComponent extends ComponentBase {
         this._terminal.write(data);
       };
 
-      // terminal.write_str('Syncing...');
-      // if (await esptool.try_connect()) terminal.write_str('Synced\r\n');
+      // this._terminal.write_str('Syncing...');
+      // if (await this._esptool.try_connect())
+      //   this._terminal.write_str('Synced\r\n');
       // else {
-      //   terminal.write_str('Error syncing.\r\n');
-      //   await esptool.close();
+      //   this._terminal.write_str('Error syncing.\r\n');
+      //   await this._esptool.close();
       // }
-    };
-
-    const close_cb = (): void => {
-      set_state(ESPToolState.CLOSE);
-      this._terminal.write_str('Closed\r\n');
     };
 
     open.addEventListener('click', () => {
@@ -425,7 +482,8 @@ export class ESPToolComponent extends ComponentBase {
         open_cb().finally(() => {});
       });
       this._esptool.on('close', () => {
-        close_cb();
+        set_state(ESPToolState.CLOSE);
+        this._terminal.write_str('Closed\r\n');
         this._esptool = undefined;
       });
       this._esptool.on('sync', () => {
@@ -568,6 +626,19 @@ export class ESPToolComponent extends ComponentBase {
         });
     });
   }
+
+  private save_state(): void {
+    const shadow = this.rootHtmlElement.shadowRoot as ShadowRoot;
+    window.console_app.set_tool_state(
+      'esptool',
+      {
+        list: Array.from(shadow.querySelectorAll('esp-file-list'))
+          .map(el => (el as ESPFlashFileList).state)
+          .filter(f => f.files.length > 0),
+      },
+      true
+    );
+  }
 }
 
 interface ChipInfo {
@@ -602,7 +673,9 @@ async function read_chip_info(esptool: ESPTool): Promise<ChipInfo> {
 async function flash_files(
   esptool: ESPTool,
   files: ESPFlashFile[],
-  terminal: DataTerminal
+  terminal: DataTerminal,
+  cb: (file: string, info: FlashImageProgress) => void,
+  flags: FlashFlags
 ): Promise<void> {
   for (const file of files) {
     if (file.buffer === undefined)
@@ -611,21 +684,38 @@ async function flash_files(
     terminal.write_str(
       `Flashing ${file.name} at ${file.offset} [size=${file.file.size}]\r\n`
     );
-    console.log();
     try {
-      await esptool.flash_image(
-        new Uint8Array(file.buffer),
-        parseInt(file.offset),
-        {
-          callback: (data: FlashImageProgress) => {
-            terminal.write_str(
-              `seq=${data.seq}/${data.blocks}|pos=${data.position}|wrt=${data.written}/${data.file_size}...${data.percent}%\r\n`
-            );
-          },
+      const offset = parseInt(file.offset);
+      await esptool.flash_image(new Uint8Array(file.buffer), offset, {
+        callback: (data: FlashImageProgress) => {
+          cb(file.name, data);
+        },
+      });
+      terminal.write_str('Image flashed\r\n');
+      if (flags.verify) {
+        try {
+          terminal.write_str('Verifiy...\r\n');
+          terminal.write_str('Image...');
+          const hash_image = await esptool.flash_md5_calc(
+            offset,
+            file.file.size
+          );
+          terminal.write_str(hash_image + '\r\n');
+          terminal.write_str('File....');
+          const hash_file = md5_digest.hash(file.buffer);
+          terminal.write_str(hash_file + '\r\n');
+        } catch (err) {
+          terminal.write_str(`FAIL [${(err as Error).message}]\r\n`);
+          throw err;
         }
-      );
+      }
+      if (flags.monitor) {
+        terminal.write_str('Rebooting...\r\n');
+        await esptool.signal_reset();
+      }
     } catch (err) {
       terminal.write_str('FAIL\r\n');
+      throw err;
     }
   }
 }

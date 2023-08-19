@@ -36,4 +36,5 @@ export interface ESPFlashFile {
   file: File;
   type: ESPFileType;
   buffer?: ArrayBuffer;
+  select?: boolean;
 }

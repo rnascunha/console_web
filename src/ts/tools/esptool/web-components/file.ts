@@ -73,11 +73,23 @@ const template = (function () {
 })();
 
 export class ESPFlashFileElement extends HTMLElement {
+  private readonly _file: ESPFlashFile;
+
   constructor(file: ESPFlashFile) {
     super();
 
+    this._file = file;
+
     const shadow = this.attachShadow({ mode: 'open' });
     shadow.appendChild(template.content.cloneNode(true));
+
+    const select = shadow.querySelector('#selected') as HTMLInputElement;
+    if (this._file?.select === false) select.checked = false;
+
+    select.addEventListener('change', ev => {
+      this._file.select = (ev.target as HTMLInputElement).checked;
+      this.dispatchEvent(new Event('state', { bubbles: true }));
+    });
 
     const file_el = shadow.querySelector('#file') as HTMLElement;
     file_el.textContent = file.name;
@@ -100,7 +112,6 @@ export class ESPFlashFileElement extends HTMLElement {
           bubbles: true,
         })
       );
-      this.parentElement?.removeChild(this);
     });
 
     if (is_serial_supported()) {
@@ -113,6 +124,10 @@ export class ESPFlashFileElement extends HTMLElement {
         );
       });
     }
+  }
+
+  get file(): ESPFlashFile {
+    return this._file;
   }
 }
 

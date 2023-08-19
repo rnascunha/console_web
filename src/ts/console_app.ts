@@ -34,8 +34,8 @@ const console_layout: LayoutConfig = {
   },
 };
 
-const dbName = 'console_web';
-const dbVersion = 1;
+const DB_NAME = 'console_web';
+const DB_VERSION = 1;
 
 interface AppState {
   show_header: boolean;
@@ -331,7 +331,7 @@ export class ConsoleApp {
 
   private async load_db(): Promise<void> {
     try {
-      this._db = await open_db(dbName, dbVersion);
+      this._db = await open_db(DB_NAME, DB_VERSION);
       const v = await this._db.read_entries('protocol');
       if ('current' in v) this._sel_protocols.value = v.current;
       this._app_list.apps.forEach(app => {
@@ -341,7 +341,7 @@ export class ConsoleApp {
         /**
          * Recreating the database when is deleted.
          */
-        this._db = await open_db(dbName, dbVersion);
+        this._db = await open_db(DB_NAME, DB_VERSION);
       };
     } catch (e) {
       this._db = undefined;
@@ -422,6 +422,12 @@ export class ConsoleApp {
       if (tool === undefined) return;
       this._layout.addComponent(tool.name, tool.open());
     });
+  }
+
+  public get_tool_state(name: string): any {
+    const tool = this._tool_list.tool(name);
+    if (tool === undefined) return;
+    return tool.open();
   }
 
   private open_link(setup: Setup): void {

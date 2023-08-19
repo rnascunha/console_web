@@ -13,35 +13,13 @@ const replacer: Record<number, number[]> = {
   0xdb: [0xdb, 0xdd],
 };
 
-interface DataPayload {
-  data: Uint8Array;
-  checksum: number;
-}
-
 interface SplitPackets {
   packets: number[][];
   remain: number[];
 }
 
-// const stub_only_commands: type.Commands[] = [
-//   Commands.ERASE_FLASH,
-//   Commands.ERASE_REGION,
-//   Commands.READ_FLASH,
-//   Commands.RUN_USER_CODE,
-// ];
-
-const checksum_need_command: type.Command[] = [
-  type.Command.MEM_DATA,
-  type.Command.FLASH_DATA,
-  type.Command.FLASH_DEFL_DATA,
-];
-
 function bytes_to_uint16(b0: number, b1: number): number {
   return (b1 << 8) | b0;
-}
-
-function uint16_to_bytes(size: number): number[] {
-  return [size & 0xff, (size >> 8) & 0xff];
 }
 
 export function checksum(
@@ -95,22 +73,30 @@ function parse_response(
   const data = decode(data_raw);
 
   if (data instanceof ESPFlashError) return data;
-  if (data.length < HEADER_RESPONSE_SIZE)
+  if (data.length < HEADER_RESPONSE_SIZE) {
+    console.warn(`PACKET_TOO_SMALL/is_stub=${is_stub.toString()}`, data_raw);
     return new ESPFlashError(ErrorCode.PACKET_TOO_SMALL);
-  if (data[0] !== type.Direction.RESPONSE)
+  }
+  if (data[0] !== type.Direction.RESPONSE) {
+    console.warn(`WRONG_DIRECTION/is_stub=${is_stub.toString()}`, data_raw);
     return new ESPFlashError(ErrorCode.WRONG_DIRECTION);
+  }
 
   const command = data[1] as type.Command;
   const size = bytes_to_uint16(data[2], data[3]);
   const payload_received = data.length - HEADER_RESPONSE_SIZE;
   if (size !== payload_received) {
+    console.warn(`SIZE_NOT_MATCH/is_stub=${is_stub.toString()}`, data_raw);
     return new ESPFlashError(ErrorCode.SIZE_NOT_MATCH);
   }
 
   const value = unpack32([data[4], data[5], data[6], data[7]]);
 
   const status_size = is_stub ? 2 : 4;
-  if (size < status_size) return new ESPFlashError(ErrorCode.SIZE_NOT_MATCH);
+  if (size < status_size) {
+    console.warn(`SIZE_NOT_MATCH/is_stub=${is_stub.toString()}`, data_raw);
+    return new ESPFlashError(ErrorCode.SIZE_NOT_MATCH);
+  }
 
   const payload = data.slice(HEADER_RESPONSE_SIZE, -status_size);
   const status_data = data.slice(-status_size);
@@ -178,25 +164,6 @@ export function split(
   };
 }
 
-function payload_data(data: Uint8Array, sequence: number): DataPayload {
-  const buffer = new ArrayBuffer(16 + data.byteLength);
-
-  const dv = new DataView(buffer);
-  dv.setUint32(0, data.length, true);
-  dv.setUint32(4, sequence, true);
-  dv.setUint32(8, 0, true);
-  dv.setUint32(12, 0, true);
-
-  const d = new Uint8Array(buffer);
-  d.set(data, 16);
-  const cs = checksum(data, CHECKSUM_SEED);
-
-  return {
-    data: d,
-    checksum: cs,
-  };
-}
-
 export function command(
   command: type.Command,
   data: Uint8Array,
@@ -205,26 +172,12 @@ export function command(
   const comm = [
     type.Direction.COMMAND,
     command,
-    ...uint16_to_bytes(data.length),
-    checksum,
-    0,
-    0,
-    0,
+    ...pack16(data.length),
+    ...pack32(checksum),
     ...Array.from(data),
   ];
 
   return new Uint8Array(encode(comm));
-}
-
-export function command_data(
-  comm: type.Command,
-  data: Uint8Array,
-  sequence: number
-): Uint8Array {
-  if (!checksum_need_command.includes(comm)) throw new Error('No command data');
-
-  const payload = payload_data(data, sequence);
-  return command(comm, payload.data, payload.checksum);
 }
 
 export function pack16(...args: number[]): number[] {

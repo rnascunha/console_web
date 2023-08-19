@@ -1,3 +1,6 @@
+import '../../../web-components/progress-bar';
+
+import { ProgressBar } from '../../../web-components/progress-bar';
 import type { ESPFlashFile } from '../types';
 import { ESPFlashFileElement } from './file';
 import { output_file } from '../parse';
@@ -36,15 +39,6 @@ const template = (function () {
       gap: 2px;
     }
 
-    #progress {
-      width: 100%;
-      box-sizing: border-box;
-      background-color: grey;
-      padding: 3px;
-      border-radius: 3px;
-      text-align: center;
-    }
-
     #error {
       display: inline-block;
       background-color: red;
@@ -55,6 +49,10 @@ const template = (function () {
 
     #error:empty {
       display: none;
+    }
+
+    #progress {
+      font-weight: bold;
     }
 
     .parser-content {
@@ -91,7 +89,7 @@ const template = (function () {
     <button id=flash-selected class=flash-btn title="Upload selected">Selected ▶</button>
     <button id=flash-all class=flash-btn title="Upload all">All ▶</button>
   </div>
-  <div id=progress>Progress</div>
+  <progress-bar id=progress>Progress</progress-bar>
   <span id=parsed></span>`;
 
   if (!is_serial_supported()) {
@@ -106,41 +104,96 @@ const template = (function () {
   return template;
 })();
 
+export interface FlashFlags {
+  verify: boolean;
+  monitor: boolean;
+}
+
+export interface ESPFlashFileListState {
+  files: ESPFlashFile[];
+  flags: FlashFlags;
+}
+
 export class ESPFlashFileList extends HTMLElement {
-  private _files: ESPFlashFile[];
   private readonly _error: HTMLElement;
+  private readonly _progress: ProgressBar;
 
-  constructor(files: ESPFlashFile[]) {
+  constructor(files: ESPFlashFile[], flags?: FlashFlags) {
     super();
-
-    this._files = files;
 
     const shadow = this.attachShadow({ mode: 'open' });
     shadow.appendChild(template.content.cloneNode(true));
 
     this._error = shadow.querySelector('#error') as HTMLElement;
+    this._progress = shadow.querySelector('#progress') as ProgressBar;
 
-    shadow.querySelector('#close')?.addEventListener('click', () => {
-      this.close();
+    // Monitor
+    const monitor = shadow.querySelector('#monitor') as HTMLInputElement;
+    monitor.addEventListener('change', () => {
+      this.dispatchEvent(new Event('state', { bubbles: true }));
     });
+    if (flags?.monitor === false) monitor.checked = false;
 
-    shadow.querySelector('#flash-all')?.addEventListener('click', () => {
-      this.dispatchEvent(
-        new CustomEvent('flash', {
-          detail: this._files,
-        })
-      );
+    // Verify
+    const verify = shadow.querySelector('#verify') as HTMLInputElement;
+    verify.addEventListener('change', () => {
+      this.dispatchEvent(new Event('state', { bubbles: true }));
     });
+    if (flags?.verify === false) verify.checked = false;
+
+    if (is_serial_supported()) {
+      shadow.querySelector('#flash-all')?.addEventListener('click', () => {
+        const files = Array.from(shadow.querySelectorAll('esp-flash-file')).map(
+          f => (f as ESPFlashFileElement).file
+        );
+        this.dispatchEvent(
+          new CustomEvent('flash', {
+            detail: files,
+            bubbles: true,
+          })
+        );
+      });
+
+      shadow.querySelector('#flash-selected')?.addEventListener('click', () => {
+        const files = Array.from(shadow.querySelectorAll('esp-flash-file'))
+          .filter(f => (f as ESPFlashFileElement).file.select)
+          .map(f => (f as ESPFlashFileElement).file);
+        this.dispatchEvent(
+          new CustomEvent('flash', {
+            detail: files,
+            bubbles: true,
+          })
+        );
+      });
+
+      shadow.addEventListener('flash', ev => {
+        this.dispatchEvent(
+          new CustomEvent('flash', {
+            detail: [(ev.target as ESPFlashFileElement).file],
+            bubbles: true,
+          })
+        );
+      });
+
+      shadow.addEventListener('state', ev => {
+        this.dispatchEvent(new Event('state', { bubbles: true }));
+      });
+    }
 
     const container = shadow.querySelector('#container') as HTMLElement;
     files.forEach(file => {
       container.appendChild(new ESPFlashFileElement(file));
     });
 
+    shadow.querySelector('#close')?.addEventListener('click', () => {
+      while (container.lastChild !== null)
+        container.removeChild(container.lastChild);
+      this.dispatchEvent(new Event('delete', { bubbles: true }));
+    });
+
     container.addEventListener('delete', ev => {
-      const file = (ev as CustomEvent).detail as ESPFlashFile;
-      this._files = this._files.filter(f => f.file !== file.file);
-      if (this._files.length === 0) this.close();
+      container.removeChild(ev.target as HTMLElement);
+      this.dispatchEvent(new Event('delete', { bubbles: true }));
     });
 
     const parsed = shadow.querySelector('#parsed') as HTMLElement;
@@ -177,8 +230,38 @@ export class ESPFlashFileList extends HTMLElement {
     this._error.textContent = message;
   }
 
-  private close(): void {
-    this.parentElement?.removeChild(this);
+  public progress(config: {
+    value?: number;
+    text?: string;
+    bar?: string;
+    bg?: string;
+  }): void {
+    if (config.value !== undefined) this._progress.value = config.value;
+    if (config.text !== undefined) this._progress.text = config.text;
+    if (config.bar !== undefined) this._progress.bar_color = config.bar;
+    if (config.bg !== undefined) this._progress.bg_color = config.bg;
+  }
+
+  get flags(): FlashFlags {
+    const shadow = this.shadowRoot as ShadowRoot;
+    return {
+      verify: (shadow.querySelector('#verify') as HTMLInputElement).checked,
+      monitor: (shadow.querySelector('#monitor') as HTMLInputElement).checked,
+    };
+  }
+
+  get state(): ESPFlashFileListState {
+    return {
+      flags: this.flags,
+      files: this.files,
+    };
+  }
+
+  get files(): ESPFlashFile[] {
+    const shadow = this.shadowRoot as ShadowRoot;
+    return Array.from(shadow.querySelectorAll('esp-flash-file')).map(
+      f => (f as ESPFlashFileElement).file
+    );
   }
 
   private show_parse(

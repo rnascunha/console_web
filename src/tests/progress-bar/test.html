@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Progress Bar</title>
+    <style>
+      body {
+        width: 500px;
+        height: 500px;
+      }
+
+      fieldset {
+        margin-bottom: 3px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <fieldset>
+      <legend>Settings</legend>
+      <div>
+        <button id="minus-value">-</button>
+        <input id="value" type="number" min="0" max="100" />
+        <button id="add-value">+</button>
+        <label>Bg<input id="bg" type="color" /></label>
+        <label>Bar<input id="bar" type="color" /></label>
+        <input id="text" />
+      </div>
+    </fieldset>
+    <progress-bar id="progress" value="50"></progress-bar>
+  </body>
+</html>

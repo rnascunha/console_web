@@ -18,6 +18,8 @@ export enum ErrorCode {
   UPLOAD_STUB_FAILED = 0x1100,
   STUB_ONLY_COMMAND = 0x1200,
   INVALID_ARGUMENT = 0x1300,
+  SERIAL_OCCUPIED = 0x1400,
+  SERIAL_DONE = 0x1500,
 }
 
 export const rom_load_error: Record<number, string> = {
@@ -67,6 +69,8 @@ const error_code_name: Record<ErrorCode, string> = {
   [ErrorCode.UPLOAD_STUB_FAILED]: 'Upload stub failed',
   [ErrorCode.STUB_ONLY_COMMAND]: 'Command valid only to stub loader',
   [ErrorCode.INVALID_ARGUMENT]: 'Invalid argument',
+  [ErrorCode.SERIAL_OCCUPIED]: 'Serial occupied',
+  [ErrorCode.SERIAL_DONE]: 'Serial done',
 } as const;
 
 function status_error_name(

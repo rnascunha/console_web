@@ -17,6 +17,7 @@
     "noImplicitOverride": true,
     "downlevelIteration": true,
     "strictPropertyInitialization": true,
+    "allowSyntheticDefaultImports": true,
     "target": "ES2015",
     "lib": ["DOM", "es2017", "es2018", "es2019", "es2023"]
   },

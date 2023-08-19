@@ -51,11 +51,10 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
   private async close_internal(): Promise<void> {
     if (this.state === 'close') return;
 
-    if (this._reader !== null) {
-      await this._reader.cancel();
-      this._input_stream = null;
-      this._reader = null;
-    }
+    await this._reader?.cancel();
+    this._reader = null;
+    await this._input_stream?.cancel();
+    this._input_stream = null;
 
     if (this._output_stream !== null) {
       await this._output_stream.getWriter().close();
@@ -84,21 +83,47 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
     while (true) {
       const { value, done } = await this._reader.read();
       if (done) {
-        if (this._reader !== null) {
-          this._reader.releaseLock();
-          this._reader = null;
-        }
+        this._reader?.releaseLock();
+        this._reader = null;
         break;
       }
       this.emit('data', value);
     }
   }
 
+  public async read_timeout(
+    timeout: number,
+    callback: (data: Uint8Array) => boolean
+  ): Promise<Uint8Array> {
+    if (this._reader !== null) throw new Error('reader occupied');
+    this._reader =
+      this._input_stream?.getReader() as ReadableStreamDefaultReader<Uint8Array>;
+    const handler = setTimeout(() => {
+      this._reader
+        ?.cancel()
+        .then(() => {
+          // this._reader = null;
+          console.log('serial timeout');
+          // throw new Error('timeout');
+        })
+        .finally(() => {});
+    }, timeout);
+    while (true) {
+      const { value, done } = await this._reader.read();
+      if (done || callback(value)) {
+        console.log('received', done, value);
+        clearTimeout(handler);
+        this._reader?.releaseLock();
+        this._reader = null;
+        if (done) throw new Error('timeout');
+        return value;
+      }
+    }
+  }
+
   public async stop(): Promise<void> {
     if (this._reader === null) return;
-
     await this._reader.cancel();
-    this._reader = null;
   }
 
   public async write(data: Uint8Array): Promise<void> {

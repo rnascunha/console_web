@@ -222,10 +222,10 @@ export class ESPTool extends EventEmitter<ESPToolEvents> {
       requestToSend: false,
     });
     await sleep(50);
-    await this._serial.signals({
-      dataTerminalReady: false,
-      requestToSend: false,
-    });
+    // await this._serial.signals({
+    //   dataTerminalReady: false,
+    //   requestToSend: false,
+    // });
     await this._serial.signals({
       dataTerminalReady: false,
     });
@@ -247,7 +247,23 @@ export class ESPTool extends EventEmitter<ESPToolEvents> {
 
     await this.write_mem(ESP32_stub.text, ESP32_stub.text_start);
     await this.write_mem(ESP32_stub.data, ESP32_stub.data_start);
+
+    // Remove this
+    const cb = this._callback;
+    let data: number[] = [];
+    this._callback = (d: Uint8Array): void => {
+      data = data.concat(Array.from(d));
+    };
+    // Until here
+
     await this.mem_end(FlashEndFlag.REBOOT, ESP32_stub.entry, 50);
+
+    // Remove this
+    if (data.length > 0) {
+      console.log('OHAI', data);
+    }
+    this._callback = cb;
+    // Until here
 
     let remain: number[] = [];
     if (
@@ -282,25 +298,37 @@ export class ESPTool extends EventEmitter<ESPToolEvents> {
     let position = 0;
 
     while (file_size - position > 0) {
-      if (file_size - position >= flash_write_size) {
-        block = Array.from(new Uint8Array(image, position, flash_write_size));
+      if (file_size - position > flash_write_size) {
+        block = Array.from(
+          new Uint8Array(image.buffer, position, flash_write_size)
+        );
         written += block.length;
       } else {
         // Pad the last block
         block = Array.from(
-          new Uint8Array(image, position, file_size - position)
+          new Uint8Array(image.buffer, position, file_size - position)
         );
         written += block.length;
         block = block.concat(
           new Array(flash_write_size - block.length).fill(0xff)
         );
       }
-      await this.flash_data(block, seq);
+      console.log('flashing', seq, written, position, file_size, blocks);
+      let retries = 5;
+      while (true) {
+        try {
+          await this.flash_data(block, seq);
+          break;
+        } catch (e) {
+          console.log('retring...', retries);
+          if (retries-- === 0) throw e;
+        }
+      }
       seq += 1;
       position += flash_write_size;
 
       options.callback?.({
-        percent: Math.floor((100 * (seq + 1)) / blocks),
+        percent: Math.floor((100 * seq) / blocks),
         seq,
         written,
         position,
@@ -320,8 +348,6 @@ export class ESPTool extends EventEmitter<ESPToolEvents> {
       0,
       this._is_stub ? 3000 : 120000
     );
-
-    if (packet instanceof ESPFlashError) throw packet;
 
     if (this._is_stub)
       return packet.data
@@ -542,6 +568,7 @@ export class ESPTool extends EventEmitter<ESPToolEvents> {
     let packet: any;
     let remain: number[] = [];
     const check_command = (data: Uint8Array): boolean => {
+      console.log('data', data);
       const packets = SLIP.parse(data, this._is_stub, remain);
       remain = packets.remain;
       packet = packets.packets.find(p => p.command === op);
@@ -555,6 +582,43 @@ export class ESPTool extends EventEmitter<ESPToolEvents> {
     if (packet.status.status === Status.SUCCESS) return packet;
     throw new ESPFlashError(packet.status.error as number);
   }
+
+  // private async read_timeout(timeout: number): Promise<Uint8Array> {
+  //   try {
+  //     return await this._serial.read_timeout(
+  //       timeout,
+  //       (data: Uint8Array): boolean => true
+  //     );
+  //   } catch (e) {
+  //     console.log('read error', e);
+  //     if ((e as Error).message === 'timeout')
+  //       throw new ESPFlashError(ErrorCode.TIMEOUT);
+  //     if ((e as Error).message === 'reader occupied')
+  //       throw new ESPFlashError(ErrorCode.SERIAL_OCCUPIED);
+  //     if ((e as Error).message === 'serial done')
+  //       throw new ESPFlashError(ErrorCode.SERIAL_DONE);
+  //     throw e;
+  //   }
+  // }
+
+  // private async read_timeout_until(
+  //   timeout: number,
+  //   func: (data: Uint8Array) => boolean
+  // ): Promise<boolean> {
+  //   try {
+  //     await this._serial.read_timeout(timeout, func);
+  //     return true;
+  //   } catch (e) {
+  //     console.log('read error', e);
+  //     if ((e as Error).message === 'timeout')
+  //       throw new ESPFlashError(ErrorCode.TIMEOUT);
+  //     if ((e as Error).message === 'reader occupied')
+  //       throw new ESPFlashError(ErrorCode.SERIAL_OCCUPIED);
+  //     if ((e as Error).message === 'serial done')
+  //       throw new ESPFlashError(ErrorCode.SERIAL_DONE);
+  //     throw e;
+  //   }
+  // }
 
   private async read_timeout(timeout: number): Promise<Uint8Array> {
     return await new Promise((resolve, reject) => {
