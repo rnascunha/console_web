@@ -42,17 +42,17 @@ const FLASH_WRITE_SIZE = 0x400;
 const STUBLOADER_FLASH_WRITE_SIZE = 0x4000;
 const FLASH_SECTOR_SIZE = 0x100;
 
-interface ESPToolEvents {
-  open: ESPTool;
-  close: ESPTool;
-  bootloader: ESPTool;
-  sync: ESPTool;
-  stub: ESPTool;
+interface ESPLoaderEvents {
+  open: ESPLoader;
+  close: ESPLoader;
+  bootloader: ESPLoader;
+  sync: ESPLoader;
+  stub: ESPLoader;
   error: Error;
-  disconnect: ESPTool;
+  disconnect: ESPLoader;
 }
 
-export class ESPTool extends EventEmitter<ESPToolEvents> {
+export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   private readonly _serial: SerialConn;
   private _callback?: (data: Uint8Array) => void;
 
@@ -387,7 +387,7 @@ export class ESPTool extends EventEmitter<ESPToolEvents> {
 
     const timeout = this._is_stub
       ? default_timeout
-      : ESPTool.timeout_per_mb(ERASE_REGION_TIMEOUT_PER_MB, size);
+      : ESPLoader.timeout_per_mb(ERASE_REGION_TIMEOUT_PER_MB, size);
 
     const buffer = SLIP.pack32(
       erase_size,
@@ -568,7 +568,6 @@ export class ESPTool extends EventEmitter<ESPToolEvents> {
     let packet: any;
     let remain: number[] = [];
     const check_command = (data: Uint8Array): boolean => {
-      console.log('data', data);
       const packets = SLIP.parse(data, this._is_stub, remain);
       remain = packets.remain;
       packet = packets.packets.find(p => p.command === op);
@@ -582,43 +581,6 @@ export class ESPTool extends EventEmitter<ESPToolEvents> {
     if (packet.status.status === Status.SUCCESS) return packet;
     throw new ESPFlashError(packet.status.error as number);
   }
-
-  // private async read_timeout(timeout: number): Promise<Uint8Array> {
-  //   try {
-  //     return await this._serial.read_timeout(
-  //       timeout,
-  //       (data: Uint8Array): boolean => true
-  //     );
-  //   } catch (e) {
-  //     console.log('read error', e);
-  //     if ((e as Error).message === 'timeout')
-  //       throw new ESPFlashError(ErrorCode.TIMEOUT);
-  //     if ((e as Error).message === 'reader occupied')
-  //       throw new ESPFlashError(ErrorCode.SERIAL_OCCUPIED);
-  //     if ((e as Error).message === 'serial done')
-  //       throw new ESPFlashError(ErrorCode.SERIAL_DONE);
-  //     throw e;
-  //   }
-  // }
-
-  // private async read_timeout_until(
-  //   timeout: number,
-  //   func: (data: Uint8Array) => boolean
-  // ): Promise<boolean> {
-  //   try {
-  //     await this._serial.read_timeout(timeout, func);
-  //     return true;
-  //   } catch (e) {
-  //     console.log('read error', e);
-  //     if ((e as Error).message === 'timeout')
-  //       throw new ESPFlashError(ErrorCode.TIMEOUT);
-  //     if ((e as Error).message === 'reader occupied')
-  //       throw new ESPFlashError(ErrorCode.SERIAL_OCCUPIED);
-  //     if ((e as Error).message === 'serial done')
-  //       throw new ESPFlashError(ErrorCode.SERIAL_DONE);
-  //     throw e;
-  //   }
-  // }
 
   private async read_timeout(timeout: number): Promise<Uint8Array> {
     return await new Promise((resolve, reject) => {
