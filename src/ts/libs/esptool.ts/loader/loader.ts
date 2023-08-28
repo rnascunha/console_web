@@ -61,6 +61,8 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
 
   private _chip?: Chip;
   private _efuses?: Uint32Array;
+
+  private _remain: number[] = [];
   private readonly _flash_size: FlashSizeHandler = FlashSizeHandler.FS4MB;
 
   constructor(device: SerialConn) {
@@ -181,6 +183,20 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     return norm_xtal;
   }
 
+  /**
+   * https://github.com/espressif/esptool/blob/da31d9d7a1bb496995f8e30a6be259689948e43e/esptool.py#L488C5-L491C65
+   */
+  async flash_id(): Promise<number> {
+    const SPIFLASH_RDID = 0x9f;
+    const resp = await this.command_spiflash(SPIFLASH_RDID, [], 24);
+    console.log('read_flash_id', resp);
+    return resp.value;
+  }
+  // """ Read SPI flash manufacturer and device id """
+  //   def flash_id(self):
+  //       SPIFLASH_RDID = 0x9F
+  //       return self.run_spiflash_command(SPIFLASH_RDID, b"", 24)
+
   async erase_flash(timeout: number = CHIP_ERASE_TIMEOUT): Promise<void> {
     if (!this._is_stub) {
       throw new ESPFlashError(ErrorCode.STUB_ONLY_COMMAND);
@@ -196,6 +212,21 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     await sleep(100);
     await this._serial.signals({ dataTerminalReady: true });
     this.emit('open', this);
+  }
+
+  /**
+   * https://github.com/espressif/esptool/blob/da31d9d7a1bb496995f8e30a6be259689948e43e/esptool.py#L829
+   */
+  async soft_reset(): Promise<void> {
+    if (!this._is_stub) {
+      await this.flash_begin(0, 0);
+      await this.flash_end(FlashEndFlag.RUN_USER_CODE);
+    } else if ((await this.chip()) !== Chip.ESP8266)
+      throw new ESPFlashError(
+        ErrorCode.NOT_SUPPORTED,
+        'Soft resetting is currently only supported on ESP8266'
+      );
+    else await this.command(Command.RUN_USER_CODE, [], 0, 0);
   }
 
   get callback(): ((data: Uint8Array) => void) | undefined {
@@ -222,10 +253,6 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
       requestToSend: false,
     });
     await sleep(50);
-    // await this._serial.signals({
-    //   dataTerminalReady: false,
-    //   requestToSend: false,
-    // });
     await this._serial.signals({
       dataTerminalReady: false,
     });
@@ -248,28 +275,25 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     await this.write_mem(ESP32_stub.text, ESP32_stub.text_start);
     await this.write_mem(ESP32_stub.data, ESP32_stub.data_start);
 
-    // Remove this
-    const cb = this._callback;
-    let data: number[] = [];
-    this._callback = (d: Uint8Array): void => {
-      data = data.concat(Array.from(d));
-    };
-    // Until here
-
     await this.mem_end(FlashEndFlag.REBOOT, ESP32_stub.entry, 50);
 
-    // Remove this
-    if (data.length > 0) {
-      console.log('OHAI', data);
+    if (this._remain.length > 0) {
+      while (true) {
+        const sp = SLIP.split_one(this._remain);
+        this._remain = sp.remain;
+        if (sp.packet === undefined) break;
+        if (is_ohai_packet(sp.packet)) {
+          this._is_stub = true;
+          this.emit('stub', this);
+          return;
+        }
+      }
     }
-    this._callback = cb;
-    // Until here
 
-    let remain: number[] = [];
     if (
       !(await this.read_timeout_until(500, (data: Uint8Array): boolean => {
-        const splited = SLIP.split(data, remain);
-        remain = splited.remain;
+        const splited = SLIP.split(data, this._remain);
+        this._remain = splited.remain;
         return splited.packets.some(packet => {
           if (is_ohai_packet(packet)) {
             this._is_stub = true;
@@ -300,29 +324,23 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     while (file_size - position > 0) {
       if (file_size - position > flash_write_size) {
         block = Array.from(
-          new Uint8Array(image.buffer, position, flash_write_size)
+          image.subarray(position, position + flash_write_size)
         );
         written += block.length;
       } else {
         // Pad the last block
-        block = Array.from(
-          new Uint8Array(image.buffer, position, file_size - position)
-        );
+        block = Array.from(image.subarray(position, file_size));
         written += block.length;
         block = block.concat(
           new Array(flash_write_size - block.length).fill(0xff)
         );
       }
-      console.log('flashing', seq, written, position, file_size, blocks);
-      let retries = 5;
-      while (true) {
-        try {
-          await this.flash_data(block, seq);
-          break;
-        } catch (e) {
-          console.log('retring...', retries);
-          if (retries-- === 0) throw e;
-        }
+
+      // FLash data works (why?), even the response not being the right size
+      try {
+        await this.flash_data(block, seq);
+      } catch (e) {
+        console.log('error', e);
       }
       seq += 1;
       position += flash_write_size;
@@ -363,20 +381,33 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
    * Private
    */
   private async flash_begin(
-    size: number = 0,
-    offset: number = 0,
+    size: number,
+    offset: number,
     encrypted: boolean = false
   ): Promise<number> {
     const chip = await this.chip();
 
     const flash_write_size = this.flash_write_size();
-    if (!this._is_stub && [Chip.ESP32, Chip.ESP32S2].includes(chip))
-      await this.command(Command.SPI_ATTACH, new Array(8).fill(0), 0);
+    // if (!this._is_stub && [Chip.ESP32, Chip.ESP32S2].includes(chip))
+    //   await this.command(Command.SPI_ATTACH, new Array(8).fill(0), 0);
+    if ([Chip.ESP32, Chip.ESP32S2].includes(chip))
+      await this.command(
+        Command.SPI_ATTACH,
+        new Array(this._is_stub ? 4 : 8).fill(0),
+        0
+      );
 
     if (chip === Chip.ESP32)
       await this.command(
         Command.SPI_SET_PARAMS,
-        SLIP.pack32(0, this.flash_size.size, 0x10000, 4096, 256, 0xffff),
+        SLIP.pack32(
+          0 /* id */,
+          this.flash_size.size /* total size in bytes */,
+          0x10000 /* block size */,
+          4096 /* sector size */,
+          256 /* page size */,
+          0xffff /* status mask */
+        ),
         0
       );
 
@@ -431,13 +462,10 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     const start_sector = Math.floor(offset / FLASH_SECTOR_SIZE);
 
     let head_sectors = sectors_per_block - (start_sector % sectors_per_block);
-    if (num_sectors < head_sectors) {
-      head_sectors = num_sectors;
-    }
+    if (num_sectors < head_sectors) head_sectors = num_sectors;
 
-    if (num_sectors < 2 * head_sectors) {
+    if (num_sectors < 2 * head_sectors)
       return Math.floor(((num_sectors + 1) / 2) * FLASH_SECTOR_SIZE);
-    }
 
     return (num_sectors - head_sectors) * FLASH_SECTOR_SIZE;
   }
@@ -527,20 +555,20 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     );
   }
 
-  // private async write_register(
-  //   address: number,
-  //   value: number,
-  //   mask: number = 0xffffffff,
-  //   delay_us = 0,
-  //   timeout = default_timeout
-  // ): Promise<Response> {
-  //   return await this.command(
-  //     Command.WRITE_REG,
-  //     SLIP.pack32(address, value, mask, delay_us),
-  //     0,
-  //     timeout
-  //   );
-  // }
+  private async write_register(
+    address: number,
+    value: number,
+    mask: number = 0xffffffff,
+    delay_us = 0,
+    timeout = default_timeout
+  ): Promise<Response> {
+    return await this.command(
+      Command.WRITE_REG,
+      SLIP.pack32(address, value, mask, delay_us),
+      0,
+      timeout
+    );
+  }
 
   private async wait_silent(
     retries: number = 20,
@@ -557,6 +585,68 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     return false;
   }
 
+  // private async command(
+  //   op: Command,
+  //   command_data: number[],
+  //   checksum: number,
+  //   timeout: number = default_timeout
+  // ): Promise<Response> {
+  //   await this._serial.write(
+  //     SLIP.command(op, new Uint8Array(command_data), checksum)
+  //   );
+
+  //   let packet: any;
+  //   const check_command = (raw_data: Uint8Array): boolean => {
+  //     let data: Uint8Array | number[] = raw_data;
+  //     let ret = false;
+
+  //     while (true) {
+  //       const sp = SLIP.split_one(data, this._remain);
+  //       this._remain = [];
+  //       data = sp.remain;
+  //       this._remain = sp.remain;
+  //       if (sp.packet === undefined) return false;
+  //       packet = SLIP.parse_response(sp.packet, this._is_stub);
+  //       if (packet instanceof ESPFlashError) {
+  //         console.warn('parse error', packet.message, sp.packet, this._is_stub);
+  //         continue;
+  //       }
+  //       if (packet.command !== op) {
+  //         console.warn(
+  //           'wrong command',
+  //           `${(packet as Response).command} !== ${op}`,
+  //           sp.packet,
+  //           this._is_stub
+  //         );
+  //         continue;
+  //       }
+  //       if (packet.status.status === Status.FAILURE) {
+  //         console.warn(
+  //           'status error',
+  //           packet.status.error,
+  //           new ESPFlashError(packet.status.error as number).message,
+  //           sp.packet,
+  //           this._is_stub
+  //         );
+  //         continue;
+  //       }
+  //       ret = true;
+  //       break;
+  //     }
+  //     this._remain = data;
+  //     return ret;
+  //   };
+
+  //   if (!(await this.read_timeout_until(timeout, check_command)))
+  //     throw new ESPFlashError(ErrorCode.RESPONSE_NOT_RECEIVED);
+
+  //   if (packet === undefined) throw new ESPFlashError(ErrorCode.TIMEOUT);
+
+  //   if (packet instanceof ESPFlashError) throw packet;
+  //   if (packet.status.status === Status.SUCCESS) return packet;
+  //   throw new ESPFlashError(packet.status.error as number);
+  // }
+
   private async command(
     op: Command,
     data: number[],
@@ -564,6 +654,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     timeout: number = default_timeout
   ): Promise<Response> {
     await this._serial.write(SLIP.command(op, new Uint8Array(data), checksum));
+    if (timeout === 0) return SLIP.empty_response(op, this._is_stub);
 
     let packet: any;
     let remain: number[] = [];
@@ -616,6 +707,9 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   }
 
   /*
+   NOT WORKING
+   https://github.com/espressif/esptool/blob/da31d9d7a1bb496995f8e30a6be259689948e43e/esptool.py#L675
+
    Run an arbitrary SPI flash command.
 
    This function uses the "USR_COMMAND" functionality in the ESP
@@ -626,143 +720,124 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
    After writing command byte, writes 'data' to MOSI and then
    reads back 'read_bits' of reply on MISO. Result is a number.
    */
-  //  private async command_spiflash(
-  //   command: number,
-  //   data: number[],
-  //   read_bits = 0
-  // ): Promise<Response> {
-  //   if (this._chip === undefined || !(this._chip in chips))
-  //     throw new ESPFlashError(ErrorCode.CHIP_NOT_DEFINED);
+  private async command_spiflash(
+    command: number,
+    data: number[],
+    read_bits = 0
+  ): Promise<Response> {
+    if (read_bits > 32)
+      throw new ESPFlashError(
+        ErrorCode.INVALID_ARGUMENT,
+        'Reading more than 32 bits back from a SPI flash operation is unsupported'
+      );
 
-  //   if (read_bits > 32)
-  //     throw new ESPFlashError(
-  //       ErrorCode.INVALID_ARGUMENT,
-  //       'Reading more than 32 bits back from a SPI flash operation is unsupported'
-  //     );
+    if (data.length > 64) {
+      throw new ESPFlashError(
+        ErrorCode.INVALID_ARGUMENT,
+        'Writing more than 64 bytes of data with one SPI command is unsupported'
+      );
+    }
 
-  //   if (data.length > 64) {
-  //     throw new ESPFlashError(
-  //       ErrorCode.INVALID_ARGUMENT,
-  //       'Writing more than 64 bytes of data with one SPI command is unsupported'
-  //     );
-  //   }
+    const dchip = await this.chip();
+    const chip = chips[dchip];
 
-  //   const chip = chips[this._chip];
+    // SPI_USR register flags
+    const SPI_USR_COMMAND = 1 << 31;
+    const SPI_USR_MISO = 1 << 28;
+    const SPI_USR_MOSI = 1 << 27;
 
-  //   // SPI_USR register flags
-  //   const SPI_USR_COMMAND = 1 << 31;
-  //   const SPI_USR_MISO = 1 << 28;
-  //   const SPI_USR_MOSI = 1 << 27;
+    // SPI registers, base address differs ESP32* vs 8266
+    const base = chip.SPI_REG_BASE;
+    const SPI_CMD_REG = base + 0x00;
+    const SPI_USR_REG = base + chip.SPI_USR_OFFS;
+    const SPI_USR1_REG = base + chip.SPI_USR1_OFFS;
+    const SPI_USR2_REG = base + chip.SPI_USR2_OFFS;
+    const SPI_W0_REG = base + chip.SPI_W0_OFFS;
 
-  //   // SPI registers, base address differs ESP32* vs 8266
-  //   const base = chip.SPI_REG_BASE;
-  //   const SPI_CMD_REG = base + 0x00;
-  //   const SPI_USR_REG = base + chip.SPI_USR_OFFS;
-  //   const SPI_USR1_REG = base + chip.SPI_USR1_OFFS;
-  //   const SPI_USR2_REG = base + chip.SPI_USR2_OFFS;
-  //   const SPI_W0_REG = base + chip.SPI_W0_OFFS;
+    // following two registers are ESP32 & 32S2/32C3 only
+    const set_data_lengths =
+      chip.SPI_MOSI_DLEN_OFFS !== null
+        ? // ESP32/32S2/32C3 has a more sophisticated way to set up "user" commands
+          async (mosi_bits: number, miso_bits: number): Promise<void> => {
+            const SPI_MOSI_DLEN_REG =
+              base + (chip.SPI_MOSI_DLEN_OFFS as number);
+            const SPI_MISO_DLEN_REG =
+              base + (chip.SPI_MISO_DLEN_OFFS as number);
+            if (mosi_bits > 0)
+              await this.write_register(SPI_MOSI_DLEN_REG, mosi_bits - 1);
+            if (miso_bits > 0)
+              await this.write_register(SPI_MISO_DLEN_REG, miso_bits - 1);
+          }
+        : async (mosi_bits: number, miso_bits: number): Promise<void> => {
+            const SPI_DATA_LEN_REG = SPI_USR1_REG;
+            const SPI_MOSI_BITLEN_S = 17;
+            const SPI_MISO_BITLEN_S = 8;
+            const mosi_mask = mosi_bits === 0 ? 0 : mosi_bits - 1;
+            const miso_mask = miso_bits === 0 ? 0 : miso_bits - 1;
+            await this.write_register(
+              SPI_DATA_LEN_REG,
+              (miso_mask << SPI_MISO_BITLEN_S) |
+                (mosi_mask << SPI_MOSI_BITLEN_S)
+            );
+          };
 
-  //   let set_data_lengths;
-  //   // following two registers are ESP32 & 32S2/32C3 only
-  //   if (chip.SPI_MOSI_DLEN_OFFS !== null) {
-  //     // ESP32/32S2/32C3 has a more sophisticated way to set up "user" commands
-  //     set_data_lengths = async (
-  //       mosi_bits: number,
-  //       miso_bits: number
-  //     ): Promise<void> => {
-  //       const SPI_MOSI_DLEN_REG = base + (chip.SPI_MOSI_DLEN_OFFS as number);
-  //       const SPI_MISO_DLEN_REG = base + (chip.SPI_MISO_DLEN_OFFS as number);
-  //       if (mosi_bits > 0)
-  //         check_error_throw(
-  //           await this.write_register(SPI_MOSI_DLEN_REG, mosi_bits - 1)
-  //         );
+    // SPI peripheral "command" bitmasks for SPI_CMD_REG
+    const SPI_CMD_USR = 1 << 18;
+    // shift values
+    const SPI_USR2_COMMAND_LEN_SHIFT = 28;
 
-  //       if (miso_bits > 0)
-  //         check_error_throw(
-  //           await this.write_register(SPI_MISO_DLEN_REG, miso_bits - 1)
-  //         );
-  //     };
-  //   } else {
-  //     set_data_lengths = async (
-  //       mosi_bits: number,
-  //       miso_bits: number
-  //     ): Promise<void> => {
-  //       const SPI_DATA_LEN_REG = SPI_USR1_REG;
-  //       const SPI_MOSI_BITLEN_S = 17;
-  //       const SPI_MISO_BITLEN_S = 8;
-  //       const mosi_mask = mosi_bits === 0 ? 0 : mosi_bits - 1;
-  //       const miso_mask = miso_bits === 0 ? 0 : miso_bits - 1;
-  //       check_error_throw(
-  //         await this.write_register(
-  //           SPI_DATA_LEN_REG,
-  //           (miso_mask << SPI_MISO_BITLEN_S) | (mosi_mask << SPI_MOSI_BITLEN_S)
-  //         )
-  //       );
-  //     };
-  //   }
+    const data_bits = data.length * 8;
+    const old_spi_usr = await this.read_register(SPI_USR_REG);
+    const old_spi_usr2 = await this.read_register(SPI_USR2_REG);
+    let flags = SPI_USR_COMMAND;
 
-  //   // SPI peripheral "command" bitmasks for SPI_CMD_REG
-  //   const SPI_CMD_USR = 1 << 18;
-  //   // shift values
-  //   const SPI_USR2_COMMAND_LEN_SHIFT = 28;
+    if (read_bits > 0) flags |= SPI_USR_MISO;
+    if (data_bits > 0) flags |= SPI_USR_MOSI;
 
-  //   const data_bits = data.length * 8;
-  //   const old_spi_usr = await this.read_register(SPI_USR_REG);
-  //   check_error_throw(old_spi_usr);
-  //   const old_spi_usr2 = await this.read_register(SPI_USR2_REG);
-  //   check_error_throw(old_spi_usr2);
-  //   let flags = SPI_USR_COMMAND;
+    await set_data_lengths(data_bits, read_bits);
+    await this.write_register(SPI_USR_REG, flags);
+    await this.write_register(
+      SPI_USR2_REG,
+      (7 << SPI_USR2_COMMAND_LEN_SHIFT) | command
+    );
 
-  //   if (read_bits > 0) flags |= SPI_USR_MISO;
-  //   if (data_bits > 0) flags |= SPI_USR_MOSI;
+    if (data_bits === 0) {
+      await this.write_register(SPI_W0_REG, 0); // clear data register before we read it
+    } else {
+      data = pad(data, 4, 0x00); // pad to 32-bit multiple
+      let next_reg = SPI_W0_REG;
+      for (let i = 0; i < data.length; i += 4) {
+        await this.write_register(
+          next_reg,
+          SLIP.unpack32(data.slice(i, i + 4))
+        );
+        next_reg += 4;
+      }
+    }
 
-  //   await set_data_lengths(data_bits, read_bits);
-  //   check_error_throw(await this.write_register(SPI_USR_REG, flags));
-  //   check_error_throw(
-  //     await this.write_register(
-  //       SPI_USR2_REG,
-  //       (7 << SPI_USR2_COMMAND_LEN_SHIFT) | command
-  //     )
-  //   );
+    await this.write_register(SPI_CMD_REG, SPI_CMD_USR);
 
-  //   if (data_bits === 0) {
-  //     await this.write_register(SPI_W0_REG, 0); // clear data register before we read it
-  //   } else {
-  //     // data = pad_to(data, 4, 0x00); // pad to 32-bit multiple
-  //     let next_reg = SPI_W0_REG;
-  //     for (const d of data) {
-  //       check_error_throw(await this.write_register(next_reg, d));
-  //       next_reg += 4;
-  //     }
-  //   }
+    const wait_done = async (): Promise<void> => {
+      for (let i = 0; i < 10; i++) {
+        try {
+          const r = await this.read_register(SPI_CMD_REG);
+          if ((r.value & SPI_CMD_USR) === 0) return;
+        } catch (e) {}
+      }
+      throw new ESPFlashError(
+        ErrorCode.TIMEOUT,
+        'SPI command did not complete in time'
+      );
+    };
+    await wait_done();
 
-  //   await this.write_register(SPI_CMD_REG, SPI_CMD_USR);
+    const status = await this.read_register(SPI_W0_REG);
+    // restore some SPI controller registers
+    await this.write_register(SPI_USR_REG, old_spi_usr.value);
+    await this.write_register(SPI_USR2_REG, old_spi_usr2.value);
 
-  //   const wait_done = async (): Promise<void> => {
-  //     for (let i = 0; i < 10; i++) {
-  //       const r = await this.read_register(SPI_CMD_REG);
-  //       if (r instanceof ESPFlashError) continue;
-  //       if ((r.value & SPI_CMD_USR) === 0) return;
-  //     }
-  //     throw new ESPFlashError(
-  //       ErrorCode.TIMEOUT,
-  //       'SPI command did not complete in time'
-  //     );
-  //   };
-  //   await wait_done();
-
-  //   const status = await this.read_register(SPI_W0_REG);
-  //   check_error_throw(status);
-  //   // restore some SPI controller registers
-  //   check_error_throw(
-  //     await this.write_register(SPI_USR_REG, (old_spi_usr as Response).value)
-  //   );
-  //   check_error_throw(
-  //     await this.write_register(SPI_USR2_REG, (old_spi_usr2 as Response).value)
-  //   );
-
-  //   return status as Response;
-  // }
+    return status;
+  }
 
   private static timeout_per_mb(
     seconds_per_mb: number,
@@ -771,4 +846,11 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     const result = Math.floor(seconds_per_mb * (size_bytes / 0x1e6));
     return result < default_timeout ? default_timeout : result;
   }
+}
+
+function pad(data: number[], pad_size: number, pad_byte: number): number[] {
+  const remain = data.length % pad_size;
+  if (remain === 0) return data;
+  data.push(...new Array(remain).fill(pad_byte));
+  return data;
 }

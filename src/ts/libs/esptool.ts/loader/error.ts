@@ -6,6 +6,7 @@ export enum ErrorCode {
   PACKET_TOO_SMALL = 0x0300,
   WRONG_DIRECTION = 0x0400,
   SIZE_NOT_MATCH = 0x0500,
+  PAYLOAD_TOO_SMALL = 0x0600,
 
   // Flash error
   TIMEOUT = 0x0a00,
@@ -20,6 +21,7 @@ export enum ErrorCode {
   INVALID_ARGUMENT = 0x1300,
   SERIAL_OCCUPIED = 0x1400,
   SERIAL_DONE = 0x1500,
+  NOT_SUPPORTED = 0x1600,
 }
 
 export const rom_load_error: Record<number, string> = {
@@ -58,6 +60,7 @@ const error_code_name: Record<ErrorCode, string> = {
   [ErrorCode.PACKET_TOO_SMALL]: 'Packet too small',
   [ErrorCode.WRONG_DIRECTION]: 'Wrong byte direction',
   [ErrorCode.SIZE_NOT_MATCH]: 'Size header and payload not match',
+  [ErrorCode.PAYLOAD_TOO_SMALL]: 'Payload too small',
   //
   [ErrorCode.TIMEOUT]: 'Command timeout',
   [ErrorCode.RESPONSE_NOT_RECEIVED]: 'Command response not received',
@@ -71,6 +74,7 @@ const error_code_name: Record<ErrorCode, string> = {
   [ErrorCode.INVALID_ARGUMENT]: 'Invalid argument',
   [ErrorCode.SERIAL_OCCUPIED]: 'Serial occupied',
   [ErrorCode.SERIAL_DONE]: 'Serial done',
+  [ErrorCode.NOT_SUPPORTED]: 'Not supported',
 } as const;
 
 function status_error_name(

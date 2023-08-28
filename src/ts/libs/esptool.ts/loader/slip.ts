@@ -13,6 +13,11 @@ const replacer: Record<number, number[]> = {
   0xdb: [0xdb, 0xdd],
 };
 
+interface SplitPacket {
+  packet?: number[];
+  remain: number[];
+}
+
 interface SplitPackets {
   packets: number[][];
   remain: number[];
@@ -20,6 +25,22 @@ interface SplitPackets {
 
 function bytes_to_uint16(b0: number, b1: number): number {
   return (b1 << 8) | b0;
+}
+
+export function empty_response(
+  command: type.Command,
+  is_stub: boolean
+): type.Response {
+  return {
+    direction: type.Direction.RESPONSE,
+    command,
+    size: is_stub ? 2 : 4,
+    value: 0,
+    data: [],
+    status: {
+      status: type.Status.SUCCESS,
+    },
+  };
 }
 
 export function checksum(
@@ -40,7 +61,7 @@ function decode(data: number[]): number[] | ESPFlashError {
   for (let i = 1; i < data.length - 1; ++i) {
     if (data[i] === 0xdb) {
       ++i;
-      if (i < data.length - 1) return new ESPFlashError(ErrorCode.PARSE_ERROR);
+      if (i >= data.length - 1) return new ESPFlashError(ErrorCode.PARSE_ERROR);
       switch (data[i]) {
         case 0xdc:
           ans.push(0xc0);
@@ -66,37 +87,29 @@ function encode(data: number[]): number[] {
   return ans;
 }
 
-function parse_response(
+export function parse_response(
   data_raw: number[],
   is_stub: boolean
 ): type.Response | ESPFlashError {
   const data = decode(data_raw);
 
   if (data instanceof ESPFlashError) return data;
-  if (data.length < HEADER_RESPONSE_SIZE) {
-    console.warn(`PACKET_TOO_SMALL/is_stub=${is_stub.toString()}`, data_raw);
+  if (data.length < HEADER_RESPONSE_SIZE)
     return new ESPFlashError(ErrorCode.PACKET_TOO_SMALL);
-  }
-  if (data[0] !== type.Direction.RESPONSE) {
-    console.warn(`WRONG_DIRECTION/is_stub=${is_stub.toString()}`, data_raw);
+
+  if (data[0] !== type.Direction.RESPONSE)
     return new ESPFlashError(ErrorCode.WRONG_DIRECTION);
-  }
 
   const command = data[1] as type.Command;
   const size = bytes_to_uint16(data[2], data[3]);
   const payload_received = data.length - HEADER_RESPONSE_SIZE;
-  if (size !== payload_received) {
-    console.warn(`SIZE_NOT_MATCH/is_stub=${is_stub.toString()}`, data_raw);
+  if (size !== payload_received)
     return new ESPFlashError(ErrorCode.SIZE_NOT_MATCH);
-  }
 
   const value = unpack32([data[4], data[5], data[6], data[7]]);
 
   const status_size = is_stub ? 2 : 4;
-  if (size < status_size) {
-    console.warn(`SIZE_NOT_MATCH/is_stub=${is_stub.toString()}`, data_raw);
-    return new ESPFlashError(ErrorCode.SIZE_NOT_MATCH);
-  }
+  if (size < status_size) return new ESPFlashError(ErrorCode.PAYLOAD_TOO_SMALL);
 
   const payload = data.slice(HEADER_RESPONSE_SIZE, -status_size);
   const status_data = data.slice(-status_size);
@@ -125,7 +138,7 @@ export function parse(
   splited.packets.forEach(p => {
     const ans = parse_response(p, is_stub);
     if (ans instanceof ESPFlashError) {
-      console.warn(`Parse error: ${ans.message}`);
+      console.warn(`Parse error: ${ans.message}`, p);
       return;
     }
     packets.push(ans);
@@ -164,6 +177,33 @@ export function split(
   };
 }
 
+export function split_one(
+  raw_data: Uint8Array | number[],
+  remain: number[] = []
+): SplitPacket {
+  const data = [...remain, ...Array.from(raw_data)];
+  const begin = data.indexOf(PACKET_BORDER);
+  if (begin === -1)
+    return {
+      remain: [],
+    };
+  const end = data.indexOf(PACKET_BORDER, begin + 1);
+  if (end === -1)
+    return {
+      remain: data.slice(begin),
+    };
+
+  if (end - begin === 1)
+    return {
+      remain: data.slice(end),
+    };
+
+  return {
+    packet: data.slice(begin, end + 1),
+    remain: data.slice(end + 1),
+  };
+}
+
 export function command(
   command: type.Command,
   data: Uint8Array,
@@ -188,6 +228,6 @@ export function pack32(...args: number[]): number[] {
   return Array.from(new Uint8Array(new Uint32Array(args).buffer));
 }
 
-function unpack32(arg: number[]): number {
+export function unpack32(arg: number[]): number {
   return new DataView(new Uint8Array(arg).buffer).getUint32(0, true);
 }

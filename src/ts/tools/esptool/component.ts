@@ -571,6 +571,7 @@ export class ESPToolComponent extends ComponentBase {
           );
           this._terminal.write_str(`MAC...${mac_string(res.mac)}\r\n`);
           this._terminal.write_str(`Crystal...${res.crystal}MHz\r\n`);
+          this._terminal.write_str(`Flash ID...${res.flash_id}\r\n`);
         })
         .catch(e => {
           this._terminal.write_str('Error reading chip info\r\n');
@@ -651,6 +652,7 @@ interface ChipInfo {
   efuses: Uint32Array;
   mac: number[];
   crystal: number;
+  flash_id: number;
 }
 
 async function read_chip_info(loader: ESPLoader): Promise<ChipInfo> {
@@ -662,11 +664,13 @@ async function read_chip_info(loader: ESPLoader): Promise<ChipInfo> {
       efuses = await loader.efuses();
       const crystal = await loader.crystal_frequency();
       const mac = await loader.mac();
+      const flash_id = await loader.flash_id();
       return {
         chip,
         efuses,
         mac,
         crystal,
+        flash_id,
       };
     } catch (e) {
       console.error('Error reading data');
@@ -709,18 +713,23 @@ async function flash_files(
           terminal.write_str('File....');
           const hash_file = md5_digest.hash(file.buffer);
           terminal.write_str(hash_file + '\r\n');
+          terminal.write_str(
+            `Flash image verify...${
+              hash_image === hash_file ? 'OK' : 'FAIL'
+            }\r\n`
+          );
         } catch (err) {
           terminal.write_str(`FAIL [${(err as Error).message}]\r\n`);
           throw err;
         }
-      }
-      if (flags.monitor) {
-        terminal.write_str('Rebooting...\r\n');
-        await loader.signal_reset();
       }
     } catch (err) {
       terminal.write_str('FAIL\r\n');
       throw err;
     }
   }
+  // if (flags.monitor) {
+  //   terminal.write_str('Rebooting...\r\n');
+  //   await loader.signal_reset();
+  // }
 }

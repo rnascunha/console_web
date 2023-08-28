@@ -35,6 +35,7 @@
 - [ ] Make search/execute prompt.
 - [ ] Notification board;
 - [ ] Statistic data (per app, interface...);
+- [ ] Create the concept of sessions. Today is only save the last state is automaticaly saved and loaded at beggning. The idea is that also intermediate state could also be saved (history?) and then loaded.
 - [ ] Create ReadableStream/WritableStream to deal with data received/sent;
   - [ ] To be used at app;
   - [ ] To process packets (like slip packet of ESPtool);
