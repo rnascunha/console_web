@@ -17,12 +17,17 @@ import {
 import { ErrorCode, ESPFlashError } from './error';
 import { ESP32_stub } from './stubs';
 import EventEmitter from '../../event_emitter';
+import { bootloader_reset, hard_reset } from './reset';
 
 const ROM_BAUDRATE = 115200;
 const default_timeout = 3000;
 const CHIP_ERASE_TIMEOUT = 120000; // timeout for full chip erase
 const MD5_TIMEOUT_PER_MB = 8000; // timeout (per megabyte) for calculating md5sum
 const ERASE_REGION_TIMEOUT_PER_MB = 30000; // timeout (per megabyte) for erasing a region in ms
+
+enum SPICommand {
+  SPIFLASH_RDID = 0x9f,
+}
 
 const sync_packet = [
   0x07, 0x07, 0x12, 0x20, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55,
@@ -63,7 +68,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   private _chip?: Chip;
   private _efuses?: Uint32Array;
 
-  private readonly _flash_size: FlashSizeHandler = FlashSizeHandler.FS4MB;
+  private _flash_size: FlashSizeHandler = FlashSizeHandler.FS4MB;
 
   constructor(device: SerialConn) {
     super();
@@ -188,9 +193,9 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
    * https://github.com/espressif/esptool/blob/da31d9d7a1bb496995f8e30a6be259689948e43e/esptool.py#L488C5-L491C65
    */
   async flash_id(): Promise<number> {
-    const SPIFLASH_RDID = 0x9f;
-    const resp = await this.command_spiflash(SPIFLASH_RDID, [], 24);
-    console.log('read_flash_id', resp);
+    const resp = await this.command_spiflash(SPICommand.SPIFLASH_RDID, [], 24);
+    const handler = (resp.value >> 16) & 0xff;
+    if (handler in FlashSizeHandler) this._flash_size = handler;
     return resp.value;
   }
 
@@ -202,12 +207,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   }
 
   async signal_reset(): Promise<void> {
-    await this._serial.signals({
-      dataTerminalReady: false,
-      requestToSend: true,
-    });
-    await sleep(100);
-    await this._serial.signals({ dataTerminalReady: true });
+    await hard_reset(this._serial);
     this.emit('open', this);
   }
 
@@ -234,25 +234,8 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     this._callback = cb;
   }
 
-  /**
-   * https://github.com/espressif/esptool/blob/9585c0e70274c3543bb420851898f02644d8bc13/esptool/reset.py#L61
-   * https://github.com/senseshift/esptool.ts/blob/52d054093299fbe1aa19fde98bd006fe21f42202/src/index.ts#L145
-   */
   async signal_bootloader(): Promise<void> {
-    // Classic reset
-    await this._serial.signals({
-      dataTerminalReady: false,
-      requestToSend: true,
-    });
-    await sleep(100);
-    await this._serial.signals({
-      dataTerminalReady: true,
-      requestToSend: false,
-    });
-    await sleep(50);
-    await this._serial.signals({
-      dataTerminalReady: false,
-    });
+    await bootloader_reset(this._serial);
   }
 
   async sync(retries = 5): Promise<void> {
@@ -260,6 +243,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
       try {
         await this.command(Command.SYNC, sync_packet, 0, 100);
         this.emit('sync', this);
+        await this.spi_attach();
         return;
       } catch (e) {}
     }
@@ -273,7 +257,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     await this.write_mem(ESP32_stub.data, ESP32_stub.data_start);
 
     // await this.mem_end(FlashEndFlag.REBOOT, ESP32_stub.entry, 50);
-    await this.mem_end(FlashEndFlag.REBOOT, ESP32_stub.entry, 0);
+    await this.mem_end(ESP32_stub.entry, 0);
 
     /**
      * As we don`t want to miss the OHAI packet, we are going to ignore
@@ -319,11 +303,12 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
    * Not working at ROM loader
    */
   async flash_md5_calc(offset: number, size: number): Promise<string> {
+    const timeout = ESPLoader.timeout_per_mb(MD5_TIMEOUT_PER_MB, size);
     const packet = await this.command(
       Command.SPI_FLASH_MD5,
       SLIP.pack32(offset, size, 0, 0),
       0,
-      ESPLoader.timeout_per_mb(MD5_TIMEOUT_PER_MB, size)
+      timeout < default_timeout ? timeout : default_timeout
     );
 
     if (this._is_stub)
@@ -406,12 +391,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     const chip = await this.chip();
 
     const flash_write_size = this.flash_write_size();
-    if ([Chip.ESP32, Chip.ESP32S2].includes(chip))
-      await this.command(
-        Command.SPI_ATTACH,
-        new Array(this._is_stub ? 4 : 8).fill(0),
-        0
-      );
+    await this.spi_attach();
 
     if (chip === Chip.ESP32)
       await this.command(
@@ -534,16 +514,25 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     );
   }
 
-  private async mem_end(
-    exec_flag: FlashEndFlag,
-    entry_addr: number,
-    timeout = 50
-  ): Promise<Response> {
+  private async mem_end(entry_addr: number, timeout = 50): Promise<Response> {
     return await this.command(
       Command.MEM_END,
-      SLIP.pack32(exec_flag, entry_addr),
+      SLIP.pack32(
+        entry_addr === 0 ? FlashEndFlag.RUN_USER_CODE : FlashEndFlag.REBOOT,
+        entry_addr
+      ),
       0,
       timeout
+    );
+  }
+
+  private async spi_attach(): Promise<void> {
+    const chip = await this.chip();
+    if (![Chip.ESP32, Chip.ESP32S2].includes(chip)) return;
+    await this.command(
+      Command.SPI_ATTACH,
+      new Array(this._is_stub ? 4 : 8).fill(0),
+      0
     );
   }
 
@@ -682,7 +671,8 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   // }
 
   /*
-   NOT WORKING
+   Must call spi_attach before use it
+
    https://github.com/espressif/esptool/blob/da31d9d7a1bb496995f8e30a6be259689948e43e/esptool.py#L675
 
    Run an arbitrary SPI flash command.
@@ -696,9 +686,9 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
    reads back 'read_bits' of reply on MISO. Result is a number.
    */
   private async command_spiflash(
-    command: number,
+    command: SPICommand,
     data: number[],
-    read_bits = 0
+    read_bits: number
   ): Promise<Response> {
     if (read_bits > 32)
       throw new ESPFlashError(
@@ -781,7 +771,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     } else {
       data = pad(data, 4, 0x00); // pad to 32-bit multiple
       let next_reg = SPI_W0_REG;
-      for (let i = 0; i < data.length; i += 4) {
+      for (let i = 0; i < data.length - 4; i += 4) {
         await this.write_register(
           next_reg,
           SLIP.unpack32(data.slice(i, i + 4))

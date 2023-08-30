@@ -1,6 +1,5 @@
 import * as serialJSON from './usb_filtered.json';
 import type { SerialConn, SerialList } from './serial';
-import { sleep } from '../../helper/time';
 
 export interface SerialPortInfo {
   vendorID: string;
@@ -39,12 +38,6 @@ export function make_serial_name(port: SerialPort): string {
     return `${info.vendorName} [${info.productID}]`;
 
   return `Generic [${info.vendorID}/${info.productID}]`;
-}
-
-export async function esp32_signal_reset(port: SerialConn): Promise<void> {
-  await port.signals({ dataTerminalReady: false, requestToSend: true });
-  await sleep(100);
-  await port.signals({ dataTerminalReady: true });
 }
 
 function update_ports(ports: SerialConn[], select: HTMLSelectElement): void {

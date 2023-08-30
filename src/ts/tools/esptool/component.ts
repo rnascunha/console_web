@@ -587,7 +587,9 @@ export class ESPToolComponent extends ComponentBase {
           );
           this._terminal.write_str(`MAC...${mac_string(res.mac)}`);
           this._terminal.write_str(`Crystal...${res.crystal}MHz`);
-          this._terminal.write_str(`Flash ID...${res.flash_id}`);
+          this._terminal.write_str(
+            `Flash ID...${this._loader!.flash_size.name}` // eslint-disable-line
+          );
         })
         .catch(e => {
           this._terminal.write_str('Error reading chip info', color_fail);

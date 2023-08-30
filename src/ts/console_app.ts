@@ -78,7 +78,7 @@ export class ConsoleApp {
       })
       .finally(() => {
         // this delay is required as some components (tools/app) need
-        // to de container be totaly constructed.
+        // to de container be totally constructed.
         setTimeout(() => {
           this.open_link(setup);
         }, 0);

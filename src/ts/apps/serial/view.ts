@@ -2,7 +2,7 @@ import EventEmitter from '../../libs/event_emitter';
 import type DataDisplay from '../../web-components/data-display/data-display';
 import { ParseUntilTimeout, type ParseData } from '../../libs/stream_parser';
 import { DataTerminal } from '../../libs/terminal';
-import { esp32_signal_reset } from '../../libs/serial/functions';
+import { hard_reset as esp32_reset } from '../../libs/esptool.ts/loader/reset';
 import type { SerialConn } from '../../libs/serial/serial';
 import type { Encoding } from '../../libs/binary-dump';
 import type { BinaryInputSelect } from '../../web-components/binary-input/text-select-binary';
@@ -236,7 +236,7 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
     (
       this._container.querySelector('.serial-signal-reset') as HTMLButtonElement
     ).onclick = async () => {
-      await esp32_signal_reset(this._port);
+      await esp32_reset(this._port);
     };
 
     // Open/Close serial console
