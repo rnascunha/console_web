@@ -121,7 +121,7 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
     }
   }
 
-  public async stop(): Promise<void> {
+  public async stop_read(): Promise<void> {
     if (this._reader === null) return;
     await this._reader.cancel();
   }

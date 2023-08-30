@@ -17,18 +17,18 @@ export function blob_to_hex(blob: ArrayBuffer): string {
 }
 
 export async function hex_sha256(blob: ArrayBuffer): Promise<string> {
-  const hashBuffer = await crypto.subtle.digest('SHA-256', blob); // hash the message
-  return blob_to_hex(hashBuffer);
+  const hash_buffer = await crypto.subtle.digest('SHA-256', blob); // hash the message
+  return blob_to_hex(hash_buffer);
 }
 
 export function read_c_string(string: string, char: string = '\x00'): string {
   return string.substring(0, string.indexOf(char));
 }
 
-export async function compress_buffer(
+export async function compress_image(
   input: ArrayBuffer,
-  type: CompressionFormat = 'gzip'
-): Promise<ArrayBuffer | undefined> {
+  type: CompressionFormat
+): Promise<ArrayBuffer> {
   return await new Response(
     new Response(input).body?.pipeThrough(new CompressionStream(type))
   ).arrayBuffer();

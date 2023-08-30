@@ -7,7 +7,7 @@ import {
   type FlashFlags,
 } from './web-components/file-list';
 import { ESPError } from '../../libs/esptool.ts/error';
-import { DataTerminal } from '../../libs/terminal';
+import { DataTerminal, Color } from '../../libs/terminal';
 import { ConsoleApp } from '../../console_app';
 import type { SerialConn } from '../../libs/serial/serial';
 import {
@@ -18,6 +18,10 @@ import { serialBaudrate } from '../../libs/serial/contants';
 import { ESPLoader } from '../../libs/esptool.ts/loader/loader';
 import { chip_name, mac_string } from '../../libs/esptool.ts/loader/debug';
 import { type FlashImageProgress } from '../../libs/esptool.ts/loader/types';
+import {
+  compression_support,
+  compress_image,
+} from '../../libs/esptool.ts/utility';
 import type { ESPFlashFile } from './types';
 import { file_to_arraybuffer } from '../../helper/file';
 
@@ -138,6 +142,7 @@ const template = (function () {
     <div id=serial>
       <div id=serial-header>
         <select id=serial-select></select>
+        <button id=serial-request>&#x1F504;</button>
         <input id=serial-baudrate type=number list=serial-baudrate-list style=width:10ch value=${default_baudrate} title=Baudrate />
         <datalist id=serial-baudrate-list></datalist>
         <button id=serial-open data-state=close></button>
@@ -182,6 +187,9 @@ enum ESPToolState {
 
 const bg_color = '#999999';
 const bar_color = '#00cc00';
+
+const color_ok = { colors: [Color.FG_GREEN] };
+const color_fail = { colors: [Color.FG_RED] };
 
 function reset_file_list(list: ESPFlashFileList): void {
   list.error('');
@@ -299,7 +307,11 @@ export class ESPToolComponent extends ComponentBase {
             text: `${file} ${data.seq}/${data.blocks}`,
           });
           this._terminal.write_str(
-            `${data.seq}/${data.blocks}|${data.written}/${data.file_size}...${data.percent}%\r\n`
+            `\r${data.seq}/${data.blocks}|${data.written}/${data.file_size}...${data.percent}%`.padEnd(
+              this._terminal.terminal.cols - 1,
+              ' '
+            ),
+            { bl: false }
           );
         },
         file_list.flags
@@ -320,12 +332,12 @@ export class ESPToolComponent extends ComponentBase {
     shadow.adoptedStyleSheets = [terminal_style];
 
     this._terminal.open(shadow.querySelector('#console') as HTMLElement);
-    this._terminal.write_str('ESPTool Flash\r\n');
+    this._terminal.write_str('ESPTool Flash', { colors: [Color.BOLD] });
 
     this.container.on('open', () => {
       setTimeout(() => {
         this._terminal.fit();
-      }, 50);
+      }, 0);
     });
 
     this.container.on('resize', () => {
@@ -334,9 +346,9 @@ export class ESPToolComponent extends ComponentBase {
 
     if (!is_serial_supported()) {
       this._terminal.write_str(
-        'Serial API is not supported at this browser! Use a chrome based browser.\r\n'
+        'Serial API is not supported at this browser! Use a chrome based browser.'
       );
-      this._terminal.write_str('https://caniuse.com/web-serial\r\n');
+      this._terminal.write_str('https://caniuse.com/web-serial');
       return;
     }
 
@@ -359,6 +371,10 @@ export class ESPToolComponent extends ComponentBase {
     const erase_flash = shadow.querySelector(
       '#serial-erase-flash'
     ) as HTMLButtonElement;
+
+    shadow.querySelector('#serial-request')?.addEventListener('click', () => {
+      ConsoleApp.serial_list.request();
+    });
 
     const set_state = (state?: ESPToolState): void => {
       if (state === undefined) {
@@ -456,7 +472,7 @@ export class ESPToolComponent extends ComponentBase {
     const open_cb = async (): Promise<void> => {
       if (this._loader === undefined) return;
       set_state(ESPToolState.OPEN);
-      this._terminal.write_str('Connected\r\n');
+      this._terminal.write_str('Connected', { colors: [Color.BG_GREEN] });
 
       this._loader.callback = (data: Uint8Array) => {
         this._terminal.write(data);
@@ -464,9 +480,9 @@ export class ESPToolComponent extends ComponentBase {
 
       // this._terminal.write_str('Syncing...');
       // if (await this._loader.try_connect())
-      //   this._terminal.write_str('Synced\r\n');
+      //   this._terminal.write_str('Synced');
       // else {
-      //   this._terminal.write_str('Error syncing.\r\n');
+      //   this._terminal.write_str('Error syncing.');
       //   await this._loader.close();
       // }
     };
@@ -488,7 +504,7 @@ export class ESPToolComponent extends ComponentBase {
       });
       this._loader.on('close', () => {
         set_state(ESPToolState.CLOSE);
-        this._terminal.write_str('Closed\r\n');
+        this._terminal.write_str('Closed', { colors: [Color.BG_RED] });
         this._loader = undefined;
       });
       this._loader.on('sync', () => {
@@ -499,11 +515,11 @@ export class ESPToolComponent extends ComponentBase {
       });
       this._loader.on('disconnect', () => {
         set_state(undefined);
-        this._terminal.write_str('Serial device disconnected...\r\n');
+        this._terminal.write_str('Serial device disconnected...', color_fail);
         this._loader = undefined;
       });
       this._loader.on('error', err => {
-        this._terminal.write_str(`ESPTool error [${err.message}]\r\n`);
+        this._terminal.write_str(`ESPTool error [${err.message}]`, color_fail);
       });
 
       this._loader.open(+br.value).finally(() => {});
@@ -515,7 +531,7 @@ export class ESPToolComponent extends ComponentBase {
 
     reset.addEventListener('click', () => {
       this._loader?.signal_reset().finally(() => {
-        this._terminal.write_str('Reseting device\r\n');
+        this._terminal.write_str('Reseting device', { colors: [Color.ITALIC] });
       });
     });
 
@@ -527,108 +543,110 @@ export class ESPToolComponent extends ComponentBase {
 
     boot.addEventListener('click', () => {
       if (this._loader === undefined) {
-        this._terminal.write_str('ESPTool not intiated...\r\n');
+        this._terminal.write_str('ESPTool not intiated...', color_fail);
         return;
       }
-      this._terminal.write_str('Booting...\r\n');
+      this._terminal.write_str('Booting...', { bl: false });
       this._loader
         .signal_bootloader()
         .then(() => {
-          this._terminal.write_str('Booted...\r\n');
+          this._terminal.write_str('done', color_ok);
         })
         .finally(() => {});
     });
 
     sync.addEventListener('click', () => {
       if (this._loader === undefined) {
-        this._terminal.write_str('ESPTool not intiated...\r\n');
+        this._terminal.write_str('ESPTool not intiated...');
         return;
       }
-      this._terminal.write_str('Syncing...\r\n');
+      this._terminal.write_str('Syncing...', { bl: false });
       this._loader
         .sync(20)
         .then(() => {
-          this._terminal.write_str('Sync Success...\r\n');
+          this._terminal.write_str('done', color_ok);
         })
         .catch(() => {
-          this._terminal.write_str('Sync FAIL...\r\n');
+          this._terminal.write_str('FAIL', color_fail);
         });
     });
 
     info.addEventListener('click', () => {
       if (this._loader === undefined) {
-        this._terminal.write_str('ESPTool not intiated...\r\n');
+        this._terminal.write_str('ESPTool not intiated...');
         return;
       }
-      this._terminal.write_str('Reading chip info...\r\n');
+      this._terminal.write_str('Reading chip info...');
       read_chip_info(this._loader)
         .then(res => {
-          this._terminal.write_str(`Chip...${chip_name(res.chip)}\r\n`);
+          this._terminal.write_str(`Chip...${chip_name(res.chip)}`);
           this._terminal.write_str(
             `Efuses...${Array.from(res.efuses)
               .map(f => hex(f))
-              .join(':')}\r\n`
+              .join(':')}`
           );
-          this._terminal.write_str(`MAC...${mac_string(res.mac)}\r\n`);
-          this._terminal.write_str(`Crystal...${res.crystal}MHz\r\n`);
-          this._terminal.write_str(`Flash ID...${res.flash_id}\r\n`);
+          this._terminal.write_str(`MAC...${mac_string(res.mac)}`);
+          this._terminal.write_str(`Crystal...${res.crystal}MHz`);
+          this._terminal.write_str(`Flash ID...${res.flash_id}`);
         })
         .catch(e => {
-          this._terminal.write_str('Error reading chip info\r\n');
+          this._terminal.write_str('Error reading chip info', color_fail);
         })
         .finally(() => {});
     });
 
     change_baud.addEventListener('click', () => {
       if (this._loader === undefined) {
-        this._terminal.write_str('ESPTool not intiated...\r\n');
+        this._terminal.write_str('ESPTool not intiated...', color_fail);
         return;
       }
 
       const new_baud = 460800;
-      this._terminal.write_str(`Changing baudrate to ${new_baud}... `);
+      this._terminal.write_str(`Changing baudrate to ${new_baud}...`, {
+        bl: false,
+      });
       this._loader
         .change_baudrate(new_baud)
         .then(() => {
-          this._terminal.write_str('done\r\n');
+          this._terminal.write_str('done', color_ok);
         })
         .catch(() => {
-          this._terminal.write_str('FAIL\r\n');
+          this._terminal.write_str('FAIL', color_fail);
         })
         .finally(() => {});
     });
 
     upload_stub.addEventListener('click', () => {
       if (this._loader === undefined) {
-        this._terminal.write_str('ESPTool not intiated...\r\n');
+        this._terminal.write_str('ESPTool not intiated...', color_fail);
         return;
       }
 
-      this._terminal.write_str('Uploading stub...');
+      this._terminal.write_str('Uploading stub...', { bl: false });
       this._loader
         .upload_stub()
         .then(() => {
-          this._terminal.write_str('Done\r\n');
+          this._terminal.write_str('done', color_ok);
         })
         .catch(e => {
-          this._terminal.write_str(`Fail [${e.message as string}]\r\n`);
+          this._terminal.write_str(`FAIL [${e.message as string}]`, color_fail);
         });
     });
 
     erase_flash.addEventListener('click', () => {
       if (this._loader === undefined) {
-        this._terminal.write_str('ESPTool not intiated...\r\n');
+        this._terminal.write_str('ESPTool not intiated...', color_fail);
         return;
       }
 
-      this._terminal.write_str('Erase flash...');
+      this._terminal.write_str('Erase flash...', { bl: false });
       this._loader
         .erase_flash()
         .then(() => {
-          this._terminal.write_str('Done\r\n');
+          this._terminal.write_str('done', color_ok);
         })
         .catch(() => {
-          this._terminal.write_str('FAIL\r\n');
+          this._terminal.write_str('FAIL', color_fail);
         });
     });
   }
@@ -676,7 +694,7 @@ async function read_chip_info(loader: ESPLoader): Promise<ChipInfo> {
       console.error('Error reading data');
     }
   }
-  throw new Error('Error reading chip info\r\n');
+  throw new Error('Error reading chip info');
 }
 
 async function flash_files(
@@ -691,45 +709,66 @@ async function flash_files(
       file.buffer = await file_to_arraybuffer(file.file);
 
     terminal.write_str(
-      `Flashing ${file.name} at ${file.offset} [size=${file.file.size}]\r\n`
+      `Flashing ${file.name} at ${file.offset} [size=${file.file.size}]`
     );
     try {
       const offset = parseInt(file.offset);
-      await loader.flash_image(new Uint8Array(file.buffer), offset, {
-        callback: (data: FlashImageProgress) => {
-          cb(file.name, data);
-        },
-      });
-      terminal.write_str('Image flashed\r\n');
+      if (compression_support()) {
+        terminal.write_str('Compression supported');
+        const compressed_buffer = await compress_image(file.buffer, 'deflate');
+        terminal.write_str(
+          `Compression...${file.buffer.byteLength} -> ${
+            compressed_buffer.byteLength
+          } (${(
+            (100 * compressed_buffer.byteLength) /
+            file.buffer.byteLength
+          ).toFixed(1)}%)`
+        );
+        await loader.flash_image_deflate(
+          new Uint8Array(compressed_buffer),
+          file.buffer.byteLength,
+          offset,
+          {
+            callback: (data: FlashImageProgress) => {
+              cb(file.name, data);
+            },
+          }
+        );
+      } else {
+        await loader.flash_image(new Uint8Array(file.buffer), offset, {
+          callback: (data: FlashImageProgress) => {
+            cb(file.name, data);
+          },
+        });
+      }
+      terminal.write_str('Image flashed');
       if (flags.verify) {
         try {
-          terminal.write_str('Verifiy...\r\n');
-          terminal.write_str('Image...');
+          terminal.write_str('Verifiy...');
+          terminal.write_str('Image...', { bl: false });
           const hash_image = await loader.flash_md5_calc(
             offset,
             file.file.size
           );
-          terminal.write_str(hash_image + '\r\n');
-          terminal.write_str('File....');
+          terminal.write_str(hash_image);
+          terminal.write_str('File....', { bl: false });
           const hash_file = md5_digest.hash(file.buffer);
-          terminal.write_str(hash_file + '\r\n');
+          terminal.write_str(hash_file);
           terminal.write_str(
-            `Flash image verify...${
-              hash_image === hash_file ? 'OK' : 'FAIL'
-            }\r\n`
+            `Flash image verify...${hash_image === hash_file ? 'OK' : 'FAIL'}`
           );
         } catch (err) {
-          terminal.write_str(`FAIL [${(err as Error).message}]\r\n`);
+          terminal.write_str(`FAIL [${(err as Error).message}]`);
           throw err;
         }
       }
     } catch (err) {
-      terminal.write_str('FAIL\r\n');
+      terminal.write_str('FAIL');
       throw err;
     }
   }
   // if (flags.monitor) {
-  //   terminal.write_str('Rebooting...\r\n');
+  //   terminal.write_str('Rebooting...');
   //   await loader.signal_reset();
   // }
 }

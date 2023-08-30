@@ -52,11 +52,10 @@ function update_ports(ports: SerialConn[], select: HTMLSelectElement): void {
   select.innerHTML = '';
   if (ports.length === 0) {
     select.appendChild(new Option('No ports', '0'));
-    select.disabled = true;
     return;
   }
   select.disabled = false;
-  ports.forEach(port =>
+  ports.forEach(port => {
     select.appendChild(
       new Option(
         make_serial_name(port.port),
@@ -64,8 +63,8 @@ function update_ports(ports: SerialConn[], select: HTMLSelectElement): void {
         undefined,
         port.id === selected
       )
-    )
-  );
+    );
+  });
 }
 
 export function install_serial_events(

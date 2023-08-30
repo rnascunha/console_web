@@ -77,7 +77,11 @@ export class ConsoleApp {
         await this.update_state(setup);
       })
       .finally(() => {
-        this.open_link(setup);
+        // this delay is required as some components (tools/app) need
+        // to de container be totaly constructed.
+        setTimeout(() => {
+          this.open_link(setup);
+        }, 0);
         this._sel_protocols.dispatchEvent(new Event('change'));
       });
 

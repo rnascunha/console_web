@@ -21,6 +21,7 @@ import EventEmitter from '../../event_emitter';
 const ROM_BAUDRATE = 115200;
 const default_timeout = 3000;
 const CHIP_ERASE_TIMEOUT = 120000; // timeout for full chip erase
+const MD5_TIMEOUT_PER_MB = 8000; // timeout (per megabyte) for calculating md5sum
 const ERASE_REGION_TIMEOUT_PER_MB = 30000; // timeout (per megabyte) for erasing a region in ms
 
 const sync_packet = [
@@ -62,7 +63,6 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   private _chip?: Chip;
   private _efuses?: Uint32Array;
 
-  private _remain: number[] = [];
   private readonly _flash_size: FlashSizeHandler = FlashSizeHandler.FS4MB;
 
   constructor(device: SerialConn) {
@@ -113,6 +113,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     this.callback = undefined;
     for (let i = 0; i < 10; ++i) {
       try {
+        await sleep(100);
         await this.signal_bootloader();
         const was_silent = await this.wait_silent(10, 1000);
         if (!was_silent) continue;
@@ -192,10 +193,6 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     console.log('read_flash_id', resp);
     return resp.value;
   }
-  // """ Read SPI flash manufacturer and device id """
-  //   def flash_id(self):
-  //       SPIFLASH_RDID = 0x9F
-  //       return self.run_spiflash_command(SPIFLASH_RDID, b"", 24)
 
   async erase_flash(timeout: number = CHIP_ERASE_TIMEOUT): Promise<void> {
     if (!this._is_stub) {
@@ -275,25 +272,18 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     await this.write_mem(ESP32_stub.text, ESP32_stub.text_start);
     await this.write_mem(ESP32_stub.data, ESP32_stub.data_start);
 
-    await this.mem_end(FlashEndFlag.REBOOT, ESP32_stub.entry, 50);
+    // await this.mem_end(FlashEndFlag.REBOOT, ESP32_stub.entry, 50);
+    await this.mem_end(FlashEndFlag.REBOOT, ESP32_stub.entry, 0);
 
-    if (this._remain.length > 0) {
-      while (true) {
-        const sp = SLIP.split_one(this._remain);
-        this._remain = sp.remain;
-        if (sp.packet === undefined) break;
-        if (is_ohai_packet(sp.packet)) {
-          this._is_stub = true;
-          this.emit('stub', this);
-          return;
-        }
-      }
-    }
-
+    /**
+     * As we don`t want to miss the OHAI packet, we are going to ignore
+     * the mem_end command return and just look for the OHAI packet
+     */
+    let remain: number[] = [];
     if (
       !(await this.read_timeout_until(500, (data: Uint8Array): boolean => {
-        const splited = SLIP.split(data, this._remain);
-        this._remain = splited.remain;
+        const splited = SLIP.split(data, remain);
+        remain = splited.remain;
         return splited.packets.some(packet => {
           if (is_ohai_packet(packet)) {
             this._is_stub = true;
@@ -310,10 +300,57 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   async flash_image(
     image: Uint8Array,
     offset: number,
+    options?: FlashImageOptions
+  ): Promise<void> {
+    await this.flash_image_internal(image, image.byteLength, offset, options);
+  }
+
+  async flash_image_deflate(
+    image: Uint8Array,
+    original_size: number,
+    offset: number,
+    options?: FlashImageOptions
+  ): Promise<void> {
+    await this.flash_image_internal(image, original_size, offset, options);
+  }
+
+  /**
+   * https://github.com/espressif/esptool/blob/da31d9d7a1bb496995f8e30a6be259689948e43e/esptool.py#L569
+   * Not working at ROM loader
+   */
+  async flash_md5_calc(offset: number, size: number): Promise<string> {
+    const packet = await this.command(
+      Command.SPI_FLASH_MD5,
+      SLIP.pack32(offset, size, 0, 0),
+      0,
+      ESPLoader.timeout_per_mb(MD5_TIMEOUT_PER_MB, size)
+    );
+
+    if (this._is_stub)
+      return packet.data
+        .reduce<string[]>((acc, d) => {
+          acc.push(d.toString(16).padStart(2, '0'));
+          return acc;
+        }, [])
+        .join('');
+    return String.fromCharCode(...packet.data);
+  }
+
+  /**
+   * Private
+   */
+  /**
+   * if image.byteLength === size uses normal flash, otherwise use deflate
+   */
+  private async flash_image_internal(
+    image: Uint8Array,
+    size: number,
+    offset: number,
     options: FlashImageOptions = {}
   ): Promise<void> {
+    const is_deflate = size !== image.byteLength;
     const file_size = image.byteLength;
-    const blocks = await this.flash_begin(file_size, offset);
+    const blocks = await this.flash_begin(size, offset, file_size);
     const flash_write_size = this.flash_write_size();
 
     let block = [];
@@ -338,7 +375,8 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
 
       // FLash data works (why?), even the response not being the right size
       try {
-        await this.flash_data(block, seq);
+        await this.flash_data(block, seq, is_deflate, 0);
+        await this.read_timeout(default_timeout);
       } catch (e) {
         console.log('error', e);
       }
@@ -355,41 +393,19 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
       });
     }
 
-    if (options.after !== undefined) await this.flash_end(options.after);
+    if (options.after !== undefined)
+      await this.flash_end(options.after, is_deflate);
   }
 
-  // Not tested yet
-  async flash_md5_calc(offset: number, size: number): Promise<string> {
-    const packet = await this.command(
-      Command.SPI_FLASH_MD5,
-      SLIP.pack32(offset, size, 0, 0),
-      0,
-      this._is_stub ? 3000 : 120000
-    );
-
-    if (this._is_stub)
-      return packet.data
-        .reduce<string[]>((acc, d) => {
-          acc.push(d.toString(16).padStart(2, '0'));
-          return acc;
-        }, [])
-        .join('');
-    return String.fromCharCode(...packet.data);
-  }
-
-  /**
-   * Private
-   */
   private async flash_begin(
     size: number,
     offset: number,
+    compressed_size: number = size,
     encrypted: boolean = false
   ): Promise<number> {
     const chip = await this.chip();
 
     const flash_write_size = this.flash_write_size();
-    // if (!this._is_stub && [Chip.ESP32, Chip.ESP32S2].includes(chip))
-    //   await this.command(Command.SPI_ATTACH, new Array(8).fill(0), 0);
     if ([Chip.ESP32, Chip.ESP32S2].includes(chip))
       await this.command(
         Command.SPI_ATTACH,
@@ -412,7 +428,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
       );
 
     const num_blocks = Math.floor(
-      (size + flash_write_size - 1) / flash_write_size
+      (compressed_size + flash_write_size - 1) / flash_write_size
     );
     const erase_size = this.erase_size(offset, size);
 
@@ -430,7 +446,12 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     if (chip === Chip.ESP32S2 && !this._is_stub)
       buffer.push(...SLIP.pack32(encrypted ? 1 : 0));
 
-    await this.command(Command.FLASH_BEGIN, buffer, 0, timeout);
+    await this.command(
+      size === compressed_size ? Command.FLASH_BEGIN : Command.FLASH_DEFL_BEGIN,
+      buffer,
+      0,
+      timeout
+    );
 
     return num_blocks;
   }
@@ -438,18 +459,26 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   private async flash_data(
     data: number[],
     seq: number,
+    deflate: boolean = false,
     timeout: number = default_timeout
   ): Promise<void> {
     await this.command(
-      Command.FLASH_DATA,
+      deflate ? Command.FLASH_DEFL_DATA : Command.FLASH_DATA,
       SLIP.pack32(data.length, seq, 0, 0).concat(data),
       SLIP.checksum(data),
       timeout
     );
   }
 
-  private async flash_end(flag: FlashEndFlag): Promise<void> {
-    await this.command(Command.FLASH_END, SLIP.pack32(flag), 0);
+  private async flash_end(
+    flag: FlashEndFlag,
+    deflate: boolean = false
+  ): Promise<void> {
+    await this.command(
+      deflate ? Command.FLASH_DEFL_END : Command.FLASH_END,
+      SLIP.pack32(flag),
+      0
+    );
   }
 
   private erase_size(offset: number, size: number): number {
@@ -576,76 +605,16 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   ): Promise<boolean> {
     while (--retries >= 0) {
       try {
-        await this.read_timeout(100);
+        const d = await this.read_timeout(timeout);
+        console.log('wait data', d);
       } catch (e) {
+        console.log('waited right');
         return true;
       }
       await sleep(50);
     }
     return false;
   }
-
-  // private async command(
-  //   op: Command,
-  //   command_data: number[],
-  //   checksum: number,
-  //   timeout: number = default_timeout
-  // ): Promise<Response> {
-  //   await this._serial.write(
-  //     SLIP.command(op, new Uint8Array(command_data), checksum)
-  //   );
-
-  //   let packet: any;
-  //   const check_command = (raw_data: Uint8Array): boolean => {
-  //     let data: Uint8Array | number[] = raw_data;
-  //     let ret = false;
-
-  //     while (true) {
-  //       const sp = SLIP.split_one(data, this._remain);
-  //       this._remain = [];
-  //       data = sp.remain;
-  //       this._remain = sp.remain;
-  //       if (sp.packet === undefined) return false;
-  //       packet = SLIP.parse_response(sp.packet, this._is_stub);
-  //       if (packet instanceof ESPFlashError) {
-  //         console.warn('parse error', packet.message, sp.packet, this._is_stub);
-  //         continue;
-  //       }
-  //       if (packet.command !== op) {
-  //         console.warn(
-  //           'wrong command',
-  //           `${(packet as Response).command} !== ${op}`,
-  //           sp.packet,
-  //           this._is_stub
-  //         );
-  //         continue;
-  //       }
-  //       if (packet.status.status === Status.FAILURE) {
-  //         console.warn(
-  //           'status error',
-  //           packet.status.error,
-  //           new ESPFlashError(packet.status.error as number).message,
-  //           sp.packet,
-  //           this._is_stub
-  //         );
-  //         continue;
-  //       }
-  //       ret = true;
-  //       break;
-  //     }
-  //     this._remain = data;
-  //     return ret;
-  //   };
-
-  //   if (!(await this.read_timeout_until(timeout, check_command)))
-  //     throw new ESPFlashError(ErrorCode.RESPONSE_NOT_RECEIVED);
-
-  //   if (packet === undefined) throw new ESPFlashError(ErrorCode.TIMEOUT);
-
-  //   if (packet instanceof ESPFlashError) throw packet;
-  //   if (packet.status.status === Status.SUCCESS) return packet;
-  //   throw new ESPFlashError(packet.status.error as number);
-  // }
 
   private async command(
     op: Command,
@@ -705,6 +674,12 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   private flash_write_size(): number {
     return this._is_stub ? STUBLOADER_FLASH_WRITE_SIZE : FLASH_WRITE_SIZE;
   }
+
+  // private async flush_input(timeout: number = 100): Promise<void> {
+  //   try {
+  //     await this.read_timeout(timeout);
+  //   } catch (e) {}
+  // }
 
   /*
    NOT WORKING
@@ -843,7 +818,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     seconds_per_mb: number,
     size_bytes: number
   ): number {
-    const result = Math.floor(seconds_per_mb * (size_bytes / 0x1e6));
+    const result = Math.floor(seconds_per_mb * (size_bytes / 1e6));
     return result < default_timeout ? default_timeout : result;
   }
 }
