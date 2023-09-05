@@ -3,7 +3,7 @@ import type { JsonValue } from 'golden-layout';
 export abstract class Tool {
   private readonly _name: string;
   private readonly _component: any;
-  private _state: JsonValue = {};
+  protected _state: JsonValue = {};
 
   constructor(name: string, component: any) {
     this._name = name;

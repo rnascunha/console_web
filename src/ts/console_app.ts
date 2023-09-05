@@ -122,6 +122,7 @@ export class ConsoleApp {
     this.init_tool('#coder-tool', 'coder');
     this.init_tool('#json-tool', 'json');
     this.init_tool('#esptool', 'esptool');
+    this.init_tool('#control-flow', 'control_flow');
 
     container.querySelector('#close')?.addEventListener('click', () => {
       this.hide_header();

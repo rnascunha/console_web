@@ -1,5 +1,4 @@
-export function time(): string {
-  const d = new Date();
+export function time(d: Date = new Date()): string {
   return (
     `${d.getHours()}`.padStart(2, '0') +
     ':' +
@@ -9,6 +8,20 @@ export function time(): string {
     '.' +
     `${d.getMilliseconds()}`.padStart(3, '0')
   );
+}
+
+export function date(date: Date = new Date()): string {
+  return (
+    `${date.getDay()}`.padStart(2, '0') +
+    '/' +
+    `${date.getMonth()}`.padStart(2, '0') +
+    '/' +
+    `${date.getFullYear()}`.padStart(4, '0')
+  );
+}
+
+export function date_time(d: Date = new Date()): string {
+  return `${date(d)} ${time(d)}`;
 }
 
 export async function sleep(ms: number): Promise<void> {

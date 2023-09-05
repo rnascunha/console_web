@@ -91,34 +91,24 @@ export class SerialConn extends EventEmitter<SerialConnEvents> {
     }
   }
 
-  public async read_timeout(
-    timeout: number,
-    callback: (data: Uint8Array) => boolean
-  ): Promise<Uint8Array> {
-    if (this._reader !== null) throw new Error('reader occupied');
+  public async read_timeout(timeout: number): Promise<Uint8Array> {
+    if (this._reader !== null) throw new Error('occupied');
     this._reader =
       this._input_stream?.getReader() as ReadableStreamDefaultReader<Uint8Array>;
     const handler = setTimeout(() => {
-      this._reader
-        ?.cancel()
-        .then(() => {
-          // this._reader = null;
-          console.log('serial timeout');
-          // throw new Error('timeout');
-        })
-        .finally(() => {});
+      this._reader?.cancel().finally(() => {});
     }, timeout);
-    while (true) {
-      const { value, done } = await this._reader.read();
-      if (done || callback(value)) {
-        console.log('received', done, value);
-        clearTimeout(handler);
-        this._reader?.releaseLock();
-        this._reader = null;
-        if (done) throw new Error('timeout');
-        return value;
-      }
+    const { value, done } = await this._reader.read();
+    console.log('data', done, value);
+    if (done) {
+      this._reader.releaseLock();
+      this._reader = null;
+      throw new Error('timeout');
     }
+    clearTimeout(handler);
+    this._reader.releaseLock();
+    this._reader = null;
+    return value;
   }
 
   public async stop_read(): Promise<void> {

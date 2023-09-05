@@ -474,13 +474,12 @@ export class ESPToolComponent extends ComponentBase {
       set_state(ESPToolState.OPEN);
       this._terminal.write_str('Connected', { colors: [Color.BG_GREEN] });
 
-      this._loader.callback = (data: Uint8Array) => {
-        this._terminal.write(data);
-      };
+      // this._loader.callback = (data: Uint8Array) => {
+      //   this._terminal.write(data);
+      // };
 
-      // this._terminal.write_str('Syncing...');
-      // if (await this._loader.try_connect())
-      //   this._terminal.write_str('Synced');
+      // this._terminal.write_str('Syncing...', { bl: false });
+      // if (await this._loader.try_connect()) this._terminal.write_str('Synced');
       // else {
       //   this._terminal.write_str('Error syncing.');
       //   await this._loader.close();
@@ -549,7 +548,24 @@ export class ESPToolComponent extends ComponentBase {
       this._terminal.write_str('Booting...', { bl: false });
       this._loader
         .signal_bootloader()
-        .then(() => {
+        .then(async () => {
+          let timeout = 1000;
+          while (timeout > 0) {
+            const start = Date.now();
+            try {
+              const d = await this._loader?.read(timeout);
+              this._terminal.write_str(new TextDecoder().decode(d), {
+                bl: false,
+              });
+            } catch (e) {
+              console.log((e as Error).message);
+              console.log('silent');
+              break;
+            } finally {
+              timeout -= Date.now() - start;
+              console.log(timeout);
+            }
+          }
           this._terminal.write_str('done', color_ok);
         })
         .finally(() => {});

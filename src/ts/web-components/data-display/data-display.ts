@@ -104,7 +104,12 @@ export default class DataDisplay extends HTMLElement {
     raw?: string | Uint8Array
   ): void {
     if (message instanceof Uint8Array)
-      this.data_binary('recv', message, message_size, raw);
+      this.data_binary(
+        'recv',
+        message,
+        message_size ?? message.byteLength,
+        raw
+      );
     else this.data_string('recv', message, message_size, raw);
   }
 

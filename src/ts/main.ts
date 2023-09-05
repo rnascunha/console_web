@@ -35,6 +35,7 @@ import { TimestampTool } from './tools/timestamp/tool';
 import { CoderTool } from './tools/coder/tool';
 import { JSONTool } from './tools/json/tool';
 import { ESPToolTool } from './tools/esptool/tool';
+import { ControlFlowTool } from './tools/control_flow/tool';
 
 declare global {
   const __COMMIT_HASH__: string; // eslint-disable-line
@@ -77,5 +78,6 @@ function run(): void {
     new CoderTool(),
     new JSONTool(),
     new ESPToolTool(),
+    new ControlFlowTool(),
   ]);
 }
