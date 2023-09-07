@@ -3,9 +3,7 @@ export enum Command {
   STATE,
   OPEN_VALVE,
   CLOSE_VALVE,
-  // START_CONTROL_VOLUME,
-  // DATA_CONTROL_VOLUME,
-  // END_CONTROL_VOLUME,
+
   //
   ERROR = 10,
 }
@@ -19,8 +17,8 @@ export enum ErrorDescription {
 }
 
 const ERROR_PACKET_SIZE = 3;
-const CONFIG_PACKET_SIZE = 9;
-const STATE_PACKET_SIZE = 14;
+const CONFIG_PACKET_SIZE = 13;
+const STATE_PACKET_SIZE = 18;
 
 function make_packet(cmd: Command, ...args: number[]): Uint8Array {
   return new Uint8Array([cmd, ...args]);
@@ -29,7 +27,8 @@ function make_packet(cmd: Command, ...args: number[]): Uint8Array {
 export const packets: Record<Command, () => Uint8Array> = {
   [Command.CONFIG]: () => make_packet(Command.CONFIG),
   [Command.STATE]: () => make_packet(Command.STATE),
-  [Command.OPEN_VALVE]: () => make_packet(Command.OPEN_VALVE, 1),
+  [Command.OPEN_VALVE]: () =>
+    make_packet(Command.OPEN_VALVE, 1, 1, 0, 0, 0, 0, 0, 0, 0),
   [Command.CLOSE_VALVE]: () => make_packet(Command.CLOSE_VALVE, 0),
   [Command.ERROR]: () => {
     throw new Error('packet does not exist');
@@ -46,7 +45,10 @@ export interface ControlFlowResponse {
   state?: State;
   pulses?: number;
   volume?: number;
+  limit?: number;
+  freq?: number;
   k?: number;
+  step?: number;
   version?: number;
 }
 
@@ -65,7 +67,9 @@ function parse_state(data: Uint8Array): ControlFlowResponse {
     command: Command.STATE,
     state: data[1] as State,
     pulses: dv.getInt32(2, true),
-    volume: dv.getFloat64(6, true),
+    volume: dv.getInt32(6, true),
+    limit: dv.getInt32(10, true),
+    freq: dv.getInt32(14, true),
   };
 }
 
@@ -78,6 +82,7 @@ function parse_config(data: Uint8Array): ControlFlowResponse {
     command: Command.CONFIG,
     version: dv.getUint32(1, true),
     k: dv.getUint32(5, true),
+    step: dv.getUint32(9, true),
   };
 }
 
@@ -106,6 +111,7 @@ export function parse(
     case Command.ERROR:
       return parse_error(data);
     default:
+      console.log('not found command', data);
       throw new Error(`Command not found ${resp.command as number}`);
   }
 }
