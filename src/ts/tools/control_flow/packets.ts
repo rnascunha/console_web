@@ -14,6 +14,8 @@ export enum ErrorDescription {
   ARGUMENT_ERROR,
   ERROR_READING,
   COMMAND_NOT_FOUND,
+  ALREADY_OPENED,
+  SAFER_TIMER_IDLE,
 }
 
 const ERROR_PACKET_SIZE = 3;
@@ -37,34 +39,40 @@ export const packets: Record<Command, () => Uint8Array> = {
 
 export enum State {
   OPEN = 0,
-  CLOSE,
+  CLOSE = 1,
 }
 
-export interface ControlFlowResponse {
-  command: Command;
-  state?: State;
-  pulses?: number;
-  volume?: number;
-  limit?: number;
-  freq?: number;
-  k?: number;
-  step?: number;
-  version?: number;
+export interface ControlFlowStateResponse {
+  state: State;
+  pulses: number;
+  volume: number;
+  limit: number;
+  freq: number;
 }
 
-export interface ControlFlowResponseError {
+export interface ControlFlowConfigResponse {
+  version: number;
+  k: number;
+  step: number;
+}
+
+export interface ControlFlowErrorResponse {
   command: Command;
   response: Command;
   error: ErrorDescription;
 }
 
-function parse_state(data: Uint8Array): ControlFlowResponse {
+export type ControlFlowResponse =
+  | ControlFlowStateResponse
+  | ControlFlowConfigResponse
+  | ControlFlowErrorResponse;
+
+function parse_state(data: Uint8Array): ControlFlowStateResponse {
   if (data.byteLength !== STATE_PACKET_SIZE)
     throw new Error('Wrong packet size [state]');
 
   const dv = new DataView(data.buffer);
   return {
-    command: Command.STATE,
     state: data[1] as State,
     pulses: dv.getInt32(2, true),
     volume: dv.getInt32(6, true),
@@ -73,20 +81,19 @@ function parse_state(data: Uint8Array): ControlFlowResponse {
   };
 }
 
-function parse_config(data: Uint8Array): ControlFlowResponse {
+function parse_config(data: Uint8Array): ControlFlowConfigResponse {
   if (data.byteLength !== CONFIG_PACKET_SIZE)
     throw new Error('Wrong packet size [config]');
 
   const dv = new DataView(data.buffer);
   return {
-    command: Command.CONFIG,
     version: dv.getUint32(1, true),
     k: dv.getUint32(5, true),
     step: dv.getUint32(9, true),
   };
 }
 
-function parse_error(data: Uint8Array): ControlFlowResponseError {
+function parse_error(data: Uint8Array): ControlFlowErrorResponse {
   if (data.byteLength !== ERROR_PACKET_SIZE)
     throw new Error('Wrong packet size [error]');
 
@@ -97,13 +104,11 @@ function parse_error(data: Uint8Array): ControlFlowResponseError {
   };
 }
 
-export function parse(
-  data: Uint8Array
-): ControlFlowResponse | ControlFlowResponseError {
+export function parse(data: Uint8Array): ControlFlowResponse {
   if (data.byteLength === 0) throw new Error('Packet too small');
-  const resp: ControlFlowResponse = { command: data[0] as Command };
+  const cmd: Command = data[0] as Command;
 
-  switch (resp.command) {
+  switch (cmd) {
     case Command.STATE:
       return parse_state(data);
     case Command.CONFIG:
@@ -112,6 +117,6 @@ export function parse(
       return parse_error(data);
     default:
       console.log('not found command', data);
-      throw new Error(`Command not found ${resp.command as number}`);
+      throw new Error(`Command not found ${cmd as number}`);
   }
 }

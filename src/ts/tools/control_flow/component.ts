@@ -4,10 +4,12 @@ import {
   parse,
   packets,
   Command,
-  type ControlFlowResponse,
   State,
   ErrorDescription,
-  type ControlFlowResponseError,
+  type ControlFlowResponse,
+  type ControlFlowStateResponse,
+  type ControlFlowConfigResponse,
+  type ControlFlowErrorResponse,
 } from './packets';
 import type DataDisplay from '../../web-components/data-display/data-display';
 import { time as time_format } from '../../helper/time';
@@ -29,6 +31,10 @@ const template = (function () {
 
     #header {
       margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2px;
     }
 
     #open-valve-field {
@@ -40,7 +46,11 @@ const template = (function () {
 
     #open-freq-receive,
     #open-limit-receive {
-      width: 10ch;
+      width: 12ch;
+    }
+
+    #close-pkt {
+      color: red;
     }
 
     label {
@@ -84,11 +94,11 @@ const template = (function () {
       <fieldset id=open-valve-field>
         <legend>Open</legend>
         <label title='Zero volume before opening'><input id=open-clear-before type=checkbox checked>Clear</label>
-        <input type=number min=0 id=open-freq-receive placeholder='Interval (s)' title='Interval (s)'>
+        <input type=number min=0 id=open-freq-receive placeholder='Interval (ms)' title='Interval (ms)'>
         <input type=number min=0 id=open-limit-receive placeholder='Limit (ml)' title='Limit (ml)'>
         <button id=open-pkt>Open</button>
       </fieldset>
-      <button id=close-pkt>Close</button>
+      <button id=close-pkt title='Close valve'>🛑</button>
     </div>
     <div id=info>
       <fieldset>
@@ -126,7 +136,10 @@ export class ControlFlowComponent extends ComponentBase {
 
   private readonly _onopen: () => void;
   private readonly _onclose: () => void;
-  private readonly _update_info: (data: ControlFlowResponse) => void;
+  private readonly _update_info: (
+    data: ControlFlowStateResponse | ControlFlowConfigResponse
+  ) => void;
+
   private readonly _save_state: (address: string) => void;
 
   private readonly _display: DataDisplay;
@@ -206,53 +219,32 @@ export class ControlFlowComponent extends ComponentBase {
     const volume_info = shadow.querySelector('#volume-info') as HTMLElement;
     const version_info = shadow.querySelector('#version-info') as HTMLElement;
 
-    this._update_info = (resp: ControlFlowResponse) => {
-      if (resp.k !== undefined) this._k_ratio = resp.k;
-      if (resp.step !== undefined) this._step = resp.step;
-
+    this._update_info = (
+      resp: ControlFlowStateResponse | ControlFlowConfigResponse
+    ) => {
       const date = time_format();
-      if (resp.state !== undefined) {
-        const val = state_name(resp.state);
-        state_info.textContent = val;
-        state_info.title = `${date}: ${val} [${resp.state as number}]`;
-      }
+      if ('k' in resp) {
+        this._k_ratio = resp.k;
+        this._step = resp.step;
 
-      if (resp.volume !== undefined) {
-        if (
-          this._k_ratio !== 0 &&
-          this._step !== 0 &&
-          resp.pulses !== undefined
-        ) {
-          const val = `${(
-            resp.volume +
-            (this._step * resp.pulses) / this._k_ratio
-          ).toFixed(2)} ml`;
-          volume_info.textContent = val;
-          volume_info.title = `${date}: ${val} [${resp.volume} + ${this._step} + ${resp.pulses} / ${this._k_ratio}]`;
-        } else {
-          const val = `${resp.volume} ml`;
-          volume_info.textContent = val;
-          volume_info.title = `${date}: ${val}`;
-        }
-      }
+        version_info.textContent = `${resp.version} / ${resp.k} / ${resp.step}`;
+        version_info.title = `${date}: Version=${resp.version} / K=${resp.k} / Step=${resp.step}`;
+      } else {
+        const st = state_name(resp.state);
+        state_info.textContent = st;
+        state_info.title = `${date}: ${st} [${resp.state as number}]`;
 
-      if (resp.version !== undefined) {
-        version_info.textContent = `${resp.version} / ${resp.k as number} / ${
-          resp.step as number
-        }`;
-        version_info.title = `${date}: Version=${resp.version} / K=${
-          resp.k as number
-        } / Step=${resp.step as number}`;
-      }
+        const volume = `${(
+          resp.volume +
+          (this._step * resp.pulses) / this._k_ratio
+        ).toFixed(2)} ml`;
+        volume_info.textContent = volume;
+        volume_info.title = `${date}: ${volume} [${resp.volume} + ${this._step} * ${resp.pulses} / ${this._k_ratio}]`;
 
-      [[pulse_info, 'pulses']].forEach(([el, info]) => {
-        const k = info as string;
-        if (k in resp) {
-          const val = `${resp[k as keyof ControlFlowResponse] as number}`;
-          (el as HTMLElement).textContent = val;
-          (el as HTMLElement).title = `${date}: ${val}`;
-        }
-      });
+        const pulse = `${resp.pulses + resp.volume * this._k_ratio}`;
+        pulse_info.textContent = pulse;
+        pulse_info.title = `${date}: ${pulse} [${resp.pulses}]`;
+      }
     };
 
     connect.addEventListener('click', () => {
@@ -323,9 +315,7 @@ export class ControlFlowComponent extends ComponentBase {
       };
       this._ws.onmessage = ev => {
         try {
-          const d: ControlFlowResponse | ControlFlowResponseError = parse(
-            new Uint8Array(ev.data)
-          );
+          const d: ControlFlowResponse = parse(new Uint8Array(ev.data));
           if (!('error' in d)) {
             this._update_info(d);
             this._display.receive(
@@ -333,11 +323,7 @@ export class ControlFlowComponent extends ComponentBase {
               ev.data.byteLength,
               ev.data
             );
-          } else {
-            this._display.error(
-              `ERROR: ${error_name(d.error)} [${d.response as number}]`
-            );
-          }
+          } else this.response_error(d);
         } catch (e) {
           this._display.error((e as Error).message);
         }
@@ -364,6 +350,12 @@ export class ControlFlowComponent extends ComponentBase {
     }
     this._ws?.send(data);
     this._display.send(data, undefined);
+  }
+
+  private response_error(d: ControlFlowErrorResponse): void {
+    this._display.error(
+      `ERROR: ${error_name(d.error)} [${d.response as number}]`
+    );
   }
 }
 

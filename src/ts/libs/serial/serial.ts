@@ -1,4 +1,4 @@
-import { make_serial_name } from './functions';
+import { is_serial_supported, make_serial_name } from './functions';
 import EventEmitter from '../../libs/event_emitter';
 
 export type SerialState = 'open' | 'close';
@@ -158,21 +158,23 @@ export class SerialList extends EventEmitter<SerialListEvents> {
     super();
     this._ports = [];
 
-    navigator.serial.onconnect = ev => {
-      this._ports.push(new SerialConn(ev.target as SerialPort, ++this._id));
-      this.emit('connect', this._ports);
-    };
+    if (is_serial_supported()) {
+      navigator.serial.onconnect = ev => {
+        this._ports.push(new SerialConn(ev.target as SerialPort, ++this._id));
+        this.emit('connect', this._ports);
+      };
 
-    navigator.serial.ondisconnect = ev => {
-      const port = this._ports.find(p => p.port === ev.target);
-      if (port !== undefined) {
-        port.emit('disconnect', undefined);
-        this._ports = this._ports.filter(p => p.port !== ev.target);
-      }
-      this.emit('disconnect', this._ports);
-    };
+      navigator.serial.ondisconnect = ev => {
+        const port = this._ports.find(p => p.port === ev.target);
+        if (port !== undefined) {
+          port.emit('disconnect', undefined);
+          this._ports = this._ports.filter(p => p.port !== ev.target);
+        }
+        this.emit('disconnect', this._ports);
+      };
 
-    this.get_ports();
+      this.get_ports();
+    }
   }
 
   public get ports(): SerialConn[] {
