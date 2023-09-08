@@ -12,7 +12,10 @@ import {
   type ControlFlowErrorResponse,
 } from './packets';
 import type DataDisplay from '../../web-components/data-display/data-display';
-import { time as time_format } from '../../helper/time';
+import {
+  time as time_format,
+  miliseconds_to_duration,
+} from '../../helper/time';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -117,6 +120,10 @@ const template = (function () {
         <legend>Volume</legend>
         <div id=volume-info>-</div>
       </fieldset>
+      <fieldset>
+        <legend>Time</legend>
+        <div id=time-info>-</div>
+      </fieldset>
     </div>
   </div>
   <display-data id=data></display-data>`;
@@ -126,6 +133,9 @@ const template = (function () {
 interface ControlFlowOptions {
   address?: string;
   autoconnect?: boolean;
+  clear?: boolean;
+  frequency?: number;
+  limit?: number;
 }
 
 export class ControlFlowComponent extends ComponentBase {
@@ -134,13 +144,16 @@ export class ControlFlowComponent extends ComponentBase {
   private _k_ratio: number = 0;
   private _step: number = 0;
 
+  private _valve_state: State = State.CLOSE;
+  private _valve_open_time: number = 0;
+
+  private readonly _state: ControlFlowOptions = {};
+
   private readonly _onopen: () => void;
   private readonly _onclose: () => void;
   private readonly _update_info: (
     data: ControlFlowStateResponse | ControlFlowConfigResponse
   ) => void;
-
-  private readonly _save_state: (address: string) => void;
 
   private readonly _display: DataDisplay;
 
@@ -152,6 +165,7 @@ export class ControlFlowComponent extends ComponentBase {
     super(container, virtual);
 
     this.title = 'Control Flow';
+    this._state = state !== undefined ? (state as ControlFlowOptions) : {};
 
     const shadow = this.rootHtmlElement.attachShadow({ mode: 'open' });
     shadow.appendChild(template.content.cloneNode(true));
@@ -168,20 +182,13 @@ export class ControlFlowComponent extends ComponentBase {
       '#autoconnect'
     ) as HTMLInputElement;
 
-    this._save_state = (address: string) => {
-      window.console_app.set_tool_state(
-        'control_flow',
-        { address, autoconnect: autoconnect.checked },
-        true
-      );
-    };
-
     const opt = state as ControlFlowOptions;
     address.value = opt.address ?? '';
     if (opt.autoconnect === true) autoconnect.checked = true;
 
     autoconnect.addEventListener('change', ev => {
-      this._save_state(address.value);
+      this._state.autoconnect = autoconnect.checked;
+      this.save_state();
     });
 
     // Commands
@@ -218,6 +225,7 @@ export class ControlFlowComponent extends ComponentBase {
     const pulse_info = shadow.querySelector('#pulse-info') as HTMLElement;
     const volume_info = shadow.querySelector('#volume-info') as HTMLElement;
     const version_info = shadow.querySelector('#version-info') as HTMLElement;
+    const time_info = shadow.querySelector('#time-info') as HTMLElement;
 
     this._update_info = (
       resp: ControlFlowStateResponse | ControlFlowConfigResponse
@@ -230,10 +238,22 @@ export class ControlFlowComponent extends ComponentBase {
         version_info.textContent = `${resp.version} / ${resp.k} / ${resp.step}`;
         version_info.title = `${date}: Version=${resp.version} / K=${resp.k} / Step=${resp.step}`;
       } else {
+        // State
         const st = state_name(resp.state);
         state_info.textContent = st;
         state_info.title = `${date}: ${st} [${resp.state as number}]`;
 
+        // Time
+        if (this._valve_state === State.CLOSE && resp.state === State.OPEN) {
+          time_info.innerHTML = miliseconds_to_duration(0);
+          this._valve_open_time = Date.now();
+        } else if (this._valve_state === State.OPEN)
+          time_info.innerHTML = miliseconds_to_duration(
+            Date.now() - this._valve_open_time
+          );
+        this._valve_state = resp.state;
+
+        // Volume
         const volume = `${(
           resp.volume +
           (this._step * resp.pulses) / this._k_ratio
@@ -241,7 +261,10 @@ export class ControlFlowComponent extends ComponentBase {
         volume_info.textContent = volume;
         volume_info.title = `${date}: ${volume} [${resp.volume} + ${this._step} * ${resp.pulses} / ${this._k_ratio}]`;
 
-        const pulse = `${resp.pulses + resp.volume * this._k_ratio}`;
+        // Pulse
+        const pulse = `${
+          resp.pulses + (resp.volume * this._k_ratio) / this._step
+        }`;
         pulse_info.textContent = pulse;
         pulse_info.title = `${date}: ${pulse} [${resp.pulses}]`;
       }
@@ -266,16 +289,27 @@ export class ControlFlowComponent extends ComponentBase {
       });
     });
 
+    const clear = shadow.querySelector(
+      '#open-clear-before'
+    ) as HTMLInputElement;
+    clear.checked = this._state.clear ?? true;
+    const freq = shadow.querySelector('#open-freq-receive') as HTMLInputElement;
+    freq.value =
+      this._state.frequency !== undefined
+        ? this._state.frequency.toString()
+        : '';
+    const limit = shadow.querySelector(
+      '#open-limit-receive'
+    ) as HTMLInputElement;
+    limit.value =
+      this._state.limit !== undefined ? this._state.limit.toString() : '';
+
     open_valve.addEventListener('click', () => {
-      const clear = shadow.querySelector(
-        '#open-clear-before'
-      ) as HTMLInputElement;
-      const freq = shadow.querySelector(
-        '#open-freq-receive'
-      ) as HTMLInputElement;
-      const limit = shadow.querySelector(
-        '#open-limit-receive'
-      ) as HTMLInputElement;
+      this._state.frequency = +freq.value;
+      this._state.clear = clear.checked;
+      this._state.limit = +limit.value;
+      this.save_state();
+
       this.send(
         new Uint8Array([
           Command.OPEN_VALVE,
@@ -307,7 +341,9 @@ export class ControlFlowComponent extends ComponentBase {
     try {
       this._ws = new WebSocket(`ws://${addr}/ws`);
       this._ws.binaryType = 'arraybuffer';
-      this._save_state(addr);
+
+      this._state.address = addr;
+      this.save_state();
 
       this._ws.onopen = ev => {
         this._onopen();
@@ -356,6 +392,10 @@ export class ControlFlowComponent extends ComponentBase {
     this._display.error(
       `ERROR: ${error_name(d.error)} [${d.response as number}]`
     );
+  }
+
+  private save_state(): void {
+    window.console_app.set_tool_state('control_flow', this._state, true);
   }
 }
 
