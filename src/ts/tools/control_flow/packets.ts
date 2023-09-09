@@ -19,8 +19,8 @@ export enum ErrorDescription {
 }
 
 const ERROR_PACKET_SIZE = 3;
-const CONFIG_PACKET_SIZE = 13;
-const STATE_PACKET_SIZE = 18;
+const CONFIG_PACKET_SIZE = 9;
+const STATE_PACKET_SIZE = 14;
 
 function make_packet(cmd: Command, ...args: number[]): Uint8Array {
   return new Uint8Array([cmd, ...args]);
@@ -31,7 +31,7 @@ export const packets: Record<Command, () => Uint8Array> = {
   [Command.STATE]: () => make_packet(Command.STATE),
   [Command.OPEN_VALVE]: () =>
     make_packet(Command.OPEN_VALVE, 1, 1, 0, 0, 0, 0, 0, 0, 0),
-  [Command.CLOSE_VALVE]: () => make_packet(Command.CLOSE_VALVE, 0),
+  [Command.CLOSE_VALVE]: () => make_packet(Command.CLOSE_VALVE),
   [Command.ERROR]: () => {
     throw new Error('packet does not exist');
   },
@@ -45,7 +45,6 @@ export enum State {
 export interface ControlFlowStateResponse {
   state: State;
   pulses: number;
-  volume: number;
   limit: number;
   freq: number;
 }
@@ -53,7 +52,6 @@ export interface ControlFlowStateResponse {
 export interface ControlFlowConfigResponse {
   version: number;
   k: number;
-  step: number;
 }
 
 export interface ControlFlowErrorResponse {
@@ -75,9 +73,8 @@ function parse_state(data: Uint8Array): ControlFlowStateResponse {
   return {
     state: data[1] as State,
     pulses: dv.getInt32(2, true),
-    volume: dv.getInt32(6, true),
-    limit: dv.getInt32(10, true),
-    freq: dv.getInt32(14, true),
+    limit: dv.getInt32(6, true),
+    freq: dv.getInt32(10, true),
   };
 }
 
@@ -89,7 +86,6 @@ function parse_config(data: Uint8Array): ControlFlowConfigResponse {
   return {
     version: dv.getUint32(1, true),
     k: dv.getUint32(5, true),
-    step: dv.getUint32(9, true),
   };
 }
 

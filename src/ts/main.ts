@@ -12,6 +12,7 @@ import './web-components/calendar/calendar-timestamp';
 import './web-components/dropdown-menu/dropdown-menu';
 import './web-components/resizeable-container/resizeable-container';
 import './web-components/progress-bar';
+import './web-components/input-with-unit';
 
 // Importing style
 import '../css/all.css';

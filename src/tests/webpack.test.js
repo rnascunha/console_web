@@ -11,6 +11,7 @@ module.exports = {
       './resizeable-container/test.ts'
     ),
     inputs: path.resolve(__dirname, './inputs/test.ts'),
+    input_with_unit: path.resolve(__dirname, './input-with-unit/test.ts'),
     progress_bar: path.resolve(__dirname, './progress-bar/test.ts'),
     test: path.resolve(__dirname, './test/test.ts'),
   },
@@ -39,6 +40,11 @@ module.exports = {
       chunks: ['inputs'],
       filename: 'inputs.html',
       template: path.resolve(__dirname, './inputs/test.html'),
+    }),
+    new HtmlWebpackPlugin({
+      chunks: ['input_with_unit'],
+      filename: 'input_with_unit.html',
+      template: path.resolve(__dirname, './input-with-unit/test.html'),
     }),
     new HtmlWebpackPlugin({
       chunks: ['progress_bar'],

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Binary Input Tests</title>
+    <style>
+      body {
+        background-color: blue;
+      }
+    </style>
+  </head>
+  <body>
+    <input-with-unit
+      id="input-text"
+      unit="ml"
+      placeholder="max volume"
+    ></input-with-unit>
+    <br /><br />
+    <input-with-unit
+      id="input"
+      type="number"
+      unit="ms"
+      placeholder="max time"
+    ></input-with-unit>
+    <br /><br />
+    <input-with-unit
+      unit="unit"
+      placeholder="this is disabled"
+      disabled
+      value="teste"
+    ></input-with-unit>
+    <br /><br />
+    <input disabled value="teste" />
+  </body>
+</html>

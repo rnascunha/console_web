@@ -12,6 +12,7 @@ import {
   type ControlFlowErrorResponse,
 } from './packets';
 import type DataDisplay from '../../web-components/data-display/data-display';
+import type { InputWithUnit } from '../../web-components/input-with-unit';
 import {
   time as time_format,
   miliseconds_to_duration,
@@ -97,15 +98,15 @@ const template = (function () {
       <fieldset id=open-valve-field>
         <legend>Open</legend>
         <label title='Zero volume before opening'><input id=open-clear-before type=checkbox checked>Clear</label>
-        <input type=number min=0 id=open-freq-receive placeholder='Interval (ms)' title='Interval (ms)'>
-        <input type=number min=0 id=open-limit-receive placeholder='Limit (ml)' title='Limit (ml)'>
-        <button id=open-pkt>Open</button>
+        <input-with-unit type=number min=0 id=open-freq-receive placeholder='Interval' title='Interval (ms)' unit=ms></input-with-unit>
+        <input-with-unit type=number min=0 id=open-limit-receive placeholder='Limit' title='Limit (ml)' unit=ml></input-with-unit>
+        <button id=open-pkt>▶</button>
       </fieldset>
       <button id=close-pkt title='Close valve'>🛑</button>
     </div>
     <div id=info>
       <fieldset>
-        <legend>Version/K/Step</legend>
+        <legend>Version / K</legend>
         <div id=version-info>-</div>
       </fieldset>
       <fieldset>
@@ -142,7 +143,6 @@ export class ControlFlowComponent extends ComponentBase {
   private _ws?: WebSocket;
 
   private _k_ratio: number = 0;
-  private _step: number = 0;
 
   private _valve_state: State = State.CLOSE;
   private _valve_open_time: number = 0;
@@ -165,7 +165,7 @@ export class ControlFlowComponent extends ComponentBase {
     super(container, virtual);
 
     this.title = 'Control Flow';
-    this._state = state !== undefined ? (state as ControlFlowOptions) : {};
+    this._state = (state ?? {}) as ControlFlowOptions;
 
     const shadow = this.rootHtmlElement.attachShadow({ mode: 'open' });
     shadow.appendChild(template.content.cloneNode(true));
@@ -227,16 +227,16 @@ export class ControlFlowComponent extends ComponentBase {
     const version_info = shadow.querySelector('#version-info') as HTMLElement;
     const time_info = shadow.querySelector('#time-info') as HTMLElement;
 
+    let time_token: ReturnType<typeof setInterval>;
     this._update_info = (
       resp: ControlFlowStateResponse | ControlFlowConfigResponse
     ) => {
       const date = time_format();
       if ('k' in resp) {
         this._k_ratio = resp.k;
-        this._step = resp.step;
 
-        version_info.textContent = `${resp.version} / ${resp.k} / ${resp.step}`;
-        version_info.title = `${date}: Version=${resp.version} / K=${resp.k} / Step=${resp.step}`;
+        version_info.textContent = `${resp.version} / ${resp.k}`;
+        version_info.title = `${date}: Version=${resp.version} / K=${resp.k}`;
       } else {
         // State
         const st = state_name(resp.state);
@@ -247,26 +247,24 @@ export class ControlFlowComponent extends ComponentBase {
         if (this._valve_state === State.CLOSE && resp.state === State.OPEN) {
           time_info.innerHTML = miliseconds_to_duration(0);
           this._valve_open_time = Date.now();
-        } else if (this._valve_state === State.OPEN)
-          time_info.innerHTML = miliseconds_to_duration(
-            Date.now() - this._valve_open_time
-          );
+          time_token = setInterval(() => {
+            time_info.innerHTML = miliseconds_to_duration(
+              Date.now() - this._valve_open_time
+            );
+          }, 10);
+        } else if (resp.state === State.CLOSE) clearInterval(time_token);
         this._valve_state = resp.state;
 
         // Volume
-        const volume = `${(
-          resp.volume +
-          (this._step * resp.pulses) / this._k_ratio
-        ).toFixed(2)} ml`;
+        const volume = `${((1000 * resp.pulses) / this._k_ratio).toFixed(
+          2
+        )} ml`;
         volume_info.textContent = volume;
-        volume_info.title = `${date}: ${volume} [${resp.volume} + ${this._step} * ${resp.pulses} / ${this._k_ratio}]`;
+        volume_info.title = `${date}: ${volume} [1000 * ${resp.pulses} / ${this._k_ratio}]`;
 
         // Pulse
-        const pulse = `${
-          resp.pulses + (resp.volume * this._k_ratio) / this._step
-        }`;
-        pulse_info.textContent = pulse;
-        pulse_info.title = `${date}: ${pulse} [${resp.pulses}]`;
+        pulse_info.textContent = resp.pulses.toString();
+        pulse_info.title = `${date}: ${resp.pulses}`;
       }
     };
 
@@ -293,31 +291,39 @@ export class ControlFlowComponent extends ComponentBase {
       '#open-clear-before'
     ) as HTMLInputElement;
     clear.checked = this._state.clear ?? true;
-    const freq = shadow.querySelector('#open-freq-receive') as HTMLInputElement;
-    freq.value =
-      this._state.frequency !== undefined
-        ? this._state.frequency.toString()
-        : '';
-    const limit = shadow.querySelector(
-      '#open-limit-receive'
-    ) as HTMLInputElement;
-    limit.value =
-      this._state.limit !== undefined ? this._state.limit.toString() : '';
 
-    open_valve.addEventListener('click', () => {
-      this._state.frequency = +freq.value;
-      this._state.clear = clear.checked;
-      this._state.limit = +limit.value;
-      this.save_state();
+    customElements
+      .whenDefined('input-with-unit')
+      .then(() => {
+        const freq = shadow.querySelector(
+          '#open-freq-receive'
+        ) as InputWithUnit;
+        freq.value =
+          this._state.frequency !== undefined
+            ? this._state.frequency.toString()
+            : '';
+        const limit = shadow.querySelector(
+          '#open-limit-receive'
+        ) as InputWithUnit;
+        limit.value =
+          this._state.limit !== undefined ? this._state.limit.toString() : '';
 
-      this.send(
-        new Uint8Array([
-          Command.OPEN_VALVE,
-          clear.checked ? 1 : 0,
-          ...pack32(+freq.value, +limit.value),
-        ])
-      );
-    });
+        open_valve.addEventListener('click', () => {
+          this._state.frequency = +freq.value;
+          this._state.clear = clear.checked;
+          this._state.limit = +limit.value;
+          this.save_state();
+
+          this.send(
+            new Uint8Array([
+              Command.OPEN_VALVE,
+              clear.checked ? 1 : 0,
+              ...pack32(+freq.value, +limit.value),
+            ])
+          );
+        });
+      })
+      .finally(() => {});
 
     this.container.on('beforeComponentRelease', () => {
       if (this._ws !== undefined) this._ws.close();
