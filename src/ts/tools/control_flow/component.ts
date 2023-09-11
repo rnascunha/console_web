@@ -41,7 +41,7 @@ const template = (function () {
       gap: 2px;
     }
 
-    #open-valve-field {
+    .command-fs {
       display: inline-block;
       color: white;
       border-radius: 5px;
@@ -49,7 +49,8 @@ const template = (function () {
     }
 
     #open-freq-receive,
-    #open-limit-receive {
+    #open-limit-receive,
+    #config-k {
       width: 12ch;
     }
 
@@ -93,9 +94,13 @@ const template = (function () {
     </div>
     <div id=packets>
       <button id=clear-display>&#x239A;</button>
-      <button id=config-pkt>Config</button>
+      <fieldset class=command-fs>
+        <legend>Config</legend>
+        <input-with-unit type=number min=0 id=config-k placeholder='Pulses/L' title='K (Pulses / L)' unit=p/L></input-with-unit>
+        <button id=config-pkt>▶</button>
+      </fieldset>
       <button id=state-pkt>State</button>
-      <fieldset id=open-valve-field>
+      <fieldset class=command-fs>
         <legend>Open</legend>
         <label title='Zero volume before opening'><input id=open-clear-before type=checkbox checked>Clear</label>
         <input-with-unit type=number min=0 id=open-freq-receive placeholder='Interval' title='Interval (ms)' unit=ms></input-with-unit>
@@ -278,7 +283,6 @@ export class ControlFlowComponent extends ComponentBase {
     });
 
     [
-      [config, Command.CONFIG],
       [state_dev, Command.STATE],
       [close_valve, Command.CLOSE_VALVE],
     ].forEach(([el, cmd]) => {
@@ -295,6 +299,14 @@ export class ControlFlowComponent extends ComponentBase {
     customElements
       .whenDefined('input-with-unit')
       .then(() => {
+        const k_ratio_input = shadow.querySelector(
+          '#config-k'
+        ) as InputWithUnit;
+        config.addEventListener('click', () => {
+          const new_k = k_ratio_input.value !== '' ? +k_ratio_input.value : 0;
+          this.send(new Uint8Array([Command.CONFIG, ...pack32(new_k)]));
+        });
+
         const freq = shadow.querySelector(
           '#open-freq-receive'
         ) as InputWithUnit;
