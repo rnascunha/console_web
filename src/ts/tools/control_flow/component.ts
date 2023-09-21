@@ -17,6 +17,7 @@ import {
   time as time_format,
   miliseconds_to_duration,
 } from '../../helper/time';
+import { download } from '../../helper/download';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -90,7 +91,7 @@ const template = (function () {
     <div id=connect>
       <input id=address placeholder="Device address" >
       <button id=btn-connect title=Connect></button>
-      <label><input id=autoconnect type=checkbox >Autoconnect</label>
+      <label title='Auto-connect'><input id=autoconnect type=checkbox>&#8652;</label>
     </div>
     <div id=packets>
       <button id=clear-display>&#x239A;</button>
@@ -115,6 +116,10 @@ const template = (function () {
         <div id=version-info>-</div>
       </fieldset>
       <fieldset>
+        <legend>Freq / Limit</legend>
+        <div id=freq-limit-info>- / -</div>
+      </fieldset>
+      <fieldset>
         <legend>State</legend>
         <div id=state-info>-</div>
       </fieldset>
@@ -130,7 +135,12 @@ const template = (function () {
         <legend>Time</legend>
         <div id=time-info>-</div>
       </fieldset>
+      <fieldset>
+        <legend>Flow rate</legend>
+        <div id=flow-rate-info>-</div>
+      </fieldset>
     </div>
+    <button id=save-data>Save</button>
   </div>
   <display-data id=data></display-data>`;
   return template;
@@ -144,6 +154,13 @@ interface ControlFlowOptions {
   limit?: number;
 }
 
+interface ControlFlowData {
+  date: number;
+  volume: number;
+  pulses: number;
+  state: number;
+}
+
 export class ControlFlowComponent extends ComponentBase {
   private _ws?: WebSocket;
 
@@ -151,6 +168,8 @@ export class ControlFlowComponent extends ComponentBase {
 
   private _valve_state: State = State.CLOSE;
   private _valve_open_time: number = 0;
+
+  private readonly _data: ControlFlowData[][] = [];
 
   private readonly _state: ControlFlowOptions = {};
 
@@ -178,6 +197,7 @@ export class ControlFlowComponent extends ComponentBase {
     this._display = shadow.querySelector('#data') as DataDisplay;
     shadow.querySelector('#clear-display')?.addEventListener('click', () => {
       this._display.clear();
+      this._data.splice(0, this._data.length);
     });
 
     // Connect
@@ -226,11 +246,17 @@ export class ControlFlowComponent extends ComponentBase {
 
     this._onclose();
 
+    const freq_limit_info = shadow.querySelector(
+      '#freq-limit-info'
+    ) as HTMLElement;
     const state_info = shadow.querySelector('#state-info') as HTMLElement;
     const pulse_info = shadow.querySelector('#pulse-info') as HTMLElement;
     const volume_info = shadow.querySelector('#volume-info') as HTMLElement;
     const version_info = shadow.querySelector('#version-info') as HTMLElement;
     const time_info = shadow.querySelector('#time-info') as HTMLElement;
+    const flow_rate_info = shadow.querySelector(
+      '#flow-rate-info'
+    ) as HTMLElement;
 
     let time_token: ReturnType<typeof setInterval>;
     this._update_info = (
@@ -243,33 +269,71 @@ export class ControlFlowComponent extends ComponentBase {
         version_info.textContent = `${resp.version} / ${resp.k}`;
         version_info.title = `${date}: Version=${resp.version} / K=${resp.k}`;
       } else {
+        const fl = `${resp.freq} ms / ${
+          resp.limit <= 0 ? '-' : resp.limit.toString() + ' p'
+        }`;
+        freq_limit_info.textContent = fl;
+        freq_limit_info.title = `${date}: ${fl}`;
+
         // State
         const st = state_name(resp.state);
         state_info.textContent = st;
         state_info.title = `${date}: ${st} [${resp.state as number}]`;
+
+        // Volume
+        const volume = (1000 * resp.pulses) / this._k_ratio;
+        const volume_out = `${((1000 * resp.pulses) / this._k_ratio).toFixed(
+          2
+        )} ml`;
+        volume_info.textContent = volume_out;
+        volume_info.title = `${date}: ${volume_out} [1000 * ${resp.pulses} / ${this._k_ratio}]`;
+
+        // Pulse
+        pulse_info.textContent = resp.pulses.toString();
+        pulse_info.title = `${date}: ${resp.pulses}`;
+
+        // Flow rate
+        flow_rate_info.textContent = `${(
+          volume /
+          1000 /
+          ((Date.now() - this._valve_open_time) / 1000 / 60)
+        ).toFixed(2)} L/min`;
+
+        // Data
+        if (this._valve_state === State.CLOSE && resp.state === State.OPEN) {
+          this._data.push([
+            {
+              date: Date.now(),
+              pulses: resp.pulses,
+              volume,
+              state: resp.state,
+            },
+          ]);
+        } else if (
+          (resp.state === State.OPEN ||
+            (resp.state === State.CLOSE && this._valve_state === State.OPEN)) &&
+          this._data.length > 0
+        ) {
+          this._data[this._data.length - 1].push({
+            date: Date.now(),
+            pulses: resp.pulses,
+            volume,
+            state: resp.state,
+          });
+        }
 
         // Time
         if (this._valve_state === State.CLOSE && resp.state === State.OPEN) {
           time_info.innerHTML = miliseconds_to_duration(0);
           this._valve_open_time = Date.now();
           time_token = setInterval(() => {
+            if (this._ws === undefined) clearInterval(time_token);
             time_info.innerHTML = miliseconds_to_duration(
               Date.now() - this._valve_open_time
             );
           }, 10);
         } else if (resp.state === State.CLOSE) clearInterval(time_token);
         this._valve_state = resp.state;
-
-        // Volume
-        const volume = `${((1000 * resp.pulses) / this._k_ratio).toFixed(
-          2
-        )} ml`;
-        volume_info.textContent = volume;
-        volume_info.title = `${date}: ${volume} [1000 * ${resp.pulses} / ${this._k_ratio}]`;
-
-        // Pulse
-        pulse_info.textContent = resp.pulses.toString();
-        pulse_info.title = `${date}: ${resp.pulses}`;
       }
     };
 
@@ -336,6 +400,13 @@ export class ControlFlowComponent extends ComponentBase {
         });
       })
       .finally(() => {});
+
+    shadow.querySelector('#save-data')?.addEventListener('click', () => {
+      download(
+        'control-flow-data.json',
+        JSON.stringify(this._data, undefined, 0)
+      );
+    });
 
     this.container.on('beforeComponentRelease', () => {
       if (this._ws !== undefined) this._ws.close();
