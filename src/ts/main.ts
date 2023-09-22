@@ -22,6 +22,7 @@ import xterm_css from 'xterm/css/xterm.css';
 import golden_css from '../css/golden-layout.less';
 
 // Importing app
+import { is_secure_connection } from './helper/protocol';
 import type { App } from './apps/app';
 import { WSComponent } from './apps/websocket/component';
 import { WSApp } from './apps/websocket/app';
@@ -54,10 +55,6 @@ else
     },
     { passive: true }
   );
-
-function is_secure_connection(): boolean {
-  return window.location.protocol === 'https:';
-}
 
 document.adoptedStyleSheets = [golden_css, xterm_css];
 

@@ -18,6 +18,7 @@ import {
   miliseconds_to_duration,
 } from '../../helper/time';
 import { download } from '../../helper/download';
+import { is_secure_connection } from '../../helper/protocol';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -64,18 +65,24 @@ const template = (function () {
       user-select: none;
     }
 
-    #info {
+    #info, #connect {
       color: white;
     }
 
-    #info fieldset {
+    #connect {
+      padding: 3px;
+    }
+
+    #info fieldset,
+    #connect {
       display: inline-block;
       min-width: 3ch;
       border-radius: 5px;
       text-align: center;
     }
 
-    #info fieldset legend {
+    #info fieldset legend,
+    #connect legend {
       text-align: left;
     }
 
@@ -88,11 +95,16 @@ const template = (function () {
     }
   </style>
   <div id=header>
-    <div id=connect>
+    <fieldset id=connect>
+      <legend>Connect</legend>
+      <select id=protocol>
+        ${is_secure_connection() ? '' : '<option value=ws>ws</option>'}
+        <option value=wss>wss</option>
+      </select>
       <input id=address placeholder="Device address" >
       <button id=btn-connect title=Connect></button>
       <label title='Auto-connect'><input id=autoconnect type=checkbox>&#8652;</label>
-    </div>
+    </fieldset>
     <div id=packets>
       <button id=clear-display>&#x239A;</button>
       <fieldset class=command-fs>
@@ -147,6 +159,7 @@ const template = (function () {
 })();
 
 interface ControlFlowOptions {
+  protocol?: string;
   address?: string;
   autoconnect?: boolean;
   clear?: boolean;
@@ -201,6 +214,7 @@ export class ControlFlowComponent extends ComponentBase {
     });
 
     // Connect
+    const protocol = shadow.querySelector('#protocol') as HTMLSelectElement;
     const connect = shadow.querySelector('#btn-connect') as HTMLButtonElement;
     const address = shadow.querySelector('#address') as HTMLInputElement;
     const autoconnect = shadow.querySelector(
@@ -208,6 +222,7 @@ export class ControlFlowComponent extends ComponentBase {
     ) as HTMLInputElement;
 
     const opt = state as ControlFlowOptions;
+    if (opt.protocol !== undefined) protocol.value = opt.protocol;
     address.value = opt.address ?? '';
     if (opt.autoconnect === true) autoconnect.checked = true;
 
@@ -339,7 +354,7 @@ export class ControlFlowComponent extends ComponentBase {
 
     connect.addEventListener('click', () => {
       if (this._ws === undefined) {
-        this.connect(address.value);
+        this.connect(protocol.value, address.value);
         return;
       }
 
@@ -414,11 +429,11 @@ export class ControlFlowComponent extends ComponentBase {
 
     this.container.on('open', () => {
       if (address.value.length > 0 && opt.autoconnect === true)
-        this.connect(address.value);
+        this.connect(protocol.value, address.value);
     });
   }
 
-  private connect(addr: string): boolean {
+  private connect(protocol: string, addr: string): boolean {
     if (
       this._ws !== undefined &&
       this._ws.readyState === WebSocket.CONNECTING
@@ -428,15 +443,23 @@ export class ControlFlowComponent extends ComponentBase {
     }
 
     try {
-      this._ws = new WebSocket(`ws://${addr}/ws`);
+      this._ws = new WebSocket(`${protocol}://${addr}/ws`);
       this._ws.binaryType = 'arraybuffer';
 
+      this._state.protocol = protocol;
       this._state.address = addr;
       this.save_state();
 
+      customElements
+        .whenDefined('display-data')
+        .then(() => {
+          this._display.command(`Connecting ${protocol}://${addr}...`);
+        })
+        .finally(() => {});
+
       this._ws.onopen = ev => {
         this._onopen();
-        this._display.command(`Socket ${addr} opened`);
+        this._display.command(`Socket ${protocol}://${addr} opened`);
       };
       this._ws.onmessage = ev => {
         try {
@@ -454,12 +477,14 @@ export class ControlFlowComponent extends ComponentBase {
         }
       };
       this._ws.onclose = ev => {
+        console.log('close', ev);
         this._onclose();
         this._ws = undefined;
-        this._display.command(`Socket ${addr} closed`);
+        this._display.command(`Socket ${addr} closed [${ev.code}]`);
       };
       this._ws.onerror = ev => {
-        console.error('ws error', ev);
+        this._display.error(`ERROR! Socket error`);
+        console.error('error', ev);
       };
     } catch (e) {
       console.error('error connecting', e);
