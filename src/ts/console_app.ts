@@ -122,7 +122,8 @@ export class ConsoleApp {
     this.init_tool('#coder-tool', 'coder');
     this.init_tool('#json-tool', 'json');
     this.init_tool('#esptool', 'esptool');
-    this.init_tool('#control-flow', 'control_flow');
+    this.init_tool('#control-flow-tool', 'control_flow');
+    this.init_tool('#esp-ota-ws-tool', 'esp_ota_ws');
 
     container.querySelector('#close')?.addEventListener('click', () => {
       this.hide_header();

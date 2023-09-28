@@ -240,6 +240,7 @@ export class ControlFlowComponent extends ComponentBase {
     this._onopen = () => {
       connect.dataset.state = 'open';
       connect.title = 'Close connection';
+      protocol.disabled = true;
       address.disabled = true;
 
       config.disabled = false;
@@ -251,6 +252,7 @@ export class ControlFlowComponent extends ComponentBase {
     this._onclose = () => {
       connect.dataset.state = 'close';
       connect.title = 'Open connection';
+      protocol.disabled = false;
       address.disabled = false;
 
       config.disabled = true;
@@ -446,10 +448,6 @@ export class ControlFlowComponent extends ComponentBase {
       this._ws = new WebSocket(`${protocol}://${addr}/ws`);
       this._ws.binaryType = 'arraybuffer';
 
-      this._state.protocol = protocol;
-      this._state.address = addr;
-      this.save_state();
-
       customElements
         .whenDefined('display-data')
         .then(() => {
@@ -457,8 +455,13 @@ export class ControlFlowComponent extends ComponentBase {
         })
         .finally(() => {});
 
+      this._onopen();
+
       this._ws.onopen = ev => {
-        this._onopen();
+        this._state.protocol = protocol;
+        this._state.address = addr;
+        this.save_state();
+
         this._display.command(`Socket ${protocol}://${addr} opened`);
       };
       this._ws.onmessage = ev => {

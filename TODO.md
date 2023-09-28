@@ -85,7 +85,7 @@
 - [x] Save parameters offline at browser.
 - [x] Direct link to tools.
 
-# ESP_parser
+# ESPTool
 
 - [x] Bootloader description just work for the newest IDF (v5.2). Handle old versions;
 - [ ] Parse `partition-table.bin` and `ota_data_initial.bin` binary files;
@@ -93,7 +93,9 @@
 - [ ] Support more chips, and read other features from chip;
 - [ ] Make lib `esp` as a library;
 - [x] Rename to `ESPTool`;
-- [ ] Make it possible drag files/directories.
+- [ ] Make it possible drag files/directories;
+- [ ] Update device via HTTP (OTA);
+- [ ] Do OTA operations on device (see https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/ota.html#ota-tool-otatool-py);
 
 ### New Tools
 

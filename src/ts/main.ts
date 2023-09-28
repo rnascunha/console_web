@@ -38,6 +38,7 @@ import { CoderTool } from './tools/coder/tool';
 import { JSONTool } from './tools/json/tool';
 import { ESPToolTool } from './tools/esptool/tool';
 import { ControlFlowTool } from './tools/control_flow/tool';
+import { EspOTAWs } from './tools/esp_ota_ws/tool';
 
 declare global {
   const __COMMIT_HASH__: string; // eslint-disable-line
@@ -77,5 +78,6 @@ function run(): void {
     new JSONTool(),
     new ESPToolTool(),
     new ControlFlowTool(),
+    new EspOTAWs(),
   ]);
 }
