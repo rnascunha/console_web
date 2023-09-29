@@ -1,6 +1,7 @@
 import type { SerialConn } from '../../serial/serial';
 import * as SLIP from './slip';
 import { sleep } from '../../../helper/time';
+import { pack32, unpack32 } from '../../../helper/pack';
 import {
   Command,
   Register,
@@ -177,7 +178,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   async change_baudrate(baud: number): Promise<void> {
     const resp = await this.command(
       Command.CHANGE_BAUDRATE,
-      SLIP.pack32(baud, this._is_stub ? this._baudrate : 0),
+      pack32(baud, this._is_stub ? this._baudrate : 0),
       0
     );
     if (resp instanceof ESPFlashError) throw resp;
@@ -320,7 +321,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     const timeout = ESPLoader.timeout_per_mb(MD5_TIMEOUT_PER_MB, size);
     const packet = await this.command(
       Command.SPI_FLASH_MD5,
-      SLIP.pack32(offset, size, 0, 0),
+      pack32(offset, size, 0, 0),
       0,
       timeout < default_timeout ? timeout : default_timeout
     );
@@ -410,7 +411,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     if (chip === Chip.ESP32)
       await this.command(
         Command.SPI_SET_PARAMS,
-        SLIP.pack32(
+        pack32(
           0 /* id */,
           this.flash_size.size /* total size in bytes */,
           0x10000 /* block size */,
@@ -430,15 +431,10 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
       ? default_timeout
       : ESPLoader.timeout_per_mb(ERASE_REGION_TIMEOUT_PER_MB, size);
 
-    const buffer = SLIP.pack32(
-      erase_size,
-      num_blocks,
-      flash_write_size,
-      offset
-    );
+    const buffer = pack32(erase_size, num_blocks, flash_write_size, offset);
 
     if (chip === Chip.ESP32S2 && !this._is_stub)
-      buffer.push(...SLIP.pack32(encrypted ? 1 : 0));
+      buffer.push(...pack32(encrypted ? 1 : 0));
 
     await this.command(
       size === compressed_size ? Command.FLASH_BEGIN : Command.FLASH_DEFL_BEGIN,
@@ -458,7 +454,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   ): Promise<void> {
     await this.command(
       deflate ? Command.FLASH_DEFL_DATA : Command.FLASH_DATA,
-      SLIP.pack32(data.length, seq, 0, 0).concat(data),
+      pack32(data.length, seq, 0, 0).concat(data),
       SLIP.checksum(data),
       timeout
     );
@@ -470,7 +466,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   ): Promise<void> {
     await this.command(
       deflate ? Command.FLASH_DEFL_END : Command.FLASH_END,
-      SLIP.pack32(flag),
+      pack32(flag),
       0
     );
   }
@@ -515,7 +511,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   ): Promise<Response> {
     return await this.command(
       Command.MEM_BEGIN,
-      SLIP.pack32(total_size, block_num, block_size, offset),
+      pack32(total_size, block_num, block_size, offset),
       0
     );
   }
@@ -523,7 +519,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   private async mem_data(data: number[], block_seq: number): Promise<Response> {
     return await this.command(
       Command.MEM_DATA,
-      SLIP.pack32(data.length, block_seq, 0, 0).concat(...data),
+      pack32(data.length, block_seq, 0, 0).concat(...data),
       SLIP.checksum(data)
     );
   }
@@ -531,7 +527,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   private async mem_end(entry_addr: number, timeout = 50): Promise<Response> {
     return await this.command(
       Command.MEM_END,
-      SLIP.pack32(
+      pack32(
         entry_addr === 0 ? FlashEndFlag.RUN_USER_CODE : FlashEndFlag.REBOOT,
         entry_addr
       ),
@@ -579,12 +575,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     register: Register,
     timeout = default_timeout
   ): Promise<Response> {
-    return await this.command(
-      Command.READ_REG,
-      SLIP.pack32(register),
-      0,
-      timeout
-    );
+    return await this.command(Command.READ_REG, pack32(register), 0, timeout);
   }
 
   private async write_register(
@@ -596,7 +587,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   ): Promise<Response> {
     return await this.command(
       Command.WRITE_REG,
-      SLIP.pack32(address, value, mask, delay_us),
+      pack32(address, value, mask, delay_us),
       0,
       timeout
     );
@@ -811,10 +802,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
       data = pad(data, 4, 0x00); // pad to 32-bit multiple
       let next_reg = SPI_W0_REG;
       for (let i = 0; i < data.length - 4; i += 4) {
-        await this.write_register(
-          next_reg,
-          SLIP.unpack32(data.slice(i, i + 4))
-        );
+        await this.write_register(next_reg, unpack32(data.slice(i, i + 4)));
         next_reg += 4;
       }
     }

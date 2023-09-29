@@ -83,7 +83,6 @@ export class InputWithUnit extends HTMLElement {
 
   set value(data: string) {
     this._input.setAttribute('value', data);
-    // this._input.value = data;
   }
 
   get unit(): string | null {

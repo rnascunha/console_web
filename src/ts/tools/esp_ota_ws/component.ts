@@ -5,12 +5,15 @@ import {
   ErrorDescription,
   type EspOTAWsResponse,
   type EspOTAWsStateResponse,
+  type EspOTAWsActionResponse,
   type EspOTAWsErrorResponse,
   type EspOTAWsAbortResponse,
   AbortReason,
   start_packet,
   abort_packet,
   state_packet,
+  Action,
+  action_packet,
 } from './packets';
 import type DataDisplay from '../../web-components/data-display/data-display';
 import { discover_file } from '../esptool/files';
@@ -21,7 +24,7 @@ import {
 } from '../../helper/time';
 import { is_secure_connection } from '../../helper/protocol';
 import type { InputWithUnit } from '../../web-components/input-with-unit';
-import { ProgressBar } from '../../web-components/progress-bar';
+import type { ProgressBar } from '../../web-components/progress-bar';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -151,8 +154,14 @@ const template = (function () {
           </div>
         </dropdown-menu>
         <button id=start-pkt>▶</button>
+        <button id=abort-pkt title='Abort'>🛑</button>
       </fieldset>
-      <button id=abort-pkt title='Abort'>🛑</button>
+      <fieldset class=command-fs>
+        <legend>Action</legend>
+        <button id=reboot-btn title="Reboot device">&#x23FC;</button>
+        <button id=validate-btn title="Validate image" style=color:green>&#x2714;</button>
+        <button id=invalidate-btn title="Invalidate image" style=color:red>&#x2718;</button>
+      </fieldset>
     </div>
     <div id=info>
       <progress-bar id=progress>
@@ -168,6 +177,10 @@ interface EspOTAWsOptions {
   protocol?: string;
   address?: string;
   autoconnect?: boolean;
+  timeout?: number;
+  check_invalid?: boolean;
+  check_same?: boolean;
+  reboot?: boolean;
 }
 
 export class EspOTAWsComponent extends ComponentBase {
@@ -194,6 +207,7 @@ export class EspOTAWsComponent extends ComponentBase {
 
     this.title = 'Esp OTA Ws';
     this._state = (state ?? {}) as EspOTAWsOptions;
+    console.log('state begin', this._state);
 
     const shadow = this.rootHtmlElement.attachShadow({ mode: 'open' });
     shadow.appendChild(template.content.cloneNode(true));
@@ -226,13 +240,29 @@ export class EspOTAWsComponent extends ComponentBase {
     const file_picker = shadow.querySelector(
       '#file-upload'
     ) as HTMLInputElement;
+
     const timeout_in = shadow.querySelector('#update-timeout') as InputWithUnit;
+
     const same_check = shadow.querySelector('#check-same') as HTMLInputElement;
+    same_check.checked = this._state.check_same ?? true;
+
     const invalid_check = shadow.querySelector(
       '#check-invalid'
     ) as HTMLInputElement;
+    invalid_check.checked = this._state.check_invalid ?? true;
     const reboot_check = shadow.querySelector('#reboot') as HTMLInputElement;
+    reboot_check.checked = this._state.reboot ?? true;
+
     const abort_btn = shadow.querySelector('#abort-pkt') as HTMLButtonElement;
+
+    // Action buttons
+    const reboot_btn = shadow.querySelector('#reboot-btn') as HTMLButtonElement;
+    const validate_btn = shadow.querySelector(
+      '#validate-btn'
+    ) as HTMLButtonElement;
+    const invalidate_btn = shadow.querySelector(
+      '#invalidate-btn'
+    ) as HTMLButtonElement;
 
     this._onopen = () => {
       connect.dataset.state = 'open';
@@ -242,6 +272,9 @@ export class EspOTAWsComponent extends ComponentBase {
 
       start_btn.disabled = false;
       abort_btn.disabled = false;
+      reboot_btn.disabled = false;
+      validate_btn.disabled = false;
+      invalidate_btn.disabled = false;
     };
 
     this._onclose = () => {
@@ -252,26 +285,47 @@ export class EspOTAWsComponent extends ComponentBase {
 
       start_btn.disabled = true;
       abort_btn.disabled = true;
+      reboot_btn.disabled = true;
+      validate_btn.disabled = true;
+      invalidate_btn.disabled = true;
     };
 
     this._onclose();
 
-    start_btn.addEventListener('click', () => {
-      if (this._upload_file === undefined) {
-        this._display.warning('No file selected');
-        return;
-      }
+    customElements
+      .whenDefined('input-with-unit')
+      .then(() => {
+        timeout_in.value =
+          this._state.timeout === undefined || this._state.timeout === 0
+            ? ''
+            : this._state.timeout.toString();
 
-      this.send(
-        start_packet({
-          size: this._upload_file.file.size,
-          timeout: timeout_in.value === '' ? 0 : parseInt(timeout_in.value, 10),
-          check_invalid: invalid_check.checked,
-          check_same: same_check.checked,
-          reboot: reboot_check.checked,
-        })
-      );
-    });
+        start_btn.addEventListener('click', () => {
+          if (this._upload_file === undefined) {
+            this._display.warning('No file selected');
+            return;
+          }
+
+          this._state.timeout =
+            timeout_in.value === '' ? 0 : parseInt(timeout_in.value, 10);
+          this._state.check_invalid = invalid_check.checked;
+          this._state.check_same = same_check.checked;
+          this._state.reboot = reboot_check.checked;
+          this.save_state();
+
+          this.send(
+            start_packet({
+              size: this._upload_file.file.size,
+              timeout:
+                timeout_in.value === '' ? 0 : parseInt(timeout_in.value, 10),
+              check_invalid: invalid_check.checked,
+              check_same: same_check.checked,
+              reboot: reboot_check.checked,
+            })
+          );
+        });
+      })
+      .finally(() => {});
 
     abort_btn.addEventListener('click', () => {
       this.send(abort_packet());
@@ -301,6 +355,21 @@ export class EspOTAWsComponent extends ComponentBase {
         .finally(() => {});
     });
 
+    reboot_btn.addEventListener('click', () => {
+      if (this._ws === undefined) return;
+      this.send(action_packet(Action.RESET));
+    });
+
+    validate_btn.addEventListener('click', () => {
+      if (this._ws === undefined) return;
+      this.send(action_packet(Action.VALIDATE_IMAGE));
+    });
+
+    invalidate_btn.addEventListener('click', () => {
+      if (this._ws === undefined) return;
+      this.send(action_packet(Action.INVALIDATE_IMAGE));
+    });
+
     // Info
     const progress = shadow.querySelector('#progress') as ProgressBar;
     const time_info = shadow.querySelector('#time-info') as HTMLElement;
@@ -315,15 +384,14 @@ export class EspOTAWsComponent extends ComponentBase {
       const date = time_format();
       let state = 'Running';
       if ('reason' in resp) {
-        console.log('Aborted!!!');
         clearInterval(time_token);
         state_info.textContent = 'Aborted';
         progress.bg_color = '#500';
         progress.bar_color = '#f00';
       } else if ('size_rcv' in resp) {
         // State
-        progress.bg_color = ProgressBar.default_bg;
-        progress.bar_color = ProgressBar.default_bar;
+        progress.bg_color = '#999999';
+        progress.bar_color = '#00CC00';
         if (resp.size_rcv >= (this._upload_file?.file.size as number)) {
           clearInterval(time_token);
           state = 'Finished';
@@ -356,7 +424,7 @@ export class EspOTAWsComponent extends ComponentBase {
             resp.size_rcv,
             resp.size_request
           );
-          this.send_binary(data, resp.size_rcv, data.byteLength);
+          this.send_binary(data, resp.size_rcv, resp.size_request);
         }
       }
     };
@@ -412,6 +480,10 @@ export class EspOTAWsComponent extends ComponentBase {
       this._ws.onmessage = ev => {
         try {
           const d: EspOTAWsResponse = parse(new Uint8Array(ev.data));
+          if ('action' in d) {
+            this.action_response(d);
+            return;
+          }
           if ('error' in d) {
             this.response_error(d);
             return;
@@ -460,37 +532,37 @@ export class EspOTAWsComponent extends ComponentBase {
     this._display.send(
       `Sending '${this._upload_file?.name ?? '-'}' from ${offset} to ${
         offset + size
-      } [${size} / ${this._upload_file?.file.size ?? '-'}]`,
+      } [${offset} / ${this._upload_file?.file.size ?? '-'}]`,
       data.byteLength,
       data
     );
   }
 
   private response_error(d: EspOTAWsErrorResponse): void {
-    this._display.error(`ERROR: ${error_name(d.error)} [${d.error as number}]`);
+    this._display.error(
+      `ERROR: ${ErrorDescription[d.error] ?? 'Unrecognized'} [${
+        d.error as number
+      }]`
+    );
   }
 
   private abort_response(d: EspOTAWsAbortResponse): void {
     this._display.error(
-      `ABORTED: ${abort_reason_name(d.reason)} [${d.reason as number}]`
+      `ABORTED: ${AbortReason[d.reason] ?? 'Unrecognized'} [${
+        d.reason as number
+      }]`
+    );
+  }
+
+  private action_response(d: EspOTAWsActionResponse): void {
+    this._display.command(
+      `ACTION: ${Action[d.action] ?? 'Unrecognized'} [${d.action as number}] [${
+        d.error
+      }]`
     );
   }
 
   private save_state(): void {
     window.console_app.set_tool_state('esp_ota_ws', this._state, true);
   }
-}
-
-function error_name(error: ErrorDescription): string {
-  if (error in ErrorDescription) {
-    return ErrorDescription[error];
-  }
-  return 'Unrecognized';
-}
-
-function abort_reason_name(reason: AbortReason): string {
-  if (reason in AbortReason) {
-    return AbortReason[reason];
-  }
-  return 'Unrecognized';
 }

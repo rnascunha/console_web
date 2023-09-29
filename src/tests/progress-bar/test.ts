@@ -9,6 +9,8 @@ const add_value = document.querySelector('#add-value') as HTMLButtonElement;
 const minus_value = document.querySelector('#minus-value') as HTMLButtonElement;
 const text = document.querySelector('#text') as HTMLInputElement;
 
+console.log('colors', progress.bar_color, progress.bg_color);
+
 barc.value = progress.bar_color;
 bg.value = progress.bg_color;
 value.value = progress.value.toString();

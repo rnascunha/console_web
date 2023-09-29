@@ -3,6 +3,7 @@
  */
 import * as type from './types';
 import { ESPFlashError, ErrorCode } from './error';
+import { pack16, pack32, unpack32 } from '../../../helper/pack';
 
 const PACKET_BORDER = 0xc0;
 const HEADER_RESPONSE_SIZE = 8;
@@ -255,16 +256,4 @@ export function command(
   ];
 
   return new Uint8Array(encode(comm));
-}
-
-export function pack16(...args: number[]): number[] {
-  return Array.from(new Uint8Array(new Uint16Array(args).buffer));
-}
-
-export function pack32(...args: number[]): number[] {
-  return Array.from(new Uint8Array(new Uint32Array(args).buffer));
-}
-
-export function unpack32(arg: number[]): number {
-  return new DataView(new Uint8Array(arg).buffer).getUint32(0, true);
 }

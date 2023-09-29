@@ -1,9 +1,11 @@
 import { type ESPFlashFile } from '../esptool/types';
+import { pack16, pack32 } from '../../helper/pack';
 
 export enum Command {
   START = 1,
   STATE,
   ABORT,
+  ACTION,
   //
   ERROR = 10,
 }
@@ -13,20 +15,35 @@ export enum ErrorDescription {
   ALREADY_RUNNING,
   NOT_RUNNING,
   WRONG_USER,
-  GET_PARTITION_ERROR,
   PACKET_SIZE_ERROR,
-  INVALID_VERSION,
-  SAME_VERSION,
+  NO_COMMAND_FOUND,
+  NO_ACTION_FOUND,
+  ACTION_WRONG_TIME,
 }
 
 export enum AbortReason {
   USER_REQUEST = 1,
   USER_DISCONNECT,
+  GET_PARTITION_ERROR,
+  INVALID_VERSION,
+  SAME_VERSION,
+  TIMEOUT,
+  OTA_BEGIN_ERROR,
+  OTA_WRITE_ERROR,
+  OTA_END_ERROR,
+  SET_PARTITION_ERROR,
+}
+
+export enum Action {
+  RESET = 0,
+  VALIDATE_IMAGE,
+  INVALIDATE_IMAGE,
 }
 
 const STATE_PACKET_SIZE = 9;
 const ERROR_PACKET_SIZE = 2;
 const ABORT_PACKET_SIZE = 2;
+const ACTION_PACKET_SIZE = 6;
 
 export interface EspOTAWsStateResponse {
   commnad: Command;
@@ -37,6 +54,12 @@ export interface EspOTAWsStateResponse {
 export interface EspOTAWsAbortResponse {
   commnad: Command;
   reason: AbortReason;
+}
+
+export interface EspOTAWsActionResponse {
+  command: Command;
+  action: Action;
+  error: number;
 }
 
 export interface EspOTAWsErrorResponse {
@@ -55,6 +78,7 @@ export interface EspOTAWsStartOptions {
 export type EspOTAWsResponse =
   | EspOTAWsStateResponse
   | EspOTAWsAbortResponse
+  | EspOTAWsActionResponse
   | EspOTAWsErrorResponse;
 
 function parse_state(data: Uint8Array): EspOTAWsStateResponse {
@@ -89,6 +113,17 @@ function parse_abort(data: Uint8Array): EspOTAWsAbortResponse {
   };
 }
 
+function parse_action(data: Uint8Array): EspOTAWsActionResponse {
+  if (data.byteLength !== ACTION_PACKET_SIZE)
+    throw new Error('Wrong packet size [action]');
+
+  return {
+    command: Command.ACTION,
+    action: data[1] as Action,
+    error: new DataView(data.buffer).getInt32(2, true),
+  };
+}
+
 export function parse(data: Uint8Array): EspOTAWsResponse {
   if (data.byteLength === 0) throw new Error('Packet too small');
   const cmd: Command = data[0] as Command;
@@ -98,6 +133,8 @@ export function parse(data: Uint8Array): EspOTAWsResponse {
       return parse_state(data);
     case Command.ABORT:
       return parse_abort(data);
+    case Command.ACTION:
+      return parse_action(data);
     case Command.ERROR:
       return parse_error(data);
     default:
@@ -141,10 +178,6 @@ export function abort_packet(): Uint8Array {
   return new Uint8Array([Command.ABORT]);
 }
 
-function pack32(...args: number[]): number[] {
-  return Array.from(new Uint8Array(new Uint32Array(args).buffer));
-}
-
-function pack16(...args: number[]): number[] {
-  return Array.from(new Uint8Array(new Uint16Array(args).buffer));
+export function action_packet(act: Action): Uint8Array {
+  return new Uint8Array([Command.ACTION, act]);
 }

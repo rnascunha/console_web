@@ -456,7 +456,7 @@ export class ESPTool {
   // async read_register(register, timeout = default_timeout) {
   //   return await this.command_until(
   //     command.read_reg,
-  //     SLIP.pack32(register),
+  //     pack32(register),
   //     0,
   //     timeout
   //   );
@@ -471,7 +471,7 @@ export class ESPTool {
   // ) {
   //   return await this.command_until(
   //     command.write_reg,
-  //     SLIP.pack32(address, value, mask, delay_us),
+  //     pack32(address, value, mask, delay_us),
   //     0,
   //     timeout
   //   );
@@ -523,7 +523,7 @@ export class ESPTool {
   // mem_begin(total_size, block_num, block_size, offset) {
   //   return this.command(
   //     command.mem_begin,
-  //     SLIP.pack32(total_size, block_num, block_size, offset),
+  //     pack32(total_size, block_num, block_size, offset),
   //     0
   //   );
   // }
@@ -531,7 +531,7 @@ export class ESPTool {
   // mem_data(data, block_seq) {
   //   return this.command(
   //     command.mem_data,
-  //     SLIP.pack32(data.length, block_seq, 0, 0).concat(...data),
+  //     pack32(data.length, block_seq, 0, 0).concat(...data),
   //     SLIP.checksum(data)
   //   );
   // }
@@ -539,7 +539,7 @@ export class ESPTool {
   // mem_end(exec_flag, entry_addr, timeout = 500) {
   //   return this.command(
   //     command.mem_end,
-  //     SLIP.pack32(exec_flag, entry_addr),
+  //     pack32(exec_flag, entry_addr),
   //     0,
   //     timeout
   //   );
@@ -601,7 +601,7 @@ export class ESPTool {
   //   if (this._chip == ESP32) {
   //     await this.command(
   //       command.spi_set_params,
-  //       SLIP.pack32(0, this.flash_size.value, 0x10000, 4096, 256, 0xffff)
+  //       pack32(0, this.flash_size.value, 0x10000, 4096, 256, 0xffff)
   //     );
   //   }
   //   const num_blocks = Math.floor(
@@ -613,10 +613,10 @@ export class ESPTool {
   //     ? default_timeout
   //     : ESPTool.timeout_per_mb(ERASE_REGION_TIMEOUT_PER_MB, size);
 
-  //   let buffer = SLIP.pack32(erase_size, num_blocks, flash_write_size, offset);
+  //   let buffer = pack32(erase_size, num_blocks, flash_write_size, offset);
 
   //   if (this._chip == ESP32S2 && !this._is_stub) {
-  //     buffer.push(...SLIP.pack32(encrypted ? 1 : 0));
+  //     buffer.push(...pack32(encrypted ? 1 : 0));
   //   }
 
   //   await this.command(command.flash_begin, buffer, 0, timeout);
@@ -627,14 +627,14 @@ export class ESPTool {
   // flash_data(data, seq, timeout = default_timeout) {
   //   return this.command_until(
   //     command.flash_data,
-  //     SLIP.pack32(data.length, seq, 0, 0).concat(data),
+  //     pack32(data.length, seq, 0, 0).concat(data),
   //     SLIP.checksum(data),
   //     timeout
   //   );
   // }
 
   // async flash_end(flag) {
-  //   await this.command(command.flash_end, SLIP.pack32(flag), 0);
+  //   await this.command(command.flash_end, pack32(flag), 0);
   // }
 
   // async flash_image_deflate(
@@ -707,7 +707,7 @@ export class ESPTool {
   //     // We are hardcoded for 4MB flash on ESP32
   //     await this.command(
   //       command.spi_set_params,
-  //       SLIP.pack32(0, this.flash_size.value, 0x10000, 4096, 256, 0xffff)
+  //       pack32(0, this.flash_size.value, 0x10000, 4096, 256, 0xffff)
   //     );
   //   }
   //   const num_blocks = Math.floor(
@@ -719,10 +719,10 @@ export class ESPTool {
   //     ? default_timeout
   //     : ESPTool.timeout_per_mb(ERASE_REGION_TIMEOUT_PER_MB, size);
 
-  //   let buffer = SLIP.pack32(erase_size, num_blocks, flash_write_size, offset);
+  //   let buffer = pack32(erase_size, num_blocks, flash_write_size, offset);
 
   //   if (this._chip == ESP32S2 && !this._is_stub) {
-  //     buffer.push(...SLIP.pack32(encrypted ? 1 : 0));
+  //     buffer.push(...pack32(encrypted ? 1 : 0));
   //   }
 
   //   await this.command(command.flash_defl_begin, buffer, 0, timeout);
@@ -733,20 +733,20 @@ export class ESPTool {
   // async flash_data_deflate(data, seq, timeout = default_timeout) {
   //   return this.command_until(
   //     command.flash_defl_data,
-  //     SLIP.pack32(data.length, seq, 0, 0).concat(data),
+  //     pack32(data.length, seq, 0, 0).concat(data),
   //     SLIP.checksum(data),
   //     timeout
   //   );
   // }
 
   // async flash_end_deflate(flag) {
-  //   await this.command(command.flash_defl_end, SLIP.pack32(flag), 0);
+  //   await this.command(command.flash_defl_end, pack32(flag), 0);
   // }
 
   // async flash_md5_calc(offset, size) {
   //   const packet = await this.command_until(
   //     command.spi_flash_md5,
-  //     SLIP.pack32(offset, size, 0, 0),
+  //     pack32(offset, size, 0, 0),
   //     0,
   //     this._is_stub ? 3000 : 120000
   //   );
@@ -797,7 +797,7 @@ export class ESPTool {
 
   //   await this.command(
   //     command.change_baudrate,
-  //     SLIP.pack32(baud, this._is_stub ? this._baudrate : 0),
+  //     pack32(baud, this._is_stub ? this._baudrate : 0),
   //     0
   //   );
   //   await super.set_baudrate(baud);

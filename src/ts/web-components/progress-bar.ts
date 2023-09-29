@@ -8,6 +8,9 @@ const template = (function () {
       padding: 3px;
       border-radius: 3px;
       color: white;
+      align-items: center;
+      --bg-color: #999999;
+      --bar-color: #00cc00;
     }
   </style>
   <slot>Progress Bar</slot>`;
@@ -16,11 +19,6 @@ const template = (function () {
 })();
 
 export class ProgressBar extends HTMLElement {
-  static readonly default_bg: string = '#999999';
-  static readonly default_bar: string = '#00cc00';
-
-  private _bg: string = ProgressBar.default_bg;
-  private _barc: string = ProgressBar.default_bar;
   private _value: number = 0;
 
   constructor() {
@@ -31,8 +29,6 @@ export class ProgressBar extends HTMLElement {
   }
 
   public connectedCallback(): void {
-    this._bg = this.getAttribute('bg') ?? this._bg;
-    this._barc = this.getAttribute('bar') ?? this._barc;
     if (this.hasAttribute('value'))
       this._value = parseInt(this.getAttribute('value') as string);
 
@@ -61,25 +57,25 @@ export class ProgressBar extends HTMLElement {
   }
 
   set bg_color(color: string) {
-    this._bg = color;
+    this.style.setProperty('--bg-color', color);
     this.update_view();
   }
 
   get bg_color(): string {
-    return this._bg;
+    return getComputedStyle(this).getPropertyValue('--bg-color');
   }
 
   set bar_color(color: string) {
-    this._barc = color;
+    this.style.setProperty('--bar-color', color);
     this.update_view();
   }
 
   get bar_color(): string {
-    return this._barc;
+    return getComputedStyle(this).getPropertyValue('--bar-color');
   }
 
   private update_view(): void {
-    this.style.backgroundImage = `linear-gradient(to right, ${this._barc} 0%, ${this._barc} ${this._value}%, ${this._bg} ${this._value}%, ${this._bg} 100%)`;
+    this.style.backgroundImage = `linear-gradient(to right, ${this.bar_color} 0%, ${this.bar_color} ${this._value}%, ${this.bg_color} ${this._value}%, ${this.bg_color} 100%)`;
   }
 }
 
