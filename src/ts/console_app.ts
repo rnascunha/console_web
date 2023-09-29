@@ -41,6 +41,12 @@ interface AppState {
   show_header: boolean;
 }
 
+export interface ToolConfig {
+  tool: Tool;
+  title: string;
+  icon: string;
+}
+
 export class ConsoleApp {
   private readonly _layout: GoldenLayout;
 
@@ -60,7 +66,7 @@ export class ConsoleApp {
 
   constructor(
     app_list: App[],
-    tool_list: Tool[],
+    tools_config: ToolConfig[],
     container: HTMLElement = document.body
   ) {
     window.console_app = this;
@@ -68,7 +74,7 @@ export class ConsoleApp {
     this._container = container;
 
     this._app_list = new AppList(app_list);
-    this._tool_list = new ToolList(tool_list);
+    this._tool_list = new ToolList(tools_config.map(({ tool }) => tool));
 
     const setup = new Setup();
 
@@ -117,13 +123,18 @@ export class ConsoleApp {
       proto_container.appendChild(app.element);
     });
 
-    this.init_tool('#binary-dump', 'input_dump');
-    this.init_tool('#time-tool', 'timestamp');
-    this.init_tool('#coder-tool', 'coder');
-    this.init_tool('#json-tool', 'json');
-    this.init_tool('#esptool', 'esptool');
-    this.init_tool('#control-flow-tool', 'control_flow');
-    this.init_tool('#esp-ota-ws-tool', 'esp_ota_ws');
+    const dropdown = container.querySelector('#menu-tools') as HTMLElement;
+    tools_config.forEach(d => {
+      const s = document.createElement('span');
+      s.innerHTML = d.icon;
+      s.classList.add('option', 'tool');
+      s.title = d.title;
+      s.addEventListener('click', () => {
+        this._layout.addComponent(d.tool.name, d.tool.open());
+      });
+
+      dropdown.appendChild(s);
+    });
 
     container.querySelector('#close')?.addEventListener('click', () => {
       this.hide_header();
@@ -419,14 +430,6 @@ export class ConsoleApp {
         (app_el as HTMLElement).style.display = 'inline-block';
         app.focus();
       } else (app_el as HTMLElement).style.display = 'none';
-    });
-  }
-
-  private init_tool(id: string, name: string): void {
-    this._container.querySelector(id)?.addEventListener('click', () => {
-      const tool = this._tool_list.tool(name);
-      if (tool === undefined) return;
-      this._layout.addComponent(tool.name, tool.open());
     });
   }
 

@@ -2,6 +2,7 @@ import { DockDumpComponent } from './golden-components/dock-dump';
 import { MonacoComponent } from './golden-components/monaco';
 import { SerialConsoleComponent } from './apps/serial/component';
 import { SetupComponent } from './setup/component';
+import { TerminalComponent } from './golden-components/terminal';
 
 interface OtherComponent {
   name: string;
@@ -24,5 +25,9 @@ export const other_components: Record<string, OtherComponent> = {
   MonacoComponent: {
     name: 'MonacoComponent',
     component: MonacoComponent,
+  },
+  TerminalComponent: {
+    name: 'TerminalComponent',
+    component: TerminalComponent,
   },
 };

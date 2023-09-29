@@ -71,17 +71,11 @@ const template = (function () {
       user-select: none;
     }
 
-    #info {
-      color: white;
-      flex-grow: 1;
-      padding: 3px;
-      height: 100%;
-      box-sizing: border-box;
-    }
-
     #progress {
-      height: 100%;
+      flex-grow: 1;
       box-sizing: border-box;
+      align-self: stretch;
+      margin: 2px;
     }
 
     #connect {
@@ -140,7 +134,6 @@ const template = (function () {
       <label title='Auto-connect'><input id=autoconnect type=checkbox>&#8652;</label>
     </fieldset>
     <div id=packets>
-      <button id=clear-display>&#x239A;</button>
       <fieldset class=command-fs>
         <legend>Start</legend>
         <input id=file-upload type=file>
@@ -156,6 +149,7 @@ const template = (function () {
         <button id=start-pkt>▶</button>
         <button id=abort-pkt title='Abort'>🛑</button>
       </fieldset>
+      <button id=clear-display>&#x239A;</button>
       <fieldset class=command-fs>
         <legend>Action</legend>
         <button id=reboot-btn title="Reboot device">&#x23FC;</button>
@@ -163,11 +157,9 @@ const template = (function () {
         <button id=invalidate-btn title="Invalidate image" style=color:red>&#x2718;</button>
       </fieldset>
     </div>
-    <div id=info>
-      <progress-bar id=progress>
-        <div id=time-info></div>: [<div id=state-info>Not running</div>] <div id=progress-info></div>
-      </progress-bar>
-    </div>
+    <progress-bar id=progress>
+      <div id=time-info></div>: [<div id=state-info>Not running</div>] <div id=progress-info></div>
+    </progress-bar>
   </div>
   <display-data id=data></display-data>`;
   return template;
@@ -189,6 +181,7 @@ export class EspOTAWsComponent extends ComponentBase {
   private readonly _state: EspOTAWsOptions = {};
 
   private readonly _onopen: () => void;
+  private readonly _onconnecting: () => void;
   private readonly _onclose: () => void;
   private readonly _update_info: (
     data: EspOTAWsStateResponse | EspOTAWsAbortResponse
@@ -207,7 +200,6 @@ export class EspOTAWsComponent extends ComponentBase {
 
     this.title = 'Esp OTA Ws';
     this._state = (state ?? {}) as EspOTAWsOptions;
-    console.log('state begin', this._state);
 
     const shadow = this.rootHtmlElement.attachShadow({ mode: 'open' });
     shadow.appendChild(template.content.cloneNode(true));
@@ -275,6 +267,19 @@ export class EspOTAWsComponent extends ComponentBase {
       reboot_btn.disabled = false;
       validate_btn.disabled = false;
       invalidate_btn.disabled = false;
+    };
+
+    this._onconnecting = () => {
+      connect.dataset.state = 'open';
+      connect.title = 'Close connection';
+      protocol.disabled = true;
+      address.disabled = true;
+
+      start_btn.disabled = true;
+      abort_btn.disabled = true;
+      reboot_btn.disabled = true;
+      validate_btn.disabled = true;
+      invalidate_btn.disabled = true;
     };
 
     this._onclose = () => {
@@ -461,6 +466,8 @@ export class EspOTAWsComponent extends ComponentBase {
       this._ws = new WebSocket(`${protocol}://${addr}`);
       this._ws.binaryType = 'arraybuffer';
 
+      this._onconnecting();
+
       customElements
         .whenDefined('display-data')
         .then(() => {
@@ -468,44 +475,17 @@ export class EspOTAWsComponent extends ComponentBase {
         })
         .finally(() => {});
 
-      this._onopen();
-
-      this._ws.onopen = ev => {
-        this._state.protocol = protocol;
-        this._state.address = addr;
-        this.save_state();
-
-        this._display.command(`Socket ${protocol}://${addr} opened`);
+      this._ws.onopen = () => {
+        this.on_open(protocol, addr);
       };
       this._ws.onmessage = ev => {
-        try {
-          const d: EspOTAWsResponse = parse(new Uint8Array(ev.data));
-          if ('action' in d) {
-            this.action_response(d);
-            return;
-          }
-          if ('error' in d) {
-            this.response_error(d);
-            return;
-          }
-          this._update_info(d);
-          if ('reason' in d) {
-            this.abort_response(d);
-            return;
-          }
-          this._display.receive(JSON.stringify(d), ev.data.byteLength, ev.data);
-        } catch (e) {
-          this._display.error((e as Error).message);
-        }
+        this.on_message(ev);
       };
       this._ws.onclose = ev => {
-        this._onclose();
-        this._ws = undefined;
-        this._display.command(`Socket ${addr} closed [${ev.code}]`);
+        this.on_close(addr, ev);
       };
       this._ws.onerror = ev => {
         this._display.error(`ERROR! Socket error`);
-        // console.error('error', ev);
       };
     } catch (e) {
       console.error('error connecting', e);
@@ -536,6 +516,44 @@ export class EspOTAWsComponent extends ComponentBase {
       data.byteLength,
       data
     );
+  }
+
+  private on_open(protocol: string, addr: string): void {
+    this._state.protocol = protocol;
+    this._state.address = addr;
+    this.save_state();
+
+    this._onopen();
+
+    this._display.command(`Socket ${protocol}://${addr} opened`);
+  }
+
+  private on_message(ev: MessageEvent): void {
+    try {
+      const d: EspOTAWsResponse = parse(new Uint8Array(ev.data));
+      if ('action' in d) {
+        this.action_response(d);
+        return;
+      }
+      if ('error' in d) {
+        this.response_error(d);
+        return;
+      }
+      this._update_info(d);
+      if ('reason' in d) {
+        this.abort_response(d);
+        return;
+      }
+      this._display.receive(JSON.stringify(d), ev.data.byteLength, ev.data);
+    } catch (e) {
+      this._display.error((e as Error).message);
+    }
+  }
+
+  private on_close(addr: string, ev: CloseEvent): void {
+    this._onclose();
+    this._ws = undefined;
+    this._display.command(`Socket ${addr} closed [${ev.code}]`);
   }
 
   private response_error(d: EspOTAWsErrorResponse): void {
