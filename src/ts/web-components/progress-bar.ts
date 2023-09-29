@@ -1,6 +1,3 @@
-const default_bg = '#999999';
-const default_bar = '#00cc00';
-
 const template = (function () {
   const template = document.createElement('template');
   template.innerHTML = `
@@ -19,8 +16,11 @@ const template = (function () {
 })();
 
 export class ProgressBar extends HTMLElement {
-  private _bg: string = default_bg;
-  private _barc: string = default_bar;
+  static readonly default_bg: string = '#999999';
+  static readonly default_bar: string = '#00cc00';
+
+  private _bg: string = ProgressBar.default_bg;
+  private _barc: string = ProgressBar.default_bar;
   private _value: number = 0;
 
   constructor() {
@@ -79,8 +79,6 @@ export class ProgressBar extends HTMLElement {
   }
 
   private update_view(): void {
-    // this.style.background = this._bg;
-    // this.style.backgroundImage = `linear-gradient(90deg, ${this._barc} ${this._value}%)`;
     this.style.backgroundImage = `linear-gradient(to right, ${this._barc} 0%, ${this._barc} ${this._value}%, ${this._bg} ${this._value}%, ${this._bg} 100%)`;
   }
 }

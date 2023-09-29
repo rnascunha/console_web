@@ -9,11 +9,14 @@ export enum Command {
 }
 
 export enum ErrorDescription {
-  ALREADY_RUNNING = 1,
+  SUCCESS = 0,
+  ALREADY_RUNNING,
   NOT_RUNNING,
   WRONG_USER,
   GET_PARTITION_ERROR,
-  NAME_TOO_LONG,
+  PACKET_SIZE_ERROR,
+  INVALID_VERSION,
+  SAME_VERSION,
 }
 
 export enum AbortReason {
@@ -39,6 +42,14 @@ export interface EspOTAWsAbortResponse {
 export interface EspOTAWsErrorResponse {
   commnad: Command;
   error: ErrorDescription;
+}
+
+export interface EspOTAWsStartOptions {
+  size: number;
+  timeout: number;
+  check_invalid: boolean;
+  check_same: boolean;
+  reboot: boolean;
 }
 
 export type EspOTAWsResponse =
@@ -95,8 +106,21 @@ export function parse(data: Uint8Array): EspOTAWsResponse {
   }
 }
 
-export function start_packet(size: number): Uint8Array {
-  return new Uint8Array([Command.START, ...pack32(size)]);
+export function start_packet({
+  size,
+  timeout,
+  check_invalid,
+  check_same,
+  reboot,
+}: EspOTAWsStartOptions): Uint8Array {
+  return new Uint8Array([
+    Command.START,
+    ...pack32(size),
+    ...pack16(timeout),
+    ((check_same ? 1 : 0) << 2) |
+      ((check_invalid ? 1 : 0) << 1) |
+      (reboot ? 1 : 0),
+  ]);
 }
 
 export function state_packet(
@@ -119,4 +143,8 @@ export function abort_packet(): Uint8Array {
 
 function pack32(...args: number[]): number[] {
   return Array.from(new Uint8Array(new Uint32Array(args).buffer));
+}
+
+function pack16(...args: number[]): number[] {
+  return Array.from(new Uint8Array(new Uint16Array(args).buffer));
 }

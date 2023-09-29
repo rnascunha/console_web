@@ -2,8 +2,6 @@ import { type ComponentContainer, type JsonValue } from 'golden-layout';
 import { ComponentBase } from '../../golden-components/component-base';
 import {
   parse,
-  // packets,
-  // Command,
   ErrorDescription,
   type EspOTAWsResponse,
   type EspOTAWsStateResponse,
@@ -21,8 +19,9 @@ import {
   time as time_format,
   miliseconds_to_duration,
 } from '../../helper/time';
-import { download } from '../../helper/download';
 import { is_secure_connection } from '../../helper/protocol';
+import type { InputWithUnit } from '../../web-components/input-with-unit';
+import { ProgressBar } from '../../web-components/progress-bar';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -69,15 +68,24 @@ const template = (function () {
       user-select: none;
     }
 
-    #info, #connect {
+    #info {
       color: white;
+      flex-grow: 1;
+      padding: 3px;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    #progress {
+      height: 100%;
+      box-sizing: border-box;
     }
 
     #connect {
+      color: white;
       padding: 3px;
     }
 
-    #info fieldset,
     #connect {
       display: inline-block;
       min-width: 3ch;
@@ -85,7 +93,6 @@ const template = (function () {
       text-align: center;
     }
 
-    #info fieldset legend,
     #connect legend {
       text-align: left;
     }
@@ -96,6 +103,26 @@ const template = (function () {
 
     #btn-connect[data-state="open"]::after {
       content: '✕';
+    }
+
+    #start-option-container {
+      display: flex;
+      flex-direction: column;
+      width: max-content;
+      background-color: #222;
+      padding: 3px;
+      border-radius: 3px;
+      border: 1px solid;
+      transform: translateX(-100px);
+    }
+
+    #start-option-header {
+      font-size: large;
+    }
+
+    #update-timeout {
+      width: 100%;
+      box-sizing: border-box;
     }
   </style>
   <div id=header>
@@ -114,25 +141,24 @@ const template = (function () {
       <fieldset class=command-fs>
         <legend>Start</legend>
         <input id=file-upload type=file>
+        <dropdown-menu id=start-options>
+          <span slot=menu id=start-option-header>⚙</span>
+          <div id=start-option-container>
+            <input-with-unit id=update-timeout type=number unit=ms placeholder=Timeout title="Max wait between packages"></input-with-unit>
+            <label><input type=checkbox id=reboot title"Reboot device after update" checked>Reboot</label>
+            <label><input type=checkbox id=check-invalid title"Check last invalid version updated" checked>Check invalid</label>
+            <label><input type=checkbox id=check-same title"Check last invalid version updated" checked>Check same</label>
+          </div>
+        </dropdown-menu>
         <button id=start-pkt>▶</button>
       </fieldset>
       <button id=abort-pkt title='Abort'>🛑</button>
     </div>
     <div id=info>
-      <fieldset>
-        <legend>State</legend>
-        <div id=state-info>-</div>
-      </fieldset>
-      <fieldset>
-        <legend>Upload Size</legend>
-        <div id=upload-size-info>-</div>
-      </fieldset>
-      <fieldset>
-        <legend>Time</legend>
-        <div id=time-info>-</div>
-      </fieldset>
+      <progress-bar id=progress>
+        <div id=time-info></div>: [<div id=state-info>Not running</div>] <div id=progress-info></div>
+      </progress-bar>
     </div>
-    <button id=save-data>Save</button>
   </div>
   <display-data id=data></display-data>`;
   return template;
@@ -144,16 +170,9 @@ interface EspOTAWsOptions {
   autoconnect?: boolean;
 }
 
-interface EspOTAWsData {
-  date: number;
-  size: number;
-  total: number;
-}
-
 export class EspOTAWsComponent extends ComponentBase {
   private _ws?: WebSocket;
 
-  private readonly _data: EspOTAWsData[][] = [];
   private readonly _state: EspOTAWsOptions = {};
 
   private readonly _onopen: () => void;
@@ -182,7 +201,6 @@ export class EspOTAWsComponent extends ComponentBase {
     this._display = shadow.querySelector('#data') as DataDisplay;
     shadow.querySelector('#clear-display')?.addEventListener('click', () => {
       this._display.clear();
-      this._data.splice(0, this._data.length);
     });
 
     // Connect
@@ -208,6 +226,12 @@ export class EspOTAWsComponent extends ComponentBase {
     const file_picker = shadow.querySelector(
       '#file-upload'
     ) as HTMLInputElement;
+    const timeout_in = shadow.querySelector('#update-timeout') as InputWithUnit;
+    const same_check = shadow.querySelector('#check-same') as HTMLInputElement;
+    const invalid_check = shadow.querySelector(
+      '#check-invalid'
+    ) as HTMLInputElement;
+    const reboot_check = shadow.querySelector('#reboot') as HTMLInputElement;
     const abort_btn = shadow.querySelector('#abort-pkt') as HTMLButtonElement;
 
     this._onopen = () => {
@@ -237,7 +261,16 @@ export class EspOTAWsComponent extends ComponentBase {
         this._display.warning('No file selected');
         return;
       }
-      this.send(start_packet(this._upload_file.file.size));
+
+      this.send(
+        start_packet({
+          size: this._upload_file.file.size,
+          timeout: timeout_in.value === '' ? 0 : parseInt(timeout_in.value, 10),
+          check_invalid: invalid_check.checked,
+          check_same: same_check.checked,
+          reboot: reboot_check.checked,
+        })
+      );
     });
 
     abort_btn.addEventListener('click', () => {
@@ -269,12 +302,10 @@ export class EspOTAWsComponent extends ComponentBase {
     });
 
     // Info
-
-    const state_info = shadow.querySelector('#state-info') as HTMLElement;
-    const up_size_info = shadow.querySelector(
-      '#upload-size-info'
-    ) as HTMLElement;
+    const progress = shadow.querySelector('#progress') as ProgressBar;
     const time_info = shadow.querySelector('#time-info') as HTMLElement;
+    const state_info = shadow.querySelector('#state-info') as HTMLElement;
+    const progress_info = shadow.querySelector('#progress-info') as HTMLElement;
     let time_token: ReturnType<typeof setInterval>;
     let start_time: number;
 
@@ -283,11 +314,16 @@ export class EspOTAWsComponent extends ComponentBase {
     ) => {
       const date = time_format();
       let state = 'Running';
-      if ('abort' in resp) {
+      if ('reason' in resp) {
+        console.log('Aborted!!!');
         clearInterval(time_token);
-        state = 'Aborted';
+        state_info.textContent = 'Aborted';
+        progress.bg_color = '#500';
+        progress.bar_color = '#f00';
       } else if ('size_rcv' in resp) {
         // State
+        progress.bg_color = ProgressBar.default_bg;
+        progress.bar_color = ProgressBar.default_bar;
         if (resp.size_rcv >= (this._upload_file?.file.size as number)) {
           clearInterval(time_token);
           state = 'Finished';
@@ -296,19 +332,23 @@ export class EspOTAWsComponent extends ComponentBase {
           start_time = Date.now();
           time_token = setInterval(() => {
             if (this._ws === undefined) clearInterval(time_token);
-            time_info.innerHTML = miliseconds_to_duration(
+            time_info.textContent = miliseconds_to_duration(
               Date.now() - start_time
             );
           }, 10);
         }
-        state_info.textContent = state;
-        state_info.title = `${date}: ${state}`;
 
-        const size = `${resp.size_rcv} / ${
-          this._upload_file?.file.size ?? '-'
-        }`;
-        up_size_info.textContent = size;
-        up_size_info.title = `${date}: ${size}`;
+        state_info.textContent = state;
+
+        const name = this._upload_file?.name ?? '';
+        const total_size = this._upload_file?.file.size ?? 0;
+        const percent =
+          total_size === 0 ? 0 : 100 * (resp.size_rcv / total_size);
+        progress_info.textContent = ` ${name} ${resp.size_rcv} / ${
+          total_size ?? '-'
+        } (${percent.toFixed(1)} %)`;
+        progress.value = percent;
+        progress.title = `${date}: ${progress.text}`;
 
         if (resp.size_request > 0 && this._upload_file !== undefined) {
           const data = state_packet(
@@ -328,13 +368,6 @@ export class EspOTAWsComponent extends ComponentBase {
       }
 
       this._ws.close();
-    });
-
-    shadow.querySelector('#save-data')?.addEventListener('click', () => {
-      download(
-        'esp-ota-ws-data.json',
-        JSON.stringify(this._data, undefined, 0)
-      );
     });
 
     this.container.on('beforeComponentRelease', () => {
@@ -357,7 +390,7 @@ export class EspOTAWsComponent extends ComponentBase {
     }
 
     try {
-      this._ws = new WebSocket(`${protocol}://${addr}/ota`);
+      this._ws = new WebSocket(`${protocol}://${addr}`);
       this._ws.binaryType = 'arraybuffer';
 
       customElements
@@ -394,14 +427,13 @@ export class EspOTAWsComponent extends ComponentBase {
         }
       };
       this._ws.onclose = ev => {
-        console.log('close', ev);
         this._onclose();
         this._ws = undefined;
         this._display.command(`Socket ${addr} closed [${ev.code}]`);
       };
       this._ws.onerror = ev => {
         this._display.error(`ERROR! Socket error`);
-        console.error('error', ev);
+        // console.error('error', ev);
       };
     } catch (e) {
       console.error('error connecting', e);
