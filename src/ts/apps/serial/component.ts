@@ -1,21 +1,16 @@
-import {
-  AppComponent,
-  ComponentBase,
-} from '../../golden-components/component-base';
+import { AppComponent } from '../../golden-components/component-base';
 import type { SerialApp } from './app';
-import type { SerialConn } from './../../libs/serial/serial';
-import { SerialView, SerialViewConsole } from './view';
+import { SerialView } from './view';
 import {
   type ComponentContainer,
   type JsonValue,
-  type ContentItem,
-  type ComponentItem,
   LayoutManager,
 } from 'golden-layout';
+import type { TerminalComponent } from '../../golden-components/terminal';
 
 export class SerialComponent extends AppComponent {
   private readonly _view: SerialView;
-  private _console: SerialConsoleComponent | null;
+  private _console: TerminalComponent | null;
 
   constructor(
     container: ComponentContainer,
@@ -46,13 +41,30 @@ export class SerialComponent extends AppComponent {
 
     this.container.on('beforeComponentRelease', () => {
       this._view.port.close().finally(() => {});
+      if (this._console !== null) this._console.container.close();
+    });
+
+    port.on('data', d => {
+      if (this._console !== null) {
+        this._console.terminal.write(d);
+      }
+    });
+
+    port.on('open', () => {
+      if (this._console !== null)
+        this._console.title = `${port.name} (console)`;
+    });
+
+    port.on('close', () => {
+      if (this._console !== null)
+        this._console.title = `${port.name} (console/closed)`;
     });
 
     this._console = null;
     this._view.on('console', open => {
       if (open) {
-        const p = window.console_app.layout.addComponentAtLocation(
-          'SerialConsoleComponent',
+        const p = this.container.layoutManager.newComponentAtLocation(
+          'TerminalComponent',
           state_obj.id,
           undefined,
           [
@@ -61,11 +73,14 @@ export class SerialComponent extends AppComponent {
             { typeId: LayoutManager.LocationSelector.TypeId.FirstStack },
             { typeId: LayoutManager.LocationSelector.TypeId.Root },
           ]
-        ) as LayoutManager.Location;
-        this.find_console_component(state_obj.id, p.parentItem);
+        );
+        this._console = p?.component as TerminalComponent;
         this._console?.container.on('beforeComponentRelease', () => {
           this._view.emit('close_console', undefined);
         });
+        this._console.title = `${port.name} ${
+          port.state === 'open' ? '(console)' : '(console/closed)'
+        }`;
       } else {
         this._console?.container.focus();
       }
@@ -77,69 +92,5 @@ export class SerialComponent extends AppComponent {
 
     this.container.focus();
     return true;
-  }
-
-  private find_console_component(id: number, parent: ContentItem): boolean {
-    parent.contentItems.some(c => {
-      if (c === undefined || !c.isComponent) return false;
-
-      const v = (c as ComponentItem).component;
-      if (!(v instanceof SerialConsoleComponent)) return false;
-      if (v.id === id) this._console = v;
-      return true;
-    });
-    return false;
-  }
-}
-
-export class SerialConsoleComponent extends ComponentBase {
-  private _console: SerialViewConsole | null;
-  private readonly _id: number;
-
-  constructor(
-    container: ComponentContainer,
-    state: JsonValue | undefined,
-    virtual: boolean
-  ) {
-    super(container, virtual);
-
-    this._id = state as number;
-    this._console = null;
-
-    container.on('open', () => {
-      const port = (
-        window.console_app.list.protocol('serial') as SerialApp
-      ).list.port_by_id(this._id) as SerialConn;
-      this._console = new SerialViewConsole(port, this.rootHtmlElement);
-      // Why need the setTimeout??
-      setTimeout(() => this._console?.terminal.fit(), 1);
-      this.set_name();
-      this.container.on('resize', () => this._console?.terminal.fit());
-      this.container.on('beforeComponentRelease', () =>
-        this._console?.emit('release', undefined)
-      );
-      this._console.on('open', () => {
-        this.set_name();
-      });
-      this._console.on('close', () => {
-        this.set_name();
-      });
-    });
-  }
-
-  public get console(): SerialViewConsole | null {
-    return this._console;
-  }
-
-  public get id(): number {
-    return this._id;
-  }
-
-  private set_name(): void {
-    const port = this._console?.port;
-    if (port === undefined) return;
-    if (this._console?.port.state === 'open')
-      this.title = `${port.name} (console)`;
-    else this.title = `${port.name} (console/closed)`;
   }
 }

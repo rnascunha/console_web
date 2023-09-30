@@ -153,6 +153,7 @@ const template = (function () {
       </fieldset>
     </div>
     <button id=save-data>Save</button>
+    <button id=time-line-graph>Graph</button>
   </div>
   <display-data id=data></display-data>`;
   return template;
@@ -432,6 +433,15 @@ export class ControlFlowComponent extends ComponentBase {
     this.container.on('open', () => {
       if (address.value.length > 0 && opt.autoconnect === true)
         this.connect(protocol.value, address.value);
+    });
+
+    shadow.querySelector('#time-line-graph')?.addEventListener('click', () => {
+      this.container.layoutManager.newComponentAtLocation(
+        'TimeLineGraphComponent',
+        undefined,
+        'TimeLineChart',
+        undefined
+      );
     });
   }
 

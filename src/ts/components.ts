@@ -1,8 +1,8 @@
 import { DockDumpComponent } from './golden-components/dock-dump';
 import { MonacoComponent } from './golden-components/monaco';
-import { SerialConsoleComponent } from './apps/serial/component';
 import { SetupComponent } from './setup/component';
 import { TerminalComponent } from './golden-components/terminal';
+import { TimeLineGraphComponent } from './golden-components/time_line_graph';
 
 interface OtherComponent {
   name: string;
@@ -10,10 +10,6 @@ interface OtherComponent {
 }
 
 export const other_components: Record<string, OtherComponent> = {
-  SerialConsoleComponent: {
-    name: 'SerialConsoleComponent',
-    component: SerialConsoleComponent,
-  },
   DockDumpComponent: {
     name: 'DockDumpComponent',
     component: DockDumpComponent,
@@ -29,5 +25,9 @@ export const other_components: Record<string, OtherComponent> = {
   TerminalComponent: {
     name: 'TerminalComponent',
     component: TerminalComponent,
+  },
+  TimeLineGraphComponent: {
+    name: 'TimeLineGraphComponent',
+    component: TimeLineGraphComponent,
   },
 };

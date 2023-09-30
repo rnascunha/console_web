@@ -1,7 +1,6 @@
 import EventEmitter from '../../libs/event_emitter';
 import type DataDisplay from '../../web-components/data-display/data-display';
 import { ParseUntilTimeout, type ParseData } from '../../libs/stream_parser';
-import { DataTerminal } from '../../libs/terminal';
 import { hard_reset as esp32_reset } from '../../libs/esptool.ts/loader/reset';
 import type { SerialConn } from '../../libs/serial/serial';
 import type { Encoding } from '../../libs/binary-dump';
@@ -367,43 +366,5 @@ export class SerialView extends EventEmitter<SerialViewEvents> {
         this._out_data.data = Uint8Array.from(state.input.data);
       })
       .finally(() => {});
-  }
-}
-
-interface SerialViewConsoleEvents {
-  open: undefined;
-  close: undefined;
-  release: undefined;
-}
-
-export class SerialViewConsole extends EventEmitter<SerialViewConsoleEvents> {
-  private readonly _port: SerialConn;
-  private readonly _terminal: DataTerminal;
-
-  constructor(port: SerialConn, container: HTMLElement) {
-    super();
-
-    this._port = port;
-    this._terminal = new DataTerminal(container);
-    this._port.on('data', data => {
-      this._terminal.write(data);
-    });
-    this._port.on('sent', data => {
-      this._terminal.write(data);
-    });
-    this._port.on('open', () => {
-      this.emit('open', undefined);
-    });
-    this._port.on('close', () => {
-      this.emit('close', undefined);
-    });
-  }
-
-  public get terminal(): DataTerminal {
-    return this._terminal;
-  }
-
-  public get port(): SerialConn {
-    return this._port;
   }
 }
