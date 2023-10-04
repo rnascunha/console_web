@@ -40,8 +40,8 @@ export class SerialComponent extends AppComponent {
     });
 
     this.container.on('beforeComponentRelease', () => {
-      this._view.port.close().finally(() => {});
       if (this._console !== null) this._console.container.close();
+      this._view.port.close().finally(() => {});
     });
 
     port.on('data', d => {
@@ -77,6 +77,7 @@ export class SerialComponent extends AppComponent {
         this._console = p?.component as TerminalComponent;
         this._console?.container.on('beforeComponentRelease', () => {
           this._view.emit('close_console', undefined);
+          this._console = null;
         });
         this._console.title = `${port.name} ${
           port.state === 'open' ? '(console)' : '(console/closed)'

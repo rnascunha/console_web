@@ -13,6 +13,7 @@ module.exports = {
     inputs: path.resolve(__dirname, './inputs/test.ts'),
     input_with_unit: path.resolve(__dirname, './input-with-unit/test.ts'),
     progress_bar: path.resolve(__dirname, './progress-bar/test.ts'),
+    time_line_graph: path.resolve(__dirname, './time-line-graph/test.ts'),
     test: path.resolve(__dirname, './test/test.ts'),
   },
   plugins: [
@@ -50,6 +51,11 @@ module.exports = {
       chunks: ['progress_bar'],
       filename: 'progress_bar.html',
       template: path.resolve(__dirname, './progress-bar/test.html'),
+    }),
+    new HtmlWebpackPlugin({
+      chunks: ['time_line_graph'],
+      filename: 'time_line_graph.html',
+      template: path.resolve(__dirname, './time-line-graph/test.html'),
     }),
     new HtmlWebpackPlugin({
       chunks: ['test'],

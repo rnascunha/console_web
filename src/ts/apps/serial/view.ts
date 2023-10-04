@@ -12,7 +12,7 @@ import {
   serialFlowControl,
   serialParity,
   serialStopBits,
-} from '../../libs/serial/contants';
+} from '../../libs/serial/constants';
 
 export interface SerialState {
   open: SerialOptions;

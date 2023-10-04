@@ -14,7 +14,7 @@ import {
   install_serial_events,
   is_serial_supported,
 } from '../../libs/serial/functions';
-import { serialBaudrate } from '../../libs/serial/contants';
+import { serialBaudrate } from '../../libs/serial/constants';
 import { ESPLoader } from '../../libs/esptool.ts/loader/loader';
 import { chip_name, mac_string } from '../../libs/esptool.ts/loader/debug';
 import { type FlashImageProgress } from '../../libs/esptool.ts/loader/types';
