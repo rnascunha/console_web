@@ -1,6 +1,7 @@
 import {
   type DateLineData,
   TimeLinesGraph,
+  RightAxisTimeLinesGraph,
 } from '../../ts/libs/d3-graph/time_lines';
 import { curves } from '../../ts/libs/d3-graph/types';
 import * as d3 from 'd3';
@@ -26,8 +27,10 @@ const height = graph_el.clientHeight - margin.bottom - margin.top;
 const number_lines = 2;
 
 const graph = new TimeLinesGraph();
+const rgraph = new RightAxisTimeLinesGraph(graph.group, graph.x);
 
 const data: DateLineData[][] = [];
+const rdata: DateLineData[][] = [];
 
 // create_data(data);
 
@@ -47,12 +50,21 @@ line_opts.addEventListener('change', () => {
 
 add.addEventListener('click', () => {
   if (data.length === 0) {
-    create_data(data);
+    create_data();
     update_graph();
     return;
   }
 
   data.forEach((d, i) => {
+    d.push({
+      date: new Date(),
+      value: i === 0 ? +value.value : simple_random(),
+    });
+  });
+
+  if (random_check.checked) randonize();
+
+  rdata.forEach((d, i) => {
     d.push({
       date: new Date(),
       value: i === 0 ? +value.value : simple_random(),
@@ -69,7 +81,7 @@ random_all.addEventListener('click', () => {
 });
 
 clear.addEventListener('click', () => {
-  create_data(data);
+  create_data();
   update_graph();
 });
 
@@ -77,11 +89,17 @@ remove_first.addEventListener('click', () => {
   data.forEach(d => {
     d.splice(0, 1);
   });
+  rdata.forEach(d => {
+    d.splice(0, 1);
+  });
   update_graph();
 });
 
 remove_last.addEventListener('click', () => {
   data.forEach(d => {
+    d.splice(d.length - 1, 1);
+  });
+  rdata.forEach(d => {
     d.splice(d.length - 1, 1);
   });
   update_graph();
@@ -95,7 +113,9 @@ randonize();
 create_graph();
 
 function update_graph(): void {
+  console.log(data, rdata);
   graph.update(data);
+  rgraph.update(rdata);
 }
 
 function create_graph(): void {
@@ -117,6 +137,21 @@ function create_graph(): void {
       },
     })
   );
+  rgraph.draw(rdata, {
+    width,
+    height,
+    margin,
+    curve: curves[line_opts.value].line,
+    circle: {
+      r: 5,
+      'stroke-width': 1.5,
+      stroke: d3.schemeAccent,
+    },
+    line: {
+      stroke: d3.schemeDark2,
+      'stroke-width': 2, // eslint-disable-line
+    },
+  });
 }
 
 function simple_random(): number {
@@ -133,10 +168,18 @@ function randonize_all_values(): void {
       d.value = simple_random();
     });
   }
+
+  for (const arr of rdata) {
+    arr.forEach(d => {
+      d.value = simple_random();
+    });
+  }
 }
 
-function create_data(data: DateLineData[][]): void {
+function create_data(): void {
   data.splice(0, data.length);
   for (let i = 0; i < number_lines; ++i)
     data.push([{ date: new Date(), value: simple_random() }]);
+  rdata.splice(0, rdata.length);
+  rdata.push([{ date: new Date(), value: simple_random() }]);
 }

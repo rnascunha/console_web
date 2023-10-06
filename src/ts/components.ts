@@ -2,7 +2,10 @@ import { DockDumpComponent } from './golden-components/dock-dump';
 import { MonacoComponent } from './golden-components/monaco';
 import { SetupComponent } from './setup/component';
 import { TerminalComponent } from './golden-components/terminal';
-import { TimeLineGraphComponent } from './golden-components/time_line_graph';
+import {
+  TimeLineGraphComponent,
+  RLTimeLineGraphComponent,
+} from './golden-components/time_line_graph';
 
 interface OtherComponent {
   name: string;
@@ -29,5 +32,9 @@ export const other_components: Record<string, OtherComponent> = {
   TimeLineGraphComponent: {
     name: 'TimeLineGraphComponent',
     component: TimeLineGraphComponent,
+  },
+  RLTimeLineGraphComponent: {
+    name: 'RLTimeLineGraphComponent',
+    component: RLTimeLineGraphComponent,
   },
 };

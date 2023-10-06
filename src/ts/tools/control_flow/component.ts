@@ -19,6 +19,9 @@ import {
 } from '../../helper/time';
 import { download } from '../../helper/download';
 import { is_secure_connection } from '../../helper/protocol';
+import type { RLTimeLineGraphComponent } from '../../golden-components/time_line_graph';
+import type { DateLineData } from '../../libs/d3-graph/time_lines';
+import { pack32 } from '../../helper/pack';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -169,8 +172,10 @@ interface ControlFlowOptions {
 }
 
 interface ControlFlowData {
-  date: number;
+  date: Date;
   volume: number;
+  flow_instant: number;
+  flow_mean: number;
   pulses: number;
   state: number;
 }
@@ -184,6 +189,7 @@ export class ControlFlowComponent extends ComponentBase {
   private _valve_open_time: number = 0;
 
   private readonly _data: ControlFlowData[][] = [];
+  private _graph_component?: RLTimeLineGraphComponent;
 
   private readonly _state: ControlFlowOptions = {};
 
@@ -311,34 +317,15 @@ export class ControlFlowComponent extends ComponentBase {
         pulse_info.title = `${date}: ${resp.pulses}`;
 
         // Flow rate
-        flow_rate_info.textContent = `${(
-          volume /
-          1000 /
-          ((Date.now() - this._valve_open_time) / 1000 / 60)
+        flow_rate_info.textContent = `${flow_rate_to_liters_per_minute(
+          volume,
+          this._valve_open_time,
+          Date.now()
         ).toFixed(2)} L/min`;
 
         // Data
-        if (this._valve_state === State.CLOSE && resp.state === State.OPEN) {
-          this._data.push([
-            {
-              date: Date.now(),
-              pulses: resp.pulses,
-              volume,
-              state: resp.state,
-            },
-          ]);
-        } else if (
-          (resp.state === State.OPEN ||
-            (resp.state === State.CLOSE && this._valve_state === State.OPEN)) &&
-          this._data.length > 0
-        ) {
-          this._data[this._data.length - 1].push({
-            date: Date.now(),
-            pulses: resp.pulses,
-            volume,
-            state: resp.state,
-          });
-        }
+        this.compute_data(resp);
+        this.update_graph();
 
         // Time
         if (this._valve_state === State.CLOSE && resp.state === State.OPEN) {
@@ -428,6 +415,8 @@ export class ControlFlowComponent extends ComponentBase {
 
     this.container.on('beforeComponentRelease', () => {
       if (this._ws !== undefined) this._ws.close();
+      if (this._graph_component !== undefined)
+        this._graph_component.container.close();
     });
 
     this.container.on('open', () => {
@@ -435,13 +424,8 @@ export class ControlFlowComponent extends ComponentBase {
         this.connect(protocol.value, address.value);
     });
 
-    shadow.querySelector('#time-line-graph')?.addEventListener('click', () => {
-      this.container.layoutManager.newComponentAtLocation(
-        'TimeLineGraphComponent',
-        undefined,
-        'TimeLineChart',
-        undefined
-      );
+    shadow.querySelector('#time-line-graph')?.addEventListener('click', ev => {
+      this.create_graph();
     });
   }
 
@@ -497,10 +481,10 @@ export class ControlFlowComponent extends ComponentBase {
       };
       this._ws.onerror = ev => {
         this._display.error(`ERROR! Socket error`);
-        console.error('error', ev);
+        // console.error('error', ev);
       };
     } catch (e) {
-      console.error('error connecting', e);
+      // console.error('error connecting', e);
       return false;
     }
     return true;
@@ -524,6 +508,98 @@ export class ControlFlowComponent extends ComponentBase {
   private save_state(): void {
     window.console_app.set_tool_state('control_flow', this._state, true);
   }
+
+  private create_graph(): void {
+    if (this._graph_component !== undefined) {
+      this._graph_component.container.focus();
+      return;
+    }
+    this._graph_component = this.container.layoutManager.newComponentAtLocation(
+      'RLTimeLineGraphComponent',
+      [
+        {},
+        {
+          line: {
+            stroke: 'yellow',
+          },
+          circle: {
+            stroke: 'yellow',
+            fill: 'yellow',
+          },
+        },
+      ],
+      'Control Flow Graph'
+    )?.component as RLTimeLineGraphComponent;
+
+    this._graph_component.container.on('beforeComponentRelease', () => {
+      this._graph_component = undefined;
+    });
+  }
+
+  private update_graph(): void {
+    if (this._graph_component === undefined) return;
+
+    const data = this.compute_graph_data();
+    if (data === undefined) return;
+    this._graph_component.update([
+      [data.flow_instant, data.flow_mean],
+      [data.volume],
+    ]);
+  }
+
+  private compute_data(resp: ControlFlowStateResponse): void {
+    const volume = (1000 * resp.pulses) / this._k_ratio;
+    if (this._valve_state === State.CLOSE && resp.state === State.OPEN) {
+      this._data.push([
+        {
+          date: new Date(),
+          pulses: resp.pulses,
+          volume,
+          state: resp.state,
+          flow_instant: 0,
+          flow_mean: 0,
+        },
+      ]);
+    } else if (
+      (resp.state === State.OPEN ||
+        (resp.state === State.CLOSE && this._valve_state === State.OPEN)) &&
+      this._data.length > 0
+    ) {
+      const d = this._data[this._data.length - 1];
+      const init = d[0].date.getTime();
+      const before_volume = d[d.length - 1].volume;
+      const before_date = d[d.length - 1].date.getTime();
+      d.push({
+        date: new Date(),
+        pulses: resp.pulses,
+        volume,
+        state: resp.state,
+        flow_instant: flow_rate_to_liters_per_minute(
+          volume - before_volume,
+          before_date,
+          Date.now()
+        ),
+        flow_mean: flow_rate_to_liters_per_minute(volume, init, Date.now()),
+      });
+    }
+  }
+
+  private compute_graph_data(): {
+    volume: DateLineData[];
+    flow_instant: DateLineData[];
+    flow_mean: DateLineData[];
+  } {
+    const data = this._data[this._data.length - 1];
+    const volume = compute_date_line_graph_data(data, 'volume');
+    const flow_instant = compute_date_line_graph_data(data, 'flow_instant');
+    const flow_mean = compute_date_line_graph_data(data, 'flow_mean');
+
+    return {
+      volume,
+      flow_instant,
+      flow_mean,
+    };
+  }
 }
 
 function state_name(state: State): string {
@@ -535,6 +611,21 @@ function error_name(error: ErrorDescription): string {
   return val !== undefined ? (val as string) : 'Urecognized';
 }
 
-function pack32(...args: number[]): number[] {
-  return Array.from(new Uint8Array(new Uint32Array(args).buffer));
+function compute_date_line_graph_data(
+  data: ControlFlowData[],
+  index: keyof ControlFlowData
+): DateLineData[] {
+  return data.reduce<DateLineData[]>((acc, d) => {
+    acc.push({ date: d.date, value: d[index] as number });
+    return acc;
+  }, []);
+}
+
+function flow_rate_to_liters_per_minute(
+  volume_ml: number,
+  time_init: number,
+  time_end: number
+): number {
+  if (time_end <= time_init) return 0;
+  return volume_ml / 1000 / ((time_end - time_init) / 1000 / 60);
 }
