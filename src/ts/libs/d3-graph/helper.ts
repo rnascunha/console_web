@@ -15,6 +15,18 @@ export function calculate_multi_domain<D, T extends d3.Numeric>(
   return d3.extent(dd) as [T, T];
 }
 
+export function axis_x_label_middle(
+  select: d3.Selection<SVGGElement, undefined, null, undefined>,
+  label: string
+): d3.Selection<SVGTextElement, undefined, null, undefined> {
+  const width = (select.node() as SVGGElement).getBBox().width;
+  return select
+    .append('text')
+    .text(label)
+    .attr('x', width / 2)
+    .style('text-anchor', 'middle');
+}
+
 /**
  * Not tested
  */

@@ -9,6 +9,7 @@ import {
   type Accessor,
 } from './types';
 import { calculate_multi_domain } from './helper';
+import type { Tooltip } from './tooltip';
 
 export interface TimeLineGraphOptions {
   width: number;
@@ -68,6 +69,8 @@ export class TimeLinesGraph {
 
   private _x_index: number | string = 'date';
   private _y_index: number | string = 'value';
+
+  private _tooltips?: Tooltip;
 
   constructor() {
     this._svg = d3.create('svg');
@@ -151,10 +154,32 @@ export class TimeLinesGraph {
       data,
       d => this._x(d[this._x_index]),
       d => this._y(d[this._y_index]),
-      this._style_circle
+      this._style_circle,
+      this._tooltips?.install.bind(this._tooltips)
     );
 
     return this._svg.node() as SVGSVGElement;
+  }
+
+  public set_tooltips(tooltip: Tooltip): void {
+    this._tooltips = tooltip;
+  }
+
+  public x_label(
+    label: string
+  ): d3.Selection<SVGTextElement, undefined, null, undefined> {
+    const box = this._x_axis.node()?.getBBox() as SVGRect;
+    return this._x_axis
+      .append('text')
+      .text(label)
+      .attr('x', box.width / 2)
+      .style('text-anchor', 'middle');
+  }
+
+  public y_label(
+    label: string
+  ): d3.Selection<SVGTextElement, undefined, null, undefined> {
+    return this._y_axis.append('text').text(label);
   }
 
   public style_line(
@@ -210,6 +235,8 @@ export class RightAxisTimeLinesGraph {
 
   private _x_index: number | string = 'date';
   private _y_index: number | string = 'value';
+
+  private _tooltips?: Tooltip;
 
   constructor(
     g: d3.Selection<SVGGElement, undefined, null, undefined>,
@@ -273,8 +300,19 @@ export class RightAxisTimeLinesGraph {
       data,
       d => this._x(d[this._x_index]),
       d => this._y(d[this._y_index]),
-      this._style_circle
+      this._style_circle,
+      this._tooltips?.install.bind(this._tooltips)
     );
+  }
+
+  public set_tooltips(tooltip: Tooltip): void {
+    this._tooltips = tooltip;
+  }
+
+  public ry_label(
+    label: string
+  ): d3.Selection<SVGTextElement, undefined, null, undefined> {
+    return this._y_axis.append('text').text(label);
   }
 
   public style_line(
@@ -332,6 +370,29 @@ export class RLTimeLinesGraph {
     this._rgraph.update(data[1]);
     return svg;
   }
+
+  public set_tooltips(tooltip: Tooltip): void {
+    this._graph.set_tooltips(tooltip);
+    this._rgraph.set_tooltips(tooltip);
+  }
+
+  public x_label(
+    label: string
+  ): d3.Selection<SVGTextElement, undefined, null, undefined> {
+    return this._graph.x_label(label);
+  }
+
+  public y_label(
+    label: string
+  ): d3.Selection<SVGTextElement, undefined, null, undefined> {
+    return this._graph.y_label(label);
+  }
+
+  public ry_label(
+    label: string
+  ): d3.Selection<SVGTextElement, undefined, null, undefined> {
+    return this._rgraph.ry_label(label);
+  }
 }
 
 function draw_lines(
@@ -356,7 +417,10 @@ function draw_circles(
   data: DateLineData[][],
   x: (d: DateLineData) => number,
   y: (d: DateLineData) => number,
-  style_circle: CircleStyle
+  style_circle: CircleStyle,
+  call?: (
+    d: d3.Selection<SVGCircleElement, DateLineData, SVGElement, undefined>
+  ) => any
 ): void {
   for (let i = 0; i < data.length; ++i) {
     select
@@ -367,6 +431,7 @@ function draw_circles(
           .append('circle')
           .classed(`--circle`, true)
           .classed(`--circle-${i}`, true)
+          .call(call === undefined ? () => {} : call)
       )
       .attr(
         'stroke',

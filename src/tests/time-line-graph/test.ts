@@ -5,6 +5,8 @@ import {
 } from '../../ts/libs/d3-graph/time_lines';
 import { curves } from '../../ts/libs/d3-graph/types';
 import * as d3 from 'd3';
+import { time } from '../../ts/helper/time';
+import { Tooltip } from '../../ts/libs/d3-graph/tooltip';
 
 const $ = document.querySelector.bind(document);
 
@@ -20,7 +22,7 @@ const random_all = $('#random-all') as HTMLElement;
 const line_opts = $('#lines-options') as HTMLSelectElement;
 const stroke_width = $('#stroke-width') as HTMLInputElement;
 
-const margin = { top: 20, bottom: 20, left: 30, right: 20 };
+const margin = { top: 20, bottom: 40, left: 30, right: 20 };
 const width = graph_el.clientWidth - margin.left - margin.right;
 const height = graph_el.clientHeight - margin.bottom - margin.top;
 
@@ -31,8 +33,6 @@ const rgraph = new RightAxisTimeLinesGraph(graph.group, graph.x);
 
 const data: DateLineData[][] = [];
 const rdata: DateLineData[][] = [];
-
-// create_data(data);
 
 Object.entries(curves)
   // .filter(([k, v]) => !v.is_close)
@@ -113,7 +113,6 @@ randonize();
 create_graph();
 
 function update_graph(): void {
-  console.log(data, rdata);
   graph.update(data);
   rgraph.update(rdata);
 }
@@ -152,6 +151,41 @@ function create_graph(): void {
       'stroke-width': 2, // eslint-disable-line
     },
   });
+
+  const tt = new Tooltip(
+    graph_el,
+    (ev, d) =>
+      `${time((d as DateLineData).date as Date)}: ${
+        (d as DateLineData).value as number
+      }`
+  );
+  graph.set_tooltips(tt);
+  rgraph.set_tooltips(tt);
+
+  graph
+    .x_label('Time')
+    .attr('x', width / 2)
+    .attr('y', margin.bottom)
+    .attr('dy', -0.1 * margin.bottom)
+    .style('text-anchor', 'middle')
+    .style('fill', 'black')
+    .style('font-size', '14px');
+
+  graph
+    .y_label('Random number')
+    .attr('dy', -5)
+    .attr('transform', 'rotate(90)')
+    .style('font-size', '14px')
+    .style('fill', 'black')
+    .style('text-anchor', 'start');
+
+  rgraph
+    .ry_label('Other random number')
+    .attr('transform', 'rotate(-90)')
+    .attr('dy', -5)
+    .style('fill', 'black')
+    .style('font-size', '14px')
+    .style('text-anchor', 'end');
 }
 
 function simple_random(): number {

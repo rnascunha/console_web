@@ -56,6 +56,10 @@ export class TimeLineGraphComponent extends ComponentBase {
     });
   }
 
+  get graph(): TimeLinesGraph {
+    return this._graph;
+  }
+
   private draw(): void {
     const margin = this._opt_graph.margin ?? {
       top: 20,
@@ -84,7 +88,7 @@ export class TimeLineGraphComponent extends ComponentBase {
 
 export class RLTimeLineGraphComponent extends ComponentBase {
   private readonly _graph_el: HTMLElement;
-  private _graph: RLTimeLinesGraph;
+  private readonly _graph: RLTimeLinesGraph;
   private _data?: [DateLineData[][], DateLineData[][]];
   private readonly _opt_graph: [
     Partial<TimeLineGraphOptions>,
@@ -102,7 +106,6 @@ export class RLTimeLineGraphComponent extends ComponentBase {
       Partial<TimeLineGraphOptions>,
       Partial<TimeLineGraphOptions>
     ];
-    console.log('graph', this._opt_graph);
 
     this.rootHtmlElement.appendChild(template.content.cloneNode(true));
     this._graph_el = this.rootHtmlElement.querySelector(
@@ -125,6 +128,10 @@ export class RLTimeLineGraphComponent extends ComponentBase {
     });
   }
 
+  get graph(): RLTimeLinesGraph {
+    return this._graph;
+  }
+
   private draw(): void {
     const margin = this._opt_graph[0].margin ?? {
       top: 20,
@@ -143,8 +150,6 @@ export class RLTimeLineGraphComponent extends ComponentBase {
   }
 
   private resize(): void {
-    this._graph_el.innerHTML = '';
-    this._graph = new RLTimeLinesGraph();
     this.draw();
   }
 

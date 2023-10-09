@@ -22,6 +22,7 @@ import { is_secure_connection } from '../../helper/protocol';
 import type { RLTimeLineGraphComponent } from '../../golden-components/time_line_graph';
 import type { DateLineData } from '../../libs/d3-graph/time_lines';
 import { pack32 } from '../../helper/pack';
+import { Tooltip } from '../../libs/d3-graph/tooltip';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -474,7 +475,7 @@ export class ControlFlowComponent extends ComponentBase {
         }
       };
       this._ws.onclose = ev => {
-        console.log('close', ev);
+        // console.log('close', ev);
         this._onclose();
         this._ws = undefined;
         this._display.command(`Socket ${addr} closed [${ev.code}]`);
@@ -514,10 +515,13 @@ export class ControlFlowComponent extends ComponentBase {
       this._graph_component.container.focus();
       return;
     }
+    const margin = { top: 20, bottom: 40, left: 30, right: 40 };
     this._graph_component = this.container.layoutManager.newComponentAtLocation(
       'RLTimeLineGraphComponent',
       [
-        {},
+        {
+          margin,
+        },
         {
           line: {
             stroke: 'yellow',
@@ -530,6 +534,51 @@ export class ControlFlowComponent extends ComponentBase {
       ],
       'Control Flow Graph'
     )?.component as RLTimeLineGraphComponent;
+
+    const labels = (): void => {
+      this._graph_component?.graph
+        .x_label('Time')
+        .attr('y', margin.bottom)
+        .attr('dy', -0.1 * margin.bottom)
+        .style('fill', 'black')
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
+        .style('text-anchor', 'middle');
+
+      this._graph_component?.graph
+        .y_label('Flow Rate (L / min)')
+        .attr('dy', -5)
+        .attr('transform', 'rotate(90)')
+        .style('font-size', '14px')
+        .style('fill', 'black')
+        .style('font-weight', 'bold')
+        .style('text-anchor', 'start');
+
+      this._graph_component?.graph
+        .ry_label('Volume (ml)')
+        .attr('transform', 'rotate(-90)')
+        .attr('dy', -5)
+        .style('fill', 'black')
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
+        .style('text-anchor', 'end');
+    };
+
+    const tt = new Tooltip(
+      this._graph_component.rootHtmlElement,
+      (ev, d) =>
+        `${time_format((d as DateLineData).date as Date)}: ${(
+          (d as DateLineData).value as number
+        ).toFixed(2)}`
+    );
+    const tooltip = (): void => {
+      this._graph_component?.graph.set_tooltips(tt);
+    };
+
+    labels();
+    tooltip();
+
+    this.update_graph();
 
     this._graph_component.container.on('beforeComponentRelease', () => {
       this._graph_component = undefined;
@@ -589,6 +638,13 @@ export class ControlFlowComponent extends ComponentBase {
     flow_instant: DateLineData[];
     flow_mean: DateLineData[];
   } {
+    if (this._data.length === 0) {
+      return {
+        volume: [],
+        flow_instant: [],
+        flow_mean: [],
+      };
+    }
     const data = this._data[this._data.length - 1];
     const volume = compute_date_line_graph_data(data, 'volume');
     const flow_instant = compute_date_line_graph_data(data, 'flow_instant');
