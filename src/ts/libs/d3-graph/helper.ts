@@ -5,7 +5,7 @@ import type {
 } from './types';
 
 export function calculate_multi_domain<D, T extends d3.Numeric>(
-  data: D[][],
+  data: readonly D[][],
   accessor: Accessor<T, D>
 ): [T, T] {
   const dd = data.reduce<T[]>((acc, d) => {

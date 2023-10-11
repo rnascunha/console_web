@@ -46,8 +46,7 @@ export function value_to_function<T>(t: AttributeValue<T>): Accessor<T> | T {
 }
 
 export function attribute_to_value<T>(t: AttributeValue<T>, index: number): T {
-  // if (typeof t === 'function') return t(d, index);
-  if (Array.isArray(t)) return t[index];
+  if (t instanceof Array) return t[index];
   return t as T;
 }
 

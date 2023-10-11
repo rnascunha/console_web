@@ -14,6 +14,7 @@ const template = (function () {
       overflow: none;
       height: 100%;
       background-color: white;
+      padding: 2px;
     }
   </style>
   <div id=graph></div>`;

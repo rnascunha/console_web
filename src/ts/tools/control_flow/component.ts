@@ -521,6 +521,7 @@ export class ControlFlowComponent extends ComponentBase {
       [
         {
           margin,
+          title: '&#8701; Flow Rate / Volume &#8702;',
         },
         {
           line: {
@@ -539,7 +540,7 @@ export class ControlFlowComponent extends ComponentBase {
       this._graph_component?.graph
         .x_label('Time')
         .attr('y', margin.bottom)
-        .attr('dy', -0.1 * margin.bottom)
+        .attr('dy', -0.2 * margin.bottom)
         .style('fill', 'black')
         .style('font-size', '14px')
         .style('font-weight', 'bold')

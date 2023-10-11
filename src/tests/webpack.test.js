@@ -14,6 +14,7 @@ module.exports = {
     input_with_unit: path.resolve(__dirname, './input-with-unit/test.ts'),
     progress_bar: path.resolve(__dirname, './progress-bar/test.ts'),
     time_line_graph: path.resolve(__dirname, './time-line-graph/test.ts'),
+    time_line_graph2: path.resolve(__dirname, './time-line-graph2/test.ts'),
     test: path.resolve(__dirname, './test/test.ts'),
   },
   plugins: [
@@ -56,6 +57,11 @@ module.exports = {
       chunks: ['time_line_graph'],
       filename: 'time_line_graph.html',
       template: path.resolve(__dirname, './time-line-graph/test.html'),
+    }),
+    new HtmlWebpackPlugin({
+      chunks: ['time_line_graph2'],
+      filename: 'time_line_graph2.html',
+      template: path.resolve(__dirname, './time-line-graph2/test.html'),
     }),
     new HtmlWebpackPlugin({
       chunks: ['test'],

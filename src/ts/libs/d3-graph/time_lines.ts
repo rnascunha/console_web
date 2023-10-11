@@ -4,12 +4,11 @@ import {
   type LineStyle,
   type CircleStyle,
   value_to_function,
-  attribute_to_value,
-  type AttributeValue,
   type Accessor,
 } from './types';
 import { calculate_multi_domain } from './helper';
 import type { Tooltip } from './tooltip';
+import { draw_circles, draw_lines } from './draw';
 
 export interface TimeLineGraphOptions {
   width: number;
@@ -20,6 +19,7 @@ export interface TimeLineGraphOptions {
   curve?: d3.CurveFactory | d3.CurveBundleFactory;
   line?: LineStyle;
   circle?: CircleStyle;
+  title?: string;
 }
 
 const default_line_style: LineStyle = {
@@ -71,6 +71,12 @@ export class TimeLinesGraph {
   private _y_index: number | string = 'value';
 
   private _tooltips?: Tooltip;
+  private readonly _title: d3.Selection<
+    SVGTextElement,
+    undefined,
+    null,
+    undefined
+  >;
 
   constructor() {
     this._svg = d3.create('svg');
@@ -80,6 +86,10 @@ export class TimeLinesGraph {
     this._line = d3.line<any>();
     this._x_axis = this._g.append('g');
     this._y_axis = this._g.append('g');
+    this._title = this._svg.append('g').append('text');
+
+    this._g.append('g').classed('--line-area', true);
+    this._g.append('g').classed('--circle-area', true);
   }
 
   get group(): d3.Selection<SVGGElement, undefined, null, undefined> {
@@ -116,6 +126,9 @@ export class TimeLinesGraph {
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.bottom + margin.top);
 
+    if (opt.title !== undefined)
+      title(this._title, opt.title, width + margin.left + margin.right);
+
     this._g.attr('transform', `translate(${margin.left}, ${margin.top})`);
 
     this._x.range([0, width]);
@@ -127,9 +140,6 @@ export class TimeLinesGraph {
       .y(d => this._y(d[this._y_index]));
 
     this._x_axis.attr('transform', `translate(0,${height})`);
-
-    this._g.append('g').classed('--line-area', true);
-    this._g.append('g').classed('--circle-area', true);
 
     return this.update(data);
   }
@@ -247,6 +257,9 @@ export class RightAxisTimeLinesGraph {
     this._y = d3.scaleLinear();
     this._line = d3.line<any>();
     this._y_axis = this._g.append('g');
+
+    this._g.append('g').classed('--line-right-area', true);
+    this._g.append('g').classed('--circle-right-area', true);
   }
 
   public draw(data: DateLineData[][], opt: TimeLineGraphOptions): void {
@@ -275,9 +288,6 @@ export class RightAxisTimeLinesGraph {
       .curve(curve)
       .x(d => this._x(d[this._x_index]))
       .y(d => this._y(d[this._y_index]));
-
-    this._g.append('g').classed('--line-right-area', true);
-    this._g.append('g').classed('--circle-right-area', true);
 
     this.update(data);
   }
@@ -395,65 +405,15 @@ export class RLTimeLinesGraph {
   }
 }
 
-function draw_lines(
-  select: d3.Selection<SVGGElement, undefined, null, undefined>,
-  data: DateLineData[][],
-  line: d3.Line<any>,
-  style_line: LineStyle
+function title(
+  select: d3.Selection<SVGTextElement, undefined, null, undefined>,
+  title: string,
+  width: number
 ): void {
   select
-    .selectAll('.--line')
-    .data(data)
-    .join(enter => enter.append('path').classed('--line', true))
-    .style('stroke-width', style_line['stroke-width'] as Accessor<number>)
-    .transition()
-    .attr('d', line)
-    .style('fill', 'none')
-    .style('stroke', style_line.stroke as Accessor<string>);
-}
-
-function draw_circles(
-  select: d3.Selection<SVGGElement, undefined, null, undefined>,
-  data: DateLineData[][],
-  x: (d: DateLineData) => number,
-  y: (d: DateLineData) => number,
-  style_circle: CircleStyle,
-  call?: (
-    d: d3.Selection<SVGCircleElement, DateLineData, SVGElement, undefined>
-  ) => any
-): void {
-  for (let i = 0; i < data.length; ++i) {
-    select
-      .selectAll(`.--circle-${i}`)
-      .data(data[i])
-      .join(enter =>
-        enter
-          .append('circle')
-          .classed(`--circle`, true)
-          .classed(`--circle-${i}`, true)
-          .call(call === undefined ? () => {} : call)
-      )
-      .attr(
-        'stroke',
-        attribute_to_value(style_circle.stroke as AttributeValue<string>, i)
-      )
-      .attr(
-        'stroke-width',
-        attribute_to_value(
-          style_circle['stroke-width'] as AttributeValue<number>,
-          i
-        )
-      )
-      .attr(
-        'r',
-        attribute_to_value(style_circle.r as AttributeValue<number>, i)
-      )
-      .attr(
-        'fill',
-        attribute_to_value(style_circle.fill as AttributeValue<string>, i)
-      )
-      .transition()
-      .attr('cx', x)
-      .attr('cy', y);
-  }
+    .attr('transform', `translate(${width / 2}, 0)`)
+    .style('text-anchor', 'middle')
+    .style('fill', 'black')
+    .style('alignment-baseline', 'hanging')
+    .html(title);
 }
