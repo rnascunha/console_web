@@ -24,7 +24,7 @@ const random_all = $('#random-all') as HTMLElement;
 const line_opts = $('#lines-options') as HTMLSelectElement;
 // const stroke_width = $('#stroke-width') as HTMLInputElement;
 
-const margin = { top: 20, bottom: 40, left: 30, right: 20 };
+const margin = { top: 20, bottom: 40, left: 40, right: 40 };
 // const width = graph_el.clientWidth - margin.left - margin.right;
 // const height = graph_el.clientHeight - margin.bottom - margin.top;
 
@@ -33,6 +33,7 @@ const number_lines = 2;
 const graph = new Graph();
 
 const data: Data[][] = [];
+const data2: Data[][] = [];
 
 Object.entries(curves)
   // .filter(([k, v]) => !v.is_close)
@@ -55,10 +56,12 @@ add.addEventListener('click', () => {
     return;
   }
 
-  data.forEach((d, i) => {
-    d.push({
-      date: new Date(),
-      value: i === 0 ? +value.value : simple_random(),
+  [data, data2].forEach(dd => {
+    dd.forEach((d, i) => {
+      d.push({
+        date: new Date(),
+        value: i === 0 ? +value.value : simple_random(),
+      });
     });
   });
 
@@ -79,15 +82,19 @@ clear.addEventListener('click', () => {
 });
 
 remove_first.addEventListener('click', () => {
-  data.forEach(d => {
-    d.splice(0, 1);
+  [data, data2].forEach(dd => {
+    dd.forEach(d => {
+      d.splice(0, 1);
+    });
   });
   update_graph();
 });
 
 remove_last.addEventListener('click', () => {
-  data.forEach(d => {
-    d.splice(d.length - 1, 1);
+  [data, data2].forEach(dd => {
+    dd.forEach(d => {
+      d.splice(d.length - 1, 1);
+    });
   });
   update_graph();
 });
@@ -100,7 +107,7 @@ randonize();
 create_graph();
 
 function update_graph(): void {
-  graph.data(data);
+  graph.data(data, data2);
 }
 
 function create_graph(): void {
@@ -110,7 +117,7 @@ function create_graph(): void {
       .draw(graph_el, {
         margin,
       })
-      .data(data)
+      .data(data, data2)
       .node() as SVGSVGElement
   );
 
@@ -141,15 +148,20 @@ function randonize(): void {
 }
 
 function randonize_all_values(): void {
-  for (const arr of data) {
-    arr.forEach(d => {
-      d.value = simple_random();
-    });
-  }
+  [data, data2].forEach(dd => {
+    for (const arr of dd) {
+      arr.forEach(d => {
+        d.value = simple_random();
+      });
+    }
+  });
 }
 
 function create_data(): void {
   data.splice(0, data.length);
   for (let i = 0; i < number_lines; ++i)
     data.push([{ date: new Date(), value: simple_random() }]);
+
+  data2.splice(0, data2.length);
+  data2.push([{ date: new Date(), value: simple_random() }]);
 }

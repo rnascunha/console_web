@@ -1,4 +1,5 @@
 import type { Accessor } from './types';
+import { scaleTime, scaleLinear } from 'd3';
 
 type RangeType = [number, number];
 type DomainType<D> = (d: readonly any[], accessor: Accessor<D, any>) => [D, D];
@@ -39,5 +40,23 @@ export class Scale<D, T extends ScaleType<D>> {
   public data(d: readonly unknown[], accessor: Accessor<D, any>): void {
     this._scale.domain(this._domain(d, accessor));
     if (this._opt.nice === true) this._scale.nice();
+  }
+}
+
+export class ScaleTime extends Scale<
+  Date,
+  d3.ScaleTime<number, number, never>
+> {
+  constructor(domain: DomainType<Date>, opt: ScaleOptions = {}) {
+    super(scaleTime(), domain, opt);
+  }
+}
+
+export class ScaleLinear extends Scale<
+  number,
+  d3.ScaleLinear<number, number, never>
+> {
+  constructor(domain: DomainType<number>, opt: ScaleOptions = {}) {
+    super(scaleLinear(), domain, opt);
   }
 }

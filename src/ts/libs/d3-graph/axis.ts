@@ -1,10 +1,16 @@
+import type { ElementConfig } from './attributes';
+import { call_label } from './axis_labels';
 import * as d3 from 'd3';
+import type {
+  LabelPosition,
+  LabelPlace,
+  AxisPosition,
+  Dimension,
+} from './types';
 
-export enum AxisPosition {
-  TOP = 'top',
-  RIGHT = 'right',
-  BOTTOM = 'bottom',
-  LEFT = 'left',
+export interface LabelConfig extends ElementConfig {
+  position?: LabelPosition;
+  place?: LabelPlace;
 }
 
 export class Axis<Domain extends d3.AxisDomain> {
@@ -15,26 +21,68 @@ export class Axis<Domain extends d3.AxisDomain> {
     this._axis = d3.select(el).append('g');
   }
 
+  get element(): d3.Selection<SVGGElement, unknown, null, undefined> {
+    return this._axis;
+  }
+
   public draw(pos: AxisPosition, width: number, height: number): void {
     switch (pos) {
-      case AxisPosition.RIGHT:
+      case 'right':
         this._axis.attr('transform', `translate(${width},0)`);
         this._draw_axis = d3.axisRight;
         break;
-      case AxisPosition.BOTTOM:
+      case 'bottom':
         this._axis.attr('transform', `translate(0,${height})`);
         this._draw_axis = d3.axisBottom;
         break;
-      case AxisPosition.TOP:
+      case 'top':
         this._draw_axis = d3.axisTop;
         break;
-      case AxisPosition.LEFT:
+      case 'left':
         this._draw_axis = d3.axisLeft;
         break;
     }
   }
 
+  public label(
+    label: string,
+    dim: Dimension,
+    {
+      position = 'middle',
+      place = 'outside',
+      attr = {},
+      style = {},
+      transition = {},
+    }: LabelConfig = {}
+  ): d3.Selection<SVGTextElement, unknown, null, undefined> {
+    return call_label(
+      this._axis,
+      label,
+      {
+        position,
+        place,
+        axis: this.get_axis(),
+        dim,
+      },
+      { attr, style, transition }
+    );
+  }
+
   public data(scale: d3.AxisScale<Domain>): void {
     if (this._draw_axis !== undefined) this._axis.call(this._draw_axis(scale));
+  }
+
+  private get_axis(): AxisPosition {
+    switch (this._draw_axis) {
+      case d3.axisBottom:
+        return 'bottom';
+      case d3.axisTop:
+        return 'top';
+      case d3.axisLeft:
+        return 'left';
+      case d3.axisRight:
+        return 'right';
+    }
+    throw new Error('Invalid axis');
   }
 }

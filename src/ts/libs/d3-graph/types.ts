@@ -7,10 +7,20 @@ export interface Margin {
   right: number;
 }
 
+export interface Dimension {
+  width: number;
+  height: number;
+  margin: Margin;
+}
+
 interface LineDefinition {
   line: d3.CurveFactory | d3.CurveBundleFactory;
   is_close: boolean;
 }
+
+export type AxisPosition = 'top' | 'right' | 'bottom' | 'left';
+export type LabelPosition = 'start' | 'middle' | 'end';
+export type LabelPlace = 'inside' | 'outside' | 'top';
 
 // https://github.com/d3/d3-shape#curves
 export const curves: Record<string, LineDefinition> = {
