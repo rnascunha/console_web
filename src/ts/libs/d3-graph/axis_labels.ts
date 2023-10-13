@@ -1,11 +1,13 @@
 import type { Selection, BaseType } from 'd3';
 import { element_config, type ElementConfig } from './attributes';
-import type {
-  LabelPosition,
-  AxisPosition,
-  LabelPlace,
-  Dimension,
+import {
+  type LabelPosition,
+  type AxisPosition,
+  type LabelPlace,
+  type Dimension,
+  default_classes,
 } from './types';
+import { add_class_config } from './helper';
 
 type Select<T> = Selection<T & BaseType, unknown, null, undefined>;
 
@@ -92,7 +94,7 @@ export const label_config: LabelFunction = {
   },
 } as const;
 
-export function call_label(
+export function draw_label(
   g: Select<SVGGElement>,
   label: string,
   val: {
@@ -105,6 +107,7 @@ export function call_label(
 ): Select<SVGTextElement> {
   const func = label_config[val.axis][val.place][val.position];
   if (func === undefined) throw new Error('Invalid label config');
+  add_class_config(default_classes.axis_label, config);
   return func(g, label, val.dim, config);
 }
 
@@ -145,7 +148,7 @@ export function label_left_start_outside(
   return g
     .append('text')
     .attr('transform', `translate(0, ${dim.height}) rotate(-90)`)
-    .attr('dy', -dim.margin.left)
+    .attr('y', -dim.margin.left)
     .attr('fill', 'black')
     .style('text-anchor', 'start')
     .style('alignment-baseline', 'hanging')
@@ -164,7 +167,7 @@ export function label_left_start_inside(
     .attr('transform', `translate(0, ${dim.height}) rotate(90)`)
     .style('text-anchor', 'end')
     .attr('fill', 'black')
-    .attr('dy', -2)
+    .attr('y', -2)
     .call(element_config, config)
     .html(label);
 }
@@ -178,7 +181,7 @@ export function label_left_middle_outside(
   return g
     .append('text')
     .attr('transform', `translate(0, ${dim.height / 2}) rotate(-90)`)
-    .attr('dy', -dim.margin.left)
+    .attr('y', -dim.margin.left)
     .attr('fill', 'black')
     .style('text-anchor', 'middle')
     .style('alignment-baseline', 'hanging')
@@ -195,7 +198,7 @@ export function label_left_middle_inside(
   return g
     .append('text')
     .attr('transform', `translate(0, ${dim.height / 2}) rotate(90)`)
-    .attr('dy', -2)
+    .attr('y', -2)
     .attr('fill', 'black')
     .style('text-anchor', 'middle')
     .call(element_config, config)
@@ -211,7 +214,7 @@ export function label_left_end_outside(
   return g
     .append('text')
     .attr('transform', 'rotate(-90)')
-    .attr('dy', -dim.margin.left)
+    .attr('y', -dim.margin.left)
     .attr('fill', 'black')
     .style('text-anchor', 'end')
     .style('alignment-baseline', 'hanging')
@@ -228,7 +231,7 @@ export function label_left_end_inside(
   return g
     .append('text')
     .attr('transform', 'rotate(90)')
-    .attr('dy', -2)
+    .attr('y', -2)
     .attr('fill', 'black')
     .style('text-anchor', 'start')
     .call(element_config, config)
@@ -244,7 +247,7 @@ export function label_bottom_middle(
   return g
     .append('text')
     .attr('transform', `translate(${dim.width / 2}, 0)`)
-    .attr('dy', dim.margin.bottom)
+    .attr('y', dim.margin.bottom)
     .attr('fill', 'black')
     .style('text-anchor', 'middle')
     .call(element_config, config)
@@ -260,7 +263,7 @@ export function label_bottom_end(
   return g
     .append('text')
     .attr('transform', `translate(${dim.width}, 0)`)
-    .attr('dy', dim.margin.bottom)
+    .attr('y', dim.margin.bottom)
     .attr('fill', 'black')
     .style('text-anchor', 'end')
     .call(element_config, config)
@@ -275,7 +278,7 @@ export function label_bottom_start(
 ): Select<SVGTextElement> {
   return g
     .append('text')
-    .attr('dy', dim.margin.bottom)
+    .attr('y', dim.margin.bottom)
     .attr('fill', 'black')
     .style('text-anchor', 'start')
     .call(element_config, config)
@@ -291,7 +294,7 @@ export function label_right_start_outside(
   return g
     .append('text')
     .attr('transform', `translate(0, ${dim.height}) rotate(90)`)
-    .attr('dy', -dim.margin.right)
+    .attr('y', -dim.margin.right)
     .attr('fill', 'black')
     .style('text-anchor', 'end')
     .style('alignment-baseline', 'hanging')
@@ -308,7 +311,7 @@ export function label_right_start_inside(
   return g
     .append('text')
     .attr('transform', `translate(0, ${dim.height}) rotate(-90)`)
-    .attr('dy', -2)
+    .attr('y', -2)
     .attr('fill', 'black')
     .style('text-anchor', 'start')
     .call(element_config, config)
@@ -324,7 +327,7 @@ export function label_right_middle_outside(
   return g
     .append('text')
     .attr('transform', `translate(0, ${dim.height / 2}) rotate(90)`)
-    .attr('dy', -dim.margin.right)
+    .attr('y', -dim.margin.right)
     .attr('fill', 'black')
     .style('text-anchor', 'middle')
     .style('alignment-baseline', 'hanging')
@@ -341,7 +344,7 @@ export function label_right_middle_inside(
   return g
     .append('text')
     .attr('transform', `translate(0, ${dim.height / 2}) rotate(-90)`)
-    .attr('dy', -2)
+    .attr('y', -2)
     .attr('fill', 'black')
     .style('text-anchor', 'middle')
     .call(element_config, config)
@@ -357,7 +360,7 @@ export function label_right_end_outside(
   return g
     .append('text')
     .attr('transform', 'rotate(90)')
-    .attr('dy', -dim.margin.right)
+    .attr('y', -dim.margin.right)
     .attr('fill', 'black')
     .style('text-anchor', 'start')
     .style('alignment-baseline', 'hanging')
@@ -374,7 +377,7 @@ export function label_right_end_inside(
   return g
     .append('text')
     .attr('transform', `rotate(-90)`)
-    .attr('dy', -2)
+    .attr('y', -2)
     .attr('fill', 'black')
     .style('text-anchor', 'end')
     .call(element_config, config)

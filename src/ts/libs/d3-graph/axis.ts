@@ -1,5 +1,5 @@
 import type { ElementConfig } from './attributes';
-import { call_label } from './axis_labels';
+import { draw_label } from './axis_labels';
 import * as d3 from 'd3';
 import type {
   LabelPosition,
@@ -55,7 +55,7 @@ export class Axis<Domain extends d3.AxisDomain> {
       transition = {},
     }: LabelConfig = {}
   ): d3.Selection<SVGTextElement, unknown, null, undefined> {
-    return call_label(
+    return draw_label(
       this._axis,
       label,
       {

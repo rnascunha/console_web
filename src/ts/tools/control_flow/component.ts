@@ -19,10 +19,8 @@ import {
 } from '../../helper/time';
 import { download } from '../../helper/download';
 import { is_secure_connection } from '../../helper/protocol';
-import type { RLTimeLineGraphComponent } from '../../golden-components/time_line_graph';
-import type { DateLineData } from '../../libs/d3-graph/time_lines';
 import { pack32 } from '../../helper/pack';
-import { Tooltip } from '../../libs/d3-graph/tooltip';
+import { ControlFlowGraph } from './graph';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -172,7 +170,7 @@ interface ControlFlowOptions {
   limit?: number;
 }
 
-interface ControlFlowData {
+export interface ControlFlowData {
   date: Date;
   volume: number;
   flow_instant: number;
@@ -190,7 +188,6 @@ export class ControlFlowComponent extends ComponentBase {
   private _valve_open_time: number = 0;
 
   private readonly _data: ControlFlowData[][] = [];
-  private _graph_component?: RLTimeLineGraphComponent;
 
   private readonly _state: ControlFlowOptions = {};
 
@@ -201,6 +198,8 @@ export class ControlFlowComponent extends ComponentBase {
   ) => void;
 
   private readonly _display: DataDisplay;
+
+  private readonly _graph: ControlFlowGraph = new ControlFlowGraph();
 
   constructor(
     container: ComponentContainer,
@@ -326,7 +325,7 @@ export class ControlFlowComponent extends ComponentBase {
 
         // Data
         this.compute_data(resp);
-        this.update_graph();
+        this._graph.update_graph(this._data);
 
         // Time
         if (this._valve_state === State.CLOSE && resp.state === State.OPEN) {
@@ -416,8 +415,7 @@ export class ControlFlowComponent extends ComponentBase {
 
     this.container.on('beforeComponentRelease', () => {
       if (this._ws !== undefined) this._ws.close();
-      if (this._graph_component !== undefined)
-        this._graph_component.container.close();
+      this._graph.close();
     });
 
     this.container.on('open', () => {
@@ -426,7 +424,7 @@ export class ControlFlowComponent extends ComponentBase {
     });
 
     shadow.querySelector('#time-line-graph')?.addEventListener('click', ev => {
-      this.create_graph();
+      this._graph.create_graph(this.container.layoutManager, this._data);
     });
   }
 
@@ -510,93 +508,6 @@ export class ControlFlowComponent extends ComponentBase {
     window.console_app.set_tool_state('control_flow', this._state, true);
   }
 
-  private create_graph(): void {
-    if (this._graph_component !== undefined) {
-      this._graph_component.container.focus();
-      return;
-    }
-    const margin = { top: 20, bottom: 40, left: 30, right: 40 };
-    this._graph_component = this.container.layoutManager.newComponentAtLocation(
-      'RLTimeLineGraphComponent',
-      [
-        {
-          margin,
-          title: '&#8701; Flow Rate / Volume &#8702;',
-        },
-        {
-          line: {
-            stroke: 'yellow',
-          },
-          circle: {
-            stroke: 'yellow',
-            fill: 'yellow',
-          },
-        },
-      ],
-      'Control Flow Graph'
-    )?.component as RLTimeLineGraphComponent;
-
-    const labels = (): void => {
-      this._graph_component?.graph
-        .x_label('Time')
-        .attr('y', margin.bottom)
-        .attr('dy', -0.2 * margin.bottom)
-        .style('fill', 'black')
-        .style('font-size', '14px')
-        .style('font-weight', 'bold')
-        .style('text-anchor', 'middle');
-
-      this._graph_component?.graph
-        .y_label('Flow Rate (L / min)')
-        .attr('dy', -5)
-        .attr('transform', 'rotate(90)')
-        .style('font-size', '14px')
-        .style('fill', 'black')
-        .style('font-weight', 'bold')
-        .style('text-anchor', 'start');
-
-      this._graph_component?.graph
-        .ry_label('Volume (ml)')
-        .attr('transform', 'rotate(-90)')
-        .attr('dy', -5)
-        .style('fill', 'black')
-        .style('font-size', '14px')
-        .style('font-weight', 'bold')
-        .style('text-anchor', 'end');
-    };
-
-    const tt = new Tooltip(
-      this._graph_component.rootHtmlElement,
-      (ev, d) =>
-        `${time_format((d as DateLineData).date as Date)}: ${(
-          (d as DateLineData).value as number
-        ).toFixed(2)}`
-    );
-    const tooltip = (): void => {
-      this._graph_component?.graph.set_tooltips(tt);
-    };
-
-    labels();
-    tooltip();
-
-    this.update_graph();
-
-    this._graph_component.container.on('beforeComponentRelease', () => {
-      this._graph_component = undefined;
-    });
-  }
-
-  private update_graph(): void {
-    if (this._graph_component === undefined) return;
-
-    const data = this.compute_graph_data();
-    if (data === undefined) return;
-    this._graph_component.update([
-      [data.flow_instant, data.flow_mean],
-      [data.volume],
-    ]);
-  }
-
   private compute_data(resp: ControlFlowStateResponse): void {
     const volume = (1000 * resp.pulses) / this._k_ratio;
     if (this._valve_state === State.CLOSE && resp.state === State.OPEN) {
@@ -633,30 +544,6 @@ export class ControlFlowComponent extends ComponentBase {
       });
     }
   }
-
-  private compute_graph_data(): {
-    volume: DateLineData[];
-    flow_instant: DateLineData[];
-    flow_mean: DateLineData[];
-  } {
-    if (this._data.length === 0) {
-      return {
-        volume: [],
-        flow_instant: [],
-        flow_mean: [],
-      };
-    }
-    const data = this._data[this._data.length - 1];
-    const volume = compute_date_line_graph_data(data, 'volume');
-    const flow_instant = compute_date_line_graph_data(data, 'flow_instant');
-    const flow_mean = compute_date_line_graph_data(data, 'flow_mean');
-
-    return {
-      volume,
-      flow_instant,
-      flow_mean,
-    };
-  }
 }
 
 function state_name(state: State): string {
@@ -666,16 +553,6 @@ function state_name(state: State): string {
 function error_name(error: ErrorDescription): string {
   const val = Object.values(ErrorDescription)[error as number];
   return val !== undefined ? (val as string) : 'Urecognized';
-}
-
-function compute_date_line_graph_data(
-  data: ControlFlowData[],
-  index: keyof ControlFlowData
-): DateLineData[] {
-  return data.reduce<DateLineData[]>((acc, d) => {
-    acc.push({ date: d.date, value: d[index] as number });
-    return acc;
-  }, []);
 }
 
 function flow_rate_to_liters_per_minute(

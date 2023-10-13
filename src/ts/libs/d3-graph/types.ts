@@ -46,6 +46,11 @@ export const curves: Record<string, LineDefinition> = {
   step_before: { line: d3.curveStepBefore, is_close: false },
 };
 
+export const default_classes = {
+  title: '--graph-title',
+  axis_label: '--axis-label',
+} as const;
+
 export type Accessor<T, D = any> = (d: D, i: number) => T;
 export type AttributeValue<T, D = any> = T | readonly T[] | Accessor<T, D>;
 

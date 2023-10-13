@@ -1,11 +1,10 @@
 import { ComponentBase } from './component-base';
 import type { ComponentContainer, JsonValue } from 'golden-layout';
 import {
-  TimeLinesGraph,
-  RLTimeLinesGraph,
-  type TimeLineGraphOptions,
-  type DateLineData,
-} from '../libs/d3-graph/time_lines';
+  Time2AxisLineGraph,
+  type Data,
+  type Time2AxisLineGraphOptions,
+} from '../libs/d3-graph/time_2_axis_line_graph';
 
 const template = (function () {
   const template = document.createElement('template');
@@ -21,11 +20,11 @@ const template = (function () {
   return template;
 })();
 
-export class TimeLineGraphComponent extends ComponentBase {
+export class Time2AxisLineGraphComponent extends ComponentBase {
   private readonly _graph_el: HTMLElement;
-  private _graph: TimeLinesGraph;
-  private _data?: DateLineData[][];
-  private readonly _opt_graph: Partial<TimeLineGraphOptions>;
+  private readonly _graph: Time2AxisLineGraph;
+  private _data: [Data[][], Data[][]] = [[], []];
+  private readonly _opt_graph: Time2AxisLineGraphOptions;
 
   constructor(
     container: ComponentContainer,
@@ -34,128 +33,45 @@ export class TimeLineGraphComponent extends ComponentBase {
   ) {
     super(container, virtual);
 
-    this._opt_graph = state as Partial<TimeLineGraphOptions>;
+    this._opt_graph = state as Time2AxisLineGraphOptions;
 
     this.rootHtmlElement.appendChild(template.content.cloneNode(true));
     this._graph_el = this.rootHtmlElement.querySelector(
       '#graph'
     ) as HTMLElement;
-    this._graph = new TimeLinesGraph();
+    this._graph = new Time2AxisLineGraph();
 
     this.container.on('resize', () => {
-      this.resize();
+      setTimeout(() => {
+        this.draw();
+      }, 1);
     });
 
     this.container.on('maximised', () => {
-      this.resize();
+      setTimeout(() => {
+        this.draw();
+      }, 1);
     });
 
     this.container.on('open', () => {
       setTimeout(() => {
         this.draw();
+        this._graph_el.appendChild(this._graph.node.node() as SVGSVGElement);
       }, 1);
     });
   }
 
-  get graph(): TimeLinesGraph {
+  get graph(): Time2AxisLineGraph {
     return this._graph;
   }
 
   private draw(): void {
-    const margin = this._opt_graph.margin ?? {
-      top: 20,
-      left: 40,
-      bottom: 40,
-      right: 20,
-    };
-    const width = this._graph_el.clientWidth - margin.left - margin.right;
-    const height = this._graph_el.clientHeight - margin.top - margin.bottom;
-    const new_opt = { ...this._opt_graph, margin, width, height };
-
-    this._graph_el.appendChild(this._graph.draw(this._data ?? [], new_opt));
+    this._graph.draw(this._graph_el, this._opt_graph);
+    this._graph.data(this._data[0], this._data[1]);
   }
 
-  private resize(): void {
-    this._graph_el.innerHTML = '';
-    this._graph = new TimeLinesGraph();
-    this.draw();
-  }
-
-  public update(data: DateLineData[][]): void {
-    this._graph.update(data);
-    this._data = data;
-  }
-}
-
-export class RLTimeLineGraphComponent extends ComponentBase {
-  private readonly _graph_el: HTMLElement;
-  private readonly _graph: RLTimeLinesGraph;
-  private _data?: [DateLineData[][], DateLineData[][]];
-  private readonly _opt_graph: [
-    Partial<TimeLineGraphOptions>,
-    Partial<TimeLineGraphOptions>
-  ];
-
-  constructor(
-    container: ComponentContainer,
-    state: JsonValue | undefined,
-    virtual: boolean
-  ) {
-    super(container, virtual);
-
-    this._opt_graph = state as [
-      Partial<TimeLineGraphOptions>,
-      Partial<TimeLineGraphOptions>
-    ];
-
-    this.rootHtmlElement.appendChild(template.content.cloneNode(true));
-    this._graph_el = this.rootHtmlElement.querySelector(
-      '#graph'
-    ) as HTMLElement;
-    this._graph = new RLTimeLinesGraph();
-
-    this.container.on('resize', () => {
-      this.resize();
-    });
-
-    this.container.on('maximised', () => {
-      this.resize();
-    });
-
-    this.container.on('open', () => {
-      setTimeout(() => {
-        this.draw();
-      }, 1);
-    });
-  }
-
-  get graph(): RLTimeLinesGraph {
-    return this._graph;
-  }
-
-  private draw(): void {
-    const margin = this._opt_graph[0].margin ?? {
-      top: 20,
-      left: 40,
-      bottom: 40,
-      right: 40,
-    };
-    const width = this._graph_el.clientWidth - margin.left - margin.right;
-    const height = this._graph_el.clientHeight - margin.top - margin.bottom;
-    const new_opt = { ...this._opt_graph[0], margin, width, height };
-    const new_opt2 = { ...this._opt_graph[1], margin, width, height };
-
-    this._graph_el.appendChild(
-      this._graph.draw(this._data ?? [[], []], [new_opt, new_opt2])
-    );
-  }
-
-  private resize(): void {
-    this.draw();
-  }
-
-  public update(data: [DateLineData[][], DateLineData[][]]): void {
-    this._graph.update(data);
+  public update(data: [Data[][], Data[][]]): void {
+    this._graph.data(data[0], data[1]);
     this._data = data;
   }
 }

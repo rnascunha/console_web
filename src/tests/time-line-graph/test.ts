@@ -1,12 +1,12 @@
-import {
-  type DateLineData,
-  TimeLinesGraph,
-  RightAxisTimeLinesGraph,
-} from '../../ts/libs/d3-graph/time_lines';
-import { curves } from '../../ts/libs/d3-graph/types';
 import * as d3 from 'd3';
-import { time } from '../../ts/helper/time';
-import { Tooltip } from '../../ts/libs/d3-graph/tooltip';
+import { curves } from '../../ts/libs/d3-graph/types';
+import { time as time_format } from '../../ts/helper/time';
+
+import {
+  Time2AxisLineGraph,
+  type Data,
+  type Time2AxisLineGraphOptions,
+} from '../../ts/libs/d3-graph/time_2_axis_line_graph';
 
 const $ = document.querySelector.bind(document);
 
@@ -20,19 +20,265 @@ const random = $('#random') as HTMLElement;
 const random_check = $('#random-after') as HTMLInputElement;
 const random_all = $('#random-all') as HTMLElement;
 const line_opts = $('#lines-options') as HTMLSelectElement;
-const stroke_width = $('#stroke-width') as HTMLInputElement;
-
-const margin = { top: 20, bottom: 40, left: 30, right: 20 };
-const width = graph_el.clientWidth - margin.left - margin.right;
-const height = graph_el.clientHeight - margin.bottom - margin.top;
 
 const number_lines = 2;
 
-const graph = new TimeLinesGraph();
-const rgraph = new RightAxisTimeLinesGraph(graph.group, graph.x);
+const graph = new Time2AxisLineGraph();
 
-const data: DateLineData[][] = [];
-const rdata: DateLineData[][] = [];
+const data: Data[][] = [];
+const data2: Data[][] = [];
+
+const axis_label_config = {
+  attr: {
+    fill: 'black',
+  },
+  style: {
+    'font-size': 14,
+  },
+};
+
+const graph_config: Time2AxisLineGraphOptions = {
+  margin: { top: 20, bottom: 40, left: 40, right: 40 },
+  line: [
+    {
+      attr: {
+        fill: 'none',
+        'stroke-width': 1.5,
+        stroke: d3.schemeCategory10,
+      },
+    },
+    {
+      attr: {
+        fill: 'none',
+        'stroke-width': 1.5,
+        stroke: d3.schemeCategory10.slice(number_lines),
+      },
+    },
+  ],
+  circle: [
+    {
+      group: {
+        attr: {
+          fill: d3.schemeCategory10,
+        },
+      },
+      circle: {
+        attr: {
+          r: 1,
+        },
+        transition: {
+          duration: 2000,
+          attr: {
+            r: 10,
+          },
+        },
+      },
+    },
+    {
+      group: {
+        attr: {
+          fill: d3.schemeCategory10.slice(2),
+        },
+      },
+      circle: {
+        attr: {
+          r: 1,
+        },
+        transition: {
+          duration: 2000,
+          attr: {
+            r: 10,
+          },
+        },
+      },
+    },
+  ],
+  title: {
+    top: {
+      text: 'Top Title',
+      config: {
+        style: {
+          fill: 'black',
+          'font-size': 16,
+        },
+      },
+    },
+    bottom: {
+      text: 'Bottom Title',
+      config: {
+        style: {
+          fill: 'black',
+          'font-size': 16,
+        },
+      },
+    },
+  },
+  label: [
+    {
+      axis: 'left',
+      label: 'Left Start Outside',
+      config: {
+        position: 'start',
+        place: 'outside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'left',
+      label: 'Left Middle Outside',
+      config: {
+        position: 'middle',
+        place: 'outside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'left',
+      label: 'Left End Outside',
+      config: {
+        position: 'end',
+        place: 'outside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'left',
+      label: 'Left Start Inside',
+      config: {
+        position: 'start',
+        place: 'inside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'left',
+      label: 'Left Middle Inside',
+      config: {
+        position: 'middle',
+        place: 'inside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'left',
+      label: 'Left End Inside',
+      config: {
+        position: 'end',
+        place: 'inside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'left',
+      label: 'Left Top',
+      config: {
+        position: 'start',
+        place: 'top',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'bottom',
+      label: 'Start Bottom Outside',
+      config: {
+        position: 'start',
+        place: 'outside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'bottom',
+      label: 'Middle Bottom Outside',
+      config: {
+        position: 'middle',
+        place: 'outside',
+        attr: {
+          ...axis_label_config.attr,
+          dy: -12,
+        },
+        style: {
+          ...axis_label_config.style,
+        },
+      },
+    },
+    {
+      axis: 'bottom',
+      label: 'Middle Bottom Outside',
+      config: {
+        position: 'end',
+        place: 'outside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'right',
+      label: 'Right Start Outside',
+      config: {
+        position: 'start',
+        place: 'outside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'right',
+      label: 'Right Middle Outside',
+      config: {
+        position: 'middle',
+        place: 'outside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'right',
+      label: 'Right End Outside',
+      config: {
+        position: 'end',
+        place: 'outside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'right',
+      label: 'Right Start Inside',
+      config: {
+        position: 'start',
+        place: 'inside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'right',
+      label: 'Right Middle Inside',
+      config: {
+        position: 'middle',
+        place: 'inside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'right',
+      label: 'Right End Inside',
+      config: {
+        position: 'end',
+        place: 'inside',
+        ...axis_label_config,
+      },
+    },
+    {
+      axis: 'right',
+      label: 'Right Top',
+      config: {
+        position: 'start',
+        place: 'top',
+        ...axis_label_config,
+      },
+    },
+  ],
+  tooltip: {
+    on: (ev, d) => `${time_format((d as Data).date)}: ${(d as Data).value}`,
+    config: { style: { transition: 'opacity 1s' } },
+  },
+};
 
 Object.entries(curves)
   // .filter(([k, v]) => !v.is_close)
@@ -55,21 +301,16 @@ add.addEventListener('click', () => {
     return;
   }
 
-  data.forEach((d, i) => {
-    d.push({
-      date: new Date(),
-      value: i === 0 ? +value.value : simple_random(),
+  [data, data2].forEach(dd => {
+    dd.forEach((d, i) => {
+      d.push({
+        date: new Date(),
+        value: i === 0 ? +value.value : simple_random(),
+      });
     });
   });
 
   if (random_check.checked) randonize();
-
-  rdata.forEach((d, i) => {
-    d.push({
-      date: new Date(),
-      value: i === 0 ? +value.value : simple_random(),
-    });
-  });
 
   update_graph();
   if (random_check.checked) randonize();
@@ -86,106 +327,35 @@ clear.addEventListener('click', () => {
 });
 
 remove_first.addEventListener('click', () => {
-  data.forEach(d => {
-    d.splice(0, 1);
-  });
-  rdata.forEach(d => {
-    d.splice(0, 1);
+  [data, data2].forEach(dd => {
+    dd.forEach(d => {
+      d.splice(0, 1);
+    });
   });
   update_graph();
 });
 
 remove_last.addEventListener('click', () => {
-  data.forEach(d => {
-    d.splice(d.length - 1, 1);
-  });
-  rdata.forEach(d => {
-    d.splice(d.length - 1, 1);
+  [data, data2].forEach(dd => {
+    dd.forEach(d => {
+      d.splice(d.length - 1, 1);
+    });
   });
   update_graph();
-});
-
-stroke_width.addEventListener('change', () => {
-  graph.style_line('stroke-width', +stroke_width.value);
 });
 
 randonize();
 create_graph();
 
 function update_graph(): void {
-  graph.update(data);
-  rgraph.update(rdata);
+  graph.data(data, data2);
 }
 
 function create_graph(): void {
   graph_el.innerHTML = '';
   graph_el.appendChild(
-    graph.draw(data, {
-      width,
-      height,
-      margin,
-      curve: curves[line_opts.value].line,
-      circle: {
-        r: (d, i) => i * 1,
-        'stroke-width': 1.5,
-        stroke: d3.schemeAccent,
-      },
-      line: {
-        stroke: d3.schemeDark2,
-        'stroke-width': 2, // eslint-disable-line
-      },
-    })
+    graph.draw(graph_el, graph_config).data(data, data2).node() as SVGSVGElement
   );
-  rgraph.draw(rdata, {
-    width,
-    height,
-    margin,
-    curve: curves[line_opts.value].line,
-    circle: {
-      r: 5,
-      'stroke-width': 1.5,
-      stroke: d3.schemeAccent,
-    },
-    line: {
-      stroke: d3.schemeDark2,
-      'stroke-width': 2, // eslint-disable-line
-    },
-  });
-
-  const tt = new Tooltip(
-    graph_el,
-    (ev, d) =>
-      `${time((d as DateLineData).date as Date)}: ${
-        (d as DateLineData).value as number
-      }`
-  );
-  graph.set_tooltips(tt);
-  rgraph.set_tooltips(tt);
-
-  graph
-    .x_label('Time')
-    .attr('x', width / 2)
-    .attr('y', margin.bottom)
-    .attr('dy', -0.1 * margin.bottom)
-    .style('text-anchor', 'middle')
-    .style('fill', 'black')
-    .style('font-size', '14px');
-
-  graph
-    .y_label('Random number')
-    .attr('dy', -5)
-    .attr('transform', 'rotate(90)')
-    .style('font-size', '14px')
-    .style('fill', 'black')
-    .style('text-anchor', 'start');
-
-  rgraph
-    .ry_label('Other random number')
-    .attr('transform', 'rotate(-90)')
-    .attr('dy', -5)
-    .style('fill', 'black')
-    .style('font-size', '14px')
-    .style('text-anchor', 'end');
 }
 
 function simple_random(): number {
@@ -197,23 +367,25 @@ function randonize(): void {
 }
 
 function randonize_all_values(): void {
-  for (const arr of data) {
-    arr.forEach(d => {
-      d.value = simple_random();
-    });
-  }
-
-  for (const arr of rdata) {
-    arr.forEach(d => {
-      d.value = simple_random();
-    });
-  }
+  [data, data2].forEach(dd => {
+    for (const arr of dd) {
+      arr.forEach(d => {
+        d.value = simple_random();
+      });
+    }
+  });
 }
 
 function create_data(): void {
   data.splice(0, data.length);
   for (let i = 0; i < number_lines; ++i)
     data.push([{ date: new Date(), value: simple_random() }]);
-  rdata.splice(0, rdata.length);
-  rdata.push([{ date: new Date(), value: simple_random() }]);
+
+  data2.splice(0, data2.length);
+  data2.push([{ date: new Date(), value: simple_random() }]);
 }
+
+window.addEventListener('resize', ev => {
+  console.log('resize');
+  graph.draw(graph_el, graph_config).data(data, data2);
+});

@@ -3,7 +3,7 @@ type StyleValue = string | number | boolean;
 type ConfigFunction<T> = (d: unknown, i: number) => T;
 type Arguments<T> = T | readonly T[] | ConfigFunction<T>;
 type AttributeList = Record<string, Arguments<AttributeValue>>;
-export type StyleList = Record<string, Arguments<StyleValue>>;
+type StyleList = Record<string, Arguments<StyleValue>>;
 type TransitionAttributeList = Record<string, AttributeValue>;
 type TransitionStyleList = Record<string, StyleValue>;
 
@@ -12,11 +12,15 @@ interface TransitionConfig {
   delay?: number;
   attr?: TransitionAttributeList;
   style?: TransitionStyleList;
+  text?: string;
 }
 
 export interface ElementConfig {
   attr?: AttributeList;
   style?: StyleList;
+  class?: string[];
+  text?: string | ConfigFunction<string>;
+  html?: string | ConfigFunction<string>;
   transition?: TransitionConfig;
 }
 
@@ -54,6 +58,16 @@ function set_style<S, T, P, PD>(
   return select;
 }
 
+function set_class<S, T, P, PD>(
+  select: d3.Selection<S & d3.BaseType, T, P & d3.BaseType, PD>,
+  classes: string[]
+): d3.Selection<S & d3.BaseType, T, P & d3.BaseType, PD> {
+  classes.forEach(c => {
+    select.classed(c, true);
+  });
+  return select;
+}
+
 function transition_set_style<S, T, P, PD>(
   select: d3.Transition<S & d3.BaseType, T, P & d3.BaseType, PD>,
   styles: TransitionStyleList
@@ -72,6 +86,7 @@ function transition_config<S, T, P, PD>(
   if (config.delay !== undefined) select.duration(config.delay);
   if (config.attr !== undefined) transition_set_attribute(select, config.attr);
   if (config.style !== undefined) transition_set_style(select, config.style);
+  if (config.text !== undefined) select.text(config.text);
 
   return select;
 }
@@ -84,6 +99,9 @@ export function element_config<S, T, P, PD>(
   | d3.Transition<S & d3.BaseType, T, P & d3.BaseType, PD> {
   if (config.attr !== undefined) set_attribute(select, config.attr);
   if (config.style !== undefined) set_style(select, config.style);
+  if (config.class !== undefined) set_class(select, config.class);
+  if (config.text !== undefined) select.text(exec_value(config.text));
+  if (config.html !== undefined) select.html(exec_value(config.html));
   if (config.transition !== undefined)
     return transition_config(select.transition(), config.transition);
   return select;
