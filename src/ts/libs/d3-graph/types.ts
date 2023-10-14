@@ -49,6 +49,11 @@ export const curves: Record<string, LineDefinition> = {
 export const default_classes = {
   title: '--graph-title',
   axis_label: '--axis-label',
+  legend: '--graph-legend',
+  circle_area: '--circle-area',
+  circle_area_right: '--circle-area-right',
+  line_area: '--line-area',
+  line_area_right: '--line-area-right',
 } as const;
 
 export type Accessor<T, D = any> = (d: D, i: number) => T;

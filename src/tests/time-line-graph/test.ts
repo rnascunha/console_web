@@ -278,6 +278,26 @@ const graph_config: Time2AxisLineGraphOptions = {
     on: (ev, d) => `${time_format((d as Data).date)}: ${(d as Data).value}`,
     config: { style: { transition: 'opacity 1s' } },
   },
+  legend: {
+    legends: ['legend 0', 'legend 1', 'legend 2'],
+    config: {
+      x: 20,
+      y: 20,
+      side: 15,
+      dy: 20,
+    },
+    rect_config: {
+      attr: {
+        fill: d3.schemeCategory10,
+      },
+    },
+    legend_config: {
+      style: {
+        fill: d3.schemeCategory10,
+        'font-size': 20,
+      },
+    },
+  },
 };
 
 Object.entries(curves)

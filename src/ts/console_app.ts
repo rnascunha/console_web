@@ -27,6 +27,7 @@ import { base64_decode } from './libs/base64';
 const console_layout: LayoutConfig = {
   settings: {
     responsiveMode: 'always',
+    showPopoutIcon: false,
   },
   root: {
     type: ItemType.row,

@@ -6,18 +6,17 @@ import { type ElementConfig, element_config } from './attributes';
 import { Tooltip, type CallTooltip } from './tooltip';
 import { draw_circles, draw_lines } from './shapes';
 import { title, type TitlePosition } from './title';
-import { type AxisPosition, type Dimension, default_classes } from './types';
+import {
+  type AxisPosition,
+  type Dimension,
+  type Margin,
+  default_classes,
+} from './types';
+import { type LegendConfig, draw_legend } from './legend';
 
 export interface Data {
   date: Date;
   value: number;
-}
-
-interface Margin {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
 }
 
 type LineConfig = ElementConfig;
@@ -48,6 +47,12 @@ export interface Time2AxisLineGraphOptions {
   };
   title?: Partial<Record<TitlePosition, TitleConfig>>;
   label?: AxisLabelConfig[];
+  legend?: {
+    legends: string[];
+    config: LegendConfig;
+    rect_config: ElementConfig;
+    legend_config: ElementConfig;
+  };
 }
 
 const default_line_config = {
@@ -117,11 +122,11 @@ export class Time2AxisLineGraph {
     this._line_config = [default_line_config, default_line_config];
     this._circle_config = [default_circle_config, default_circle_config];
 
-    this._g.append('g').classed('--line-area', true);
-    this._g.append('g').classed('--circle-area', true);
+    this._g.append('g').classed(default_classes.line_area, true);
+    this._g.append('g').classed(default_classes.circle_area, true);
 
-    this._g.append('g').classed('--line-area-right', true);
-    this._g.append('g').classed('--circle-area-right', true);
+    this._g.append('g').classed(default_classes.line_area_right, true);
+    this._g.append('g').classed(default_classes.circle_area_right, true);
   }
 
   get node(): d3.Selection<SVGSVGElement, undefined, null, undefined> {
@@ -174,6 +179,15 @@ export class Time2AxisLineGraph {
     if (opt.label !== undefined)
       this.draw_labels(opt.label, { width, height, margin });
 
+    if (opt.legend !== undefined)
+      draw_legend(
+        this._g,
+        opt.legend.legends,
+        opt.legend.config,
+        opt.legend.rect_config,
+        opt.legend.legend_config
+      );
+
     return this;
   }
 
@@ -189,16 +203,21 @@ export class Time2AxisLineGraph {
     this._y_axis.data(this._y.scale);
     this._y2_axis.data(this._y2.scale);
 
-    this.draw_lines('.--line-area', data, this._line, this._line_config[0]);
     this.draw_lines(
-      '.--line-area-right',
+      `.${default_classes.line_area}`,
+      data,
+      this._line,
+      this._line_config[0]
+    );
+    this.draw_lines(
+      `.${default_classes.line_area_right}`,
       data2,
       this._line2,
       this._line_config[1]
     );
 
     this.draw_circles(
-      '.--circle-area',
+      `.${default_classes.circle_area}`,
       data,
       d => this._x.scale(d.date),
       d => this._y.scale(d.value),
@@ -206,7 +225,7 @@ export class Time2AxisLineGraph {
     );
 
     this.draw_circles(
-      '.--circle-area-right',
+      `.${default_classes.circle_area_right}`,
       data2,
       d => this._x.scale(d.date),
       d => this._y2.scale(d.value),

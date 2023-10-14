@@ -4,7 +4,7 @@ import type {
 } from '../../libs/d3-graph/time_2_axis_line_graph';
 import type { Time2AxisLineGraphComponent } from '../../golden-components/time_line_graph';
 import { time as time_format } from '../../helper/time';
-import type { LayoutManager } from 'golden-layout';
+import { LayoutManager } from 'golden-layout';
 import type { ControlFlowData } from './component';
 
 const axis_label_config = {
@@ -16,6 +16,10 @@ const axis_label_config = {
   },
 };
 
+const colors = ['blue', 'red', 'yellow'];
+const lcolors = colors.slice(0, 2);
+const rcolors = colors.slice(2)[0];
+
 const graph_options: Time2AxisLineGraphOptions = {
   margin: { top: 20, bottom: 40, left: 30, right: 40 },
   line: [
@@ -23,14 +27,14 @@ const graph_options: Time2AxisLineGraphOptions = {
       attr: {
         fill: 'none',
         'stroke-width': 1.5,
-        stroke: ['blue', 'pink'],
+        stroke: lcolors,
       },
     },
     {
       attr: {
         fill: 'none',
         'stroke-width': 1.5,
-        stroke: 'yellow',
+        stroke: rcolors,
       },
     },
   ],
@@ -38,7 +42,7 @@ const graph_options: Time2AxisLineGraphOptions = {
     {
       group: {
         attr: {
-          fill: ['blue', 'pink'],
+          fill: lcolors,
         },
       },
       circle: {
@@ -56,7 +60,7 @@ const graph_options: Time2AxisLineGraphOptions = {
     {
       group: {
         attr: {
-          fill: 'yellow',
+          fill: rcolors,
         },
       },
       circle: {
@@ -136,6 +140,21 @@ const graph_options: Time2AxisLineGraphOptions = {
       `${time_format((d as Data).date)}: ${(d as Data).value.toFixed(1)}`,
     config: { style: { transition: 'opacity 1s' } },
   },
+  legend: {
+    legends: ['Flow rate instant', 'Flow rate mean', 'Volume'],
+    config: {
+      x: 25,
+      y: 0,
+      side: 15,
+      dy: 20,
+    },
+    rect_config: {
+      attr: {
+        fill: colors,
+      },
+    },
+    legend_config: {},
+  },
 };
 
 export class ControlFlowGraph {
@@ -151,7 +170,12 @@ export class ControlFlowGraph {
       'Time2AxisLineGraphComponent',
       graph_options,
       'Control Flow Graph',
-      undefined
+      [
+        { typeId: LayoutManager.LocationSelector.TypeId.FirstRowOrColumn },
+        { typeId: LayoutManager.LocationSelector.TypeId.FocusedItem },
+        { typeId: LayoutManager.LocationSelector.TypeId.FirstStack },
+        { typeId: LayoutManager.LocationSelector.TypeId.Root },
+      ]
     )?.component as Time2AxisLineGraphComponent;
 
     this.update_graph(data);
