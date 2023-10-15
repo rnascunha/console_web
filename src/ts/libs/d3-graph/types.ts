@@ -42,7 +42,7 @@ export const curves: Record<string, LineDefinition> = {
   mononoteY: { line: d3.curveMonotoneY, is_close: false },
   natural: { line: d3.curveNatural, is_close: false },
   step: { line: d3.curveStep, is_close: false },
-  step_afeter: { line: d3.curveStepAfter, is_close: false },
+  step_after: { line: d3.curveStepAfter, is_close: false },
   step_before: { line: d3.curveStepBefore, is_close: false },
 };
 
