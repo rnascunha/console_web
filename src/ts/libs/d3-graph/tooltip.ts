@@ -1,4 +1,4 @@
-import * as d3 from 'd3';
+import { type Selection, type BaseType, create } from 'd3';
 import { element_config, type ElementConfig } from './attributes';
 
 export type CallTooltip = (ev: MouseEvent, d: unknown) => string;
@@ -11,7 +11,7 @@ const default_style = {
 };
 
 export class Tooltip {
-  private readonly _tooltips: d3.Selection<
+  private readonly _tooltips: Selection<
     HTMLDivElement,
     undefined,
     null,
@@ -21,7 +21,7 @@ export class Tooltip {
   private _call?: CallTooltip;
 
   constructor() {
-    this._tooltips = d3.create('div').call(element_config, {
+    this._tooltips = create('div').call(element_config, {
       style: {
         opacity: 0,
         position: 'absolute',
@@ -36,7 +36,7 @@ export class Tooltip {
   public draw(
     container: HTMLElement,
     call: CallTooltip,
-    config: ElementConfig = {}
+    config: ElementConfig<HTMLDivElement> = {}
   ): void {
     this._call = call;
     container.appendChild(this._tooltips.node() as HTMLElement);
@@ -44,7 +44,7 @@ export class Tooltip {
   }
 
   public data<T, P>(
-    select: d3.Selection<SVGCircleElement, T, P & d3.BaseType, T[]>
+    select: Selection<SVGCircleElement, T, P & BaseType, T[]>
   ): void {
     select.on('mouseover', (ev, d) => {
       this._tooltips

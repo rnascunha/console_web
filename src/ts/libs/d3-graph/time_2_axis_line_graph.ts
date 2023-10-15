@@ -19,13 +19,13 @@ export interface Data {
   value: number;
 }
 
-export interface LineConfig extends ElementConfig {
+export interface LineConfig extends ElementConfig<d3.BaseType, Data[]> {
   curve?: d3.CurveFactory | d3.CurveFactoryLineOnly;
 }
 
 interface CircleConfig {
-  group: ElementConfig;
-  circle: ElementConfig;
+  group: ElementConfig<d3.BaseType, Data[]>;
+  circle: ElementConfig<d3.BaseType, Data>;
 }
 
 interface AxisLabelConfig {
@@ -36,7 +36,7 @@ interface AxisLabelConfig {
 
 interface TitleConfig {
   text: string;
-  config: ElementConfig;
+  config: ElementConfig<SVGTextElement>;
 }
 
 export interface Time2AxisLineGraphOptions {
@@ -45,15 +45,15 @@ export interface Time2AxisLineGraphOptions {
   circle?: CircleConfig | [CircleConfig, CircleConfig];
   tooltip?: {
     on: CallTooltip;
-    config?: ElementConfig;
+    config?: ElementConfig<HTMLDivElement>;
   };
   title?: Partial<Record<TitlePosition, TitleConfig>>;
   label?: AxisLabelConfig[];
   legend?: {
     legends: string[];
     config: LegendConfig;
-    rect_config: ElementConfig;
-    legend_config: ElementConfig;
+    rect_config: ElementConfig<SVGRectElement, string>;
+    legend_config: ElementConfig<SVGTextElement, string>;
   };
 }
 
@@ -242,7 +242,7 @@ export class Time2AxisLineGraph {
     class_area: string,
     data: readonly Data[][],
     line: d3.Line<Data>,
-    config: ElementConfig
+    config: ElementConfig<d3.BaseType, Data[]>
   ): void {
     draw_lines(this._g.select(class_area), data, line, config);
   }

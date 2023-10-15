@@ -1,16 +1,16 @@
-import * as d3 from 'd3';
+import { type BaseType, type Numeric, extent } from 'd3';
 import type { Accessor, Dimension, Margin } from './types';
 import type { ElementConfig } from './attributes';
 
-export function extent_multi_domain<D, T extends d3.Numeric>(
+export function extent_multi_domain<D, T extends Numeric>(
   data: readonly D[][],
   accessor: Accessor<T, D>
 ): [T, T] {
   const dd = data.reduce<T[]>((acc, d) => {
-    acc.push(...(d3.extent<D, T>(d, accessor) as [T, T]));
+    acc.push(...(extent<D, T>(d, accessor) as [T, T]));
     return acc;
   }, []);
-  return d3.extent(dd) as [T, T];
+  return extent(dd) as [T, T];
 }
 
 export function get_dimensions(
@@ -36,7 +36,10 @@ export function get_dimensions(
   };
 }
 
-export function add_class_config(classs: string, config: ElementConfig): void {
+export function add_class_config<T extends BaseType>(
+  classs: string,
+  config: ElementConfig<T>
+): void {
   if (config.class === undefined) config.class = [classs];
   else config.class.push(classs);
 }

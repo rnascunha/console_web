@@ -71,7 +71,7 @@ const graph_config: Time2AxisLineGraphOptions = {
         transition: {
           duration: 2000,
           attr: {
-            r: 10,
+            r: (d, i) => 1 + 1 * i,
           },
         },
       },
@@ -90,6 +90,7 @@ const graph_config: Time2AxisLineGraphOptions = {
           duration: 2000,
           attr: {
             r: 10,
+            fill: d3.schemeDark2,
           },
         },
       },

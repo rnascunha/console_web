@@ -10,7 +10,7 @@ function title_top(
   g: Select<SVGSVGElement>,
   title: string,
   width: number,
-  config: ElementConfig
+  config: ElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -26,7 +26,7 @@ function title_bottom(
   title: string,
   width: number,
   height: number,
-  config: ElementConfig
+  config: ElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -42,7 +42,7 @@ export function title(
   position: TitlePosition,
   width: number,
   height: number,
-  config: ElementConfig
+  config: ElementConfig<SVGTextElement, undefined>
 ): Select<SVGTextElement> {
   add_class_config('--graph-title', config);
   if (position === 'top') return title_top(g, title, width, config);

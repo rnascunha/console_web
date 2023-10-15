@@ -9,13 +9,17 @@ import {
 } from './types';
 import { add_class_config } from './helper';
 
-type Select<T> = Selection<T & BaseType, unknown, null, undefined>;
+type Select<T = BaseType> = Selection<T & BaseType, unknown, null, undefined>;
+type AxisLabelElementConfig<T = BaseType> = ElementConfig<
+  T & BaseType,
+  unknown
+>;
 
 export type LabelCallFunction = (
   sel: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ) => Select<SVGTextElement>;
 
 type LabelFunction = Record<
@@ -103,7 +107,7 @@ export function draw_label(
     place: LabelPlace;
     dim: Dimension;
   },
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   const func = label_config[val.axis][val.place][val.position];
   if (func === undefined) throw new Error('Invalid label config');
@@ -115,7 +119,7 @@ export function label_left_top(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -129,7 +133,7 @@ export function label_right_top(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -143,7 +147,7 @@ export function label_left_start_outside(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -160,7 +164,7 @@ export function label_left_start_inside(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -176,7 +180,7 @@ export function label_left_middle_outside(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -193,7 +197,7 @@ export function label_left_middle_inside(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -209,7 +213,7 @@ export function label_left_end_outside(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -226,7 +230,7 @@ export function label_left_end_inside(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -242,7 +246,7 @@ export function label_bottom_middle(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -258,7 +262,7 @@ export function label_bottom_end(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -274,7 +278,7 @@ export function label_bottom_start(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -289,7 +293,7 @@ export function label_right_start_outside(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -306,7 +310,7 @@ export function label_right_start_inside(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -322,7 +326,7 @@ export function label_right_middle_outside(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -339,7 +343,7 @@ export function label_right_middle_inside(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -355,7 +359,7 @@ export function label_right_end_outside(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')
@@ -372,7 +376,7 @@ export function label_right_end_inside(
   g: Select<SVGGElement>,
   label: string,
   dim: Dimension,
-  config: ElementConfig
+  config: AxisLabelElementConfig<SVGTextElement>
 ): Select<SVGTextElement> {
   return g
     .append('text')

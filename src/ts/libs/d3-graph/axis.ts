@@ -8,7 +8,7 @@ import type {
   Dimension,
 } from './types';
 
-export interface LabelConfig extends ElementConfig {
+export interface LabelConfig extends ElementConfig<SVGGElement, unknown> {
   position?: LabelPosition;
   place?: LabelPlace;
 }

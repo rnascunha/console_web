@@ -1,15 +1,16 @@
+import type { BaseType, Selection } from 'd3';
 import { type ElementConfig, element_config } from './attributes';
 
 export type Callable<Base, T, P = undefined> = (
-  select: d3.Selection<Base & d3.BaseType, T, SVGGElement | d3.BaseType, P>,
+  select: Selection<Base & BaseType, T, SVGGElement | BaseType, P>,
   ...args: any
 ) => void;
 
 export function draw_lines<T>(
-  select: d3.Selection<SVGGElement, undefined, null, undefined>,
+  select: Selection<SVGGElement, undefined, null, undefined>,
   data: readonly T[][],
   line: d3.Line<T>,
-  config: ElementConfig
+  config: ElementConfig<SVGPathElement | BaseType, T[]>
 ): void {
   select
     .selectAll('path')
@@ -22,11 +23,11 @@ export function draw_lines<T>(
 }
 
 export function draw_circles<T>(
-  select: d3.Selection<SVGGElement, undefined, null, undefined>,
+  select: Selection<SVGGElement, undefined, null, undefined>,
   data: readonly T[][],
   x: (d: T) => number,
   y: (d: T) => number,
-  config_g: ElementConfig,
+  config_g: ElementConfig<SVGGElement | BaseType, T[]>,
   on_enter: Callable<SVGCircleElement, T, T[]>
 ): void {
   select
@@ -44,11 +45,11 @@ export function draw_circles<T>(
 }
 
 export function draw_circles2<T>(
-  select: d3.Selection<SVGGElement, undefined, null, undefined>,
+  select: Selection<SVGGElement, undefined, null, undefined>,
   data: readonly T[][],
   x: (d: T) => number,
   y: (d: T) => number,
-  config_g: ElementConfig,
+  config_g: ElementConfig<SVGGElement | BaseType, T[]>,
   on_enter: Callable<SVGCircleElement, T, T[]>
 ): void {
   select

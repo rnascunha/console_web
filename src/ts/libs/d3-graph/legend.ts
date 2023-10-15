@@ -1,4 +1,4 @@
-import type * as d3 from 'd3';
+import type { Selection } from 'd3';
 import { type ElementConfig, element_config } from './attributes';
 import { default_classes } from './types';
 
@@ -10,11 +10,11 @@ export interface LegendConfig {
 }
 
 export function draw_legend(
-  g: d3.Selection<SVGGElement, undefined, null, undefined>,
+  g: Selection<SVGGElement, undefined, null, undefined>,
   legends: string[],
   lconfig: LegendConfig,
-  rect_config: ElementConfig,
-  legend_config: ElementConfig
+  rect_config: ElementConfig<SVGRectElement, string>,
+  legend_config: ElementConfig<SVGTextElement, string>
 ): d3.Selection<SVGGElement, undefined, null, undefined> {
   const l = g
     .selectAll(`.${default_classes.legend}`)
