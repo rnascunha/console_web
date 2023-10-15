@@ -15,6 +15,7 @@ export function draw_lines<T>(
     .selectAll('path')
     .data(data)
     .join(enter => enter.append('path'))
+    .attr('fill', 'none')
     .call(element_config, config)
     .transition()
     .attr('d', line);

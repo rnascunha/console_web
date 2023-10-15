@@ -19,7 +19,9 @@ export interface Data {
   value: number;
 }
 
-type LineConfig = ElementConfig;
+export interface LineConfig extends ElementConfig {
+  curve?: d3.CurveFactory | d3.CurveFactoryLineOnly;
+}
 
 interface CircleConfig {
   group: ElementConfig;
@@ -56,6 +58,7 @@ export interface Time2AxisLineGraphOptions {
 }
 
 const default_line_config = {
+  curve: d3.curveLinear,
   attr: {
     fill: 'none',
     'stroke-width': 1.5,
@@ -99,7 +102,7 @@ export class Time2AxisLineGraph {
 
   private readonly _tooltip: Tooltip;
 
-  private _line_config: [ElementConfig, ElementConfig];
+  private _line_config: [LineConfig, LineConfig];
   private _circle_config: [CircleConfig, CircleConfig];
 
   constructor() {
@@ -153,25 +156,25 @@ export class Time2AxisLineGraph {
     this._y_axis.draw('left', width, height);
     this._y2_axis.draw('right', width, height);
 
-    this._line
-      .curve(d3.curveLinear)
-      .x(d => this._x.scale(d.date))
-      .y(d => this._y.scale(d.value));
-
     if (opt.line !== undefined) {
       if (Array.isArray(opt.line)) this._line_config = opt.line;
       else this._line_config = [opt.line, opt.line];
     }
 
+    this._line
+      .curve(this._line_config[0].curve ?? d3.curveLinear)
+      .x(d => this._x.scale(d.date))
+      .y(d => this._y.scale(d.value));
+
+    this._line2
+      .curve(this._line_config[1].curve ?? d3.curveLinear)
+      .x(d => this._x.scale(d.date))
+      .y(d => this._y2.scale(d.value));
+
     if (opt.circle !== undefined) {
       if (Array.isArray(opt.circle)) this._circle_config = opt.circle;
       else this._circle_config = [opt.circle, opt.circle];
     }
-
-    this._line2
-      .curve(d3.curveLinear)
-      .x(d => this._x.scale(d.date))
-      .y(d => this._y2.scale(d.value));
 
     if (opt.title !== undefined)
       this.draw_titles(opt.title, full_width, full_height);

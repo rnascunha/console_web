@@ -6,6 +6,7 @@ import {
   Time2AxisLineGraph,
   type Data,
   type Time2AxisLineGraphOptions,
+  type LineConfig,
 } from '../../ts/libs/d3-graph/time_2_axis_line_graph';
 
 const $ = document.querySelector.bind(document);
@@ -20,6 +21,7 @@ const random = $('#random') as HTMLElement;
 const random_check = $('#random-after') as HTMLInputElement;
 const random_all = $('#random-all') as HTMLElement;
 const line_opts = $('#lines-options') as HTMLSelectElement;
+const stroke_width = $('#stroke-width') as HTMLInputElement;
 
 const number_lines = 2;
 
@@ -41,15 +43,15 @@ const graph_config: Time2AxisLineGraphOptions = {
   margin: { top: 20, bottom: 40, left: 40, right: 40 },
   line: [
     {
+      curve: d3.curveLinear,
       attr: {
-        fill: 'none',
         'stroke-width': 1.5,
         stroke: d3.schemeCategory10,
       },
     },
     {
+      curve: d3.curveLinear,
       attr: {
-        fill: 'none',
         'stroke-width': 1.5,
         stroke: d3.schemeCategory10.slice(number_lines),
       },
@@ -311,6 +313,15 @@ random.addEventListener('click', () => {
 });
 
 line_opts.addEventListener('change', () => {
+  (graph_config.line as LineConfig[])[0].curve = curves[line_opts.value].line;
+  create_graph();
+});
+
+stroke_width.addEventListener('change', () => {
+  // eslint-disable-next-line
+  (graph_config.line as LineConfig[])[1].attr!['stroke-width'] =
+    stroke_width.value;
+
   create_graph();
 });
 
