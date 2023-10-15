@@ -52,6 +52,11 @@ const template = (function () {
       padding: 3px;
     }
 
+    #packets {
+      display: flex;
+      box-sizing: border-box;
+    }
+
     #open-freq-receive,
     #open-limit-receive,
     #config-k {
@@ -95,6 +100,44 @@ const template = (function () {
     #btn-connect[data-state="open"]::after {
       content: '✕';
     }
+
+    @media (max-width: 600px) {
+      #header {
+        box-sizing: border-box;
+      }
+
+      #packets {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      #connect {
+        display: flex;
+        width: 100%;
+        gap: 2px;
+      }
+
+      #address {
+        flex-grow: 1;
+      }
+
+      #config-packets {
+        display: flex;
+        align-items: baseline;
+      }
+
+      #open-freq-receive,
+      #open-limit-receive {
+        flex-grow: 1
+      }
+
+      .command-fs {
+        box-sizing: border-box;
+        display: flex;
+        align-items: baseline;
+        gap: 2px;
+      }
+    }
   </style>
   <div id=header>
     <fieldset id=connect>
@@ -108,21 +151,23 @@ const template = (function () {
       <label title='Auto-connect'><input id=autoconnect type=checkbox>&#8652;</label>
     </fieldset>
     <div id=packets>
-      <button id=clear-display>&#x239A;</button>
-      <fieldset class=command-fs>
-        <legend>Config</legend>
-        <input-with-unit type=number min=0 id=config-k placeholder='Pulses/L' title='K (Pulses / L)' unit=p/L></input-with-unit>
-        <button id=config-pkt>▶</button>
-      </fieldset>
-      <button id=state-pkt>State</button>
+      <div id=config-packets>
+        <button id=clear-display>&#x239A;</button>
+        <fieldset class=command-fs>
+          <legend>Config</legend>
+          <input-with-unit type=number min=0 id=config-k placeholder='Pulses/L' title='K (Pulses / L)' unit=p/L></input-with-unit>
+          <button id=config-pkt>▶</button>
+        </fieldset>
+        <button id=state-pkt>State</button>
+      </div>
       <fieldset class=command-fs>
         <legend>Open</legend>
         <label title='Zero volume before opening'><input id=open-clear-before type=checkbox checked>Clear</label>
         <input-with-unit type=number min=0 id=open-freq-receive placeholder='Interval' title='Interval (ms)' unit=ms></input-with-unit>
         <input-with-unit type=number min=0 id=open-limit-receive placeholder='Limit' title='Limit (ml)' unit=ml></input-with-unit>
         <button id=open-pkt>▶</button>
+        <button id=close-pkt title='Close valve'>🛑</button>
       </fieldset>
-      <button id=close-pkt title='Close valve'>🛑</button>
     </div>
     <div id=info>
       <fieldset>
