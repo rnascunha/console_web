@@ -1,7 +1,7 @@
 import { type ComponentContainer, type JsonValue } from 'golden-layout';
 import { ComponentBase } from '../golden-components/component-base';
 import image from '../../../img/github.png';
-import { SetupOptions } from './setup';
+import type { SetupOptions } from './setup';
 
 const template = (function () {
   const template = document.createElement('template');

@@ -151,6 +151,14 @@ const template = (function () {
       <label title='Auto-connect'><input id=autoconnect type=checkbox>&#8652;</label>
     </fieldset>
     <div id=packets>
+      <fieldset class=command-fs>
+        <legend>Open</legend>
+        <label title='Zero volume before opening'><input id=open-clear-before type=checkbox checked>Clear</label>
+        <input-with-unit type=number min=0 id=open-freq-receive placeholder='Interval' title='Interval (ms)' unit=ms></input-with-unit>
+        <input-with-unit type=number min=0 id=open-limit-receive placeholder='Limit' title='Limit (ml)' unit=ml></input-with-unit>
+        <button id=open-pkt>▶</button>
+        <button id=close-pkt title='Close valve'>🛑</button>
+      </fieldset>
       <div id=config-packets>
         <button id=clear-display>&#x239A;</button>
         <fieldset class=command-fs>
@@ -160,14 +168,6 @@ const template = (function () {
         </fieldset>
         <button id=state-pkt>State</button>
       </div>
-      <fieldset class=command-fs>
-        <legend>Open</legend>
-        <label title='Zero volume before opening'><input id=open-clear-before type=checkbox checked>Clear</label>
-        <input-with-unit type=number min=0 id=open-freq-receive placeholder='Interval' title='Interval (ms)' unit=ms></input-with-unit>
-        <input-with-unit type=number min=0 id=open-limit-receive placeholder='Limit' title='Limit (ml)' unit=ml></input-with-unit>
-        <button id=open-pkt>▶</button>
-        <button id=close-pkt title='Close valve'>🛑</button>
-      </fieldset>
     </div>
     <div id=info>
       <fieldset>
@@ -199,8 +199,8 @@ const template = (function () {
         <div id=flow-rate-info>-</div>
       </fieldset>
     </div>
-    <button id=save-data>Save</button>
-    <button id=time-line-graph>Graph</button>
+    <button id=save-data title='Save data'>&#x1F4BE;</button>
+    <button id=time-line-graph title='Open graphic'>&#x1F4C8;</button>
   </div>
   <display-data id=data></display-data>`;
   return template;

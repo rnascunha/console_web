@@ -13,6 +13,7 @@ import {
   serialParity,
   serialStopBits,
 } from '../../libs/serial/constants';
+import html from './template.html';
 
 export interface SerialState {
   open: SerialOptions;
@@ -32,35 +33,7 @@ export const serial_state_default: SerialState = {
 
 const template = (function () {
   const template = document.createElement('template');
-  template.innerHTML = `
-    <div>
-      <div>
-        <input type=number min=0 class='sel-serial-conn serial-baudrate' list=serial-baudrate-list />
-        <datalist id=serial-baudrate-list></datalist>
-        <select class='sel-serial-conn serial-databits'></select>
-        <select class='sel-serial-conn serial-flowcontrol'></select>
-        <select class='sel-serial-conn serial-parity'></select>
-        <select class='sel-serial-conn serial-stopbits'></select>
-        <button class=serial-connect>Open</button>
-        <button class=serial-data-clear>Clear</button>
-        <button class='serial-console btn-not-pressed'>Console</button>
-      </div>
-      <div>
-        <text-select-binary class=serial-input placeholder=Data selected=text></text-select-binary>
-        <button class=serial-send>Send</button>
-        <button class="serial-signal-button serial-DTR">DTR</button>
-        <button class="serial-signal-button serial-RTS">RTS</button>
-        <button class="serial-signal-button serial-BREAK">BREAK</button>
-        <span class='serial-get-signal serial-CTS'>CTS</span>
-        <span class='serial-get-signal serial-DCD'>DCD</span>
-        <span class='serial-get-signal serial-DSR'>DSR</span>
-        <span class='serial-get-signal serial-RI'>RI</span>
-        <button class=serial-btn-signal>&#x27F3;</button>
-        <button class='serial-signal-button serial-signal-reset'>Reset</button>
-      </div>
-    </div>
-    <display-data class=data></display-data>
-  `;
+  template.innerHTML = html;
 
   function make_select(
     mclass: string,

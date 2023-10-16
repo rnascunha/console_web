@@ -1,0 +1,74 @@
+<style>
+  :host {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    display: flex;
+  }
+
+  #container {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  #menu {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    font-size: x-large;
+    color: white;
+  }
+
+  .icon {
+    padding: 2px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 3px auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .icon:hover {
+    background-color: white;
+    color: black;
+  }
+
+  /* Chrome, Safari, Edge, Opera */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  input[type='number'] {
+    text-align: center;
+    -moz-appearance: textfield;
+    appearance: textfield;
+    width: 90%;
+    outline: none;
+    padding: 0;
+    border-radius: 4px;
+  }
+</style>
+<div id="menu">
+  <span id="execute" title="Execute" class="icon">&#x25B6;</span>
+  <span id="save" title="Save file (Ctrl + S)" class="icon">&#x1F4BE;</span>
+  <input-file id="load" title="Load file (Ctrl + O)" class="icon" accept=".js"
+    ><span style="cursor: pointer">&#x1F4C2;</span></input-file
+  >
+  <span id="indent" title="Format (Ctrl + Shift + i)" class="icon"
+    >&#11078;</span
+  >
+  <input type="number" min="0" max="10" value="0" title="Indent space" />
+  <span id="copy" title="Copy" class="icon">&boxbox;</span>
+  <span id="get-link" title="Link" class="icon">&#x1F517;</span>
+</div>
+<div id="container"></div>

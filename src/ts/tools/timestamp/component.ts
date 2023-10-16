@@ -3,41 +3,11 @@ import type { ComponentContainer, JsonValue } from 'golden-layout';
 import { ClockApp } from './clock';
 import { TimestampApp } from './timestamp';
 import type { TimestampOptions } from './types';
+import html from './template.html';
 
 const template = (function () {
   const template = document.createElement('template');
-  template.innerHTML = `
-  <style>
-    :host {
-      height: 100%;
-      background-color: grey !important;
-    }
-
-    select{
-      max-width: 25ch;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .clock-body {
-      background-color: lightgrey;
-      padding: 2px;
-      border: 2px solid black;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    
-    .clock-header {
-      background-color: blue;
-      border-radius: 10px 10px 0px 0px;
-      font-weight: bold;
-    }
-  </style>
-  <button id=get-link>Link 🔗</button>
-  <h2>Clocks</h2>
-  <div id=clock-app></div>
-  <h2>Timestamps</h2>
-  <div id=timestamp-app></div>`;
+  template.innerHTML = html;
   return template;
 })();
 
