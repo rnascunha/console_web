@@ -20,10 +20,34 @@ import {
 import { download } from '../../helper/download';
 import { is_secure_connection } from '../../helper/protocol';
 import { pack32 } from '../../helper/pack';
-import { ControlFlowGraph } from './graph';
+import { ControlFlowGraph, open_graph } from './graph';
+import { file_to_text } from '../../helper/file';
+// import html from './template.html';
 
 const template = (function () {
   const template = document.createElement('template');
+  // template.innerHTML = html;
+
+  // if (!is_secure_connection()) {
+  //   const proto = template.content.querySelector(
+  //     '#protocol'
+  //   ) as HTMLSelectElement;
+  //   const el = proto.querySelector('[value=ws]') as HTMLOptionElement;
+  //   el.selected = false;
+  //   el.defaultSelected = false;
+  //   proto.removeChild(el);
+  //   // el.style.display = 'none';
+
+  //   const el2 = proto.querySelector('[value=wss]') as HTMLOptionElement;
+  //   el2.selected = true;
+  //   // proto.value = 'wss';
+  //   // proto.selectedIndex = 1;
+  //   // proto.selectedOptions =
+  //   el2.defaultSelected = true;
+  //   proto.value = 'wss';
+  //   proto.selectedIndex = 0;
+  // }
+
   template.innerHTML = `
   <style>
     :host {
@@ -201,6 +225,7 @@ const template = (function () {
     </div>
     <button id=save-data title='Save data'>&#x1F4BE;</button>
     <button id=time-line-graph title='Open graphic'>&#x1F4C8;</button>
+    <input-file id=open-data-graph title='Open graph data' accept=.json>&#x1F4C2;</input-file>
   </div>
   <display-data id=data></display-data>`;
   return template;
@@ -471,6 +496,31 @@ export class ControlFlowComponent extends ComponentBase {
     shadow.querySelector('#time-line-graph')?.addEventListener('click', ev => {
       this._graph.create_graph(this.container.layoutManager, this._data);
     });
+
+    customElements
+      .whenDefined('input-file')
+      .then(() => {
+        (shadow.querySelector('#open-data-graph') as InputFile).on(
+          'change',
+          async ev => {
+            const input = ev.target as HTMLInputElement;
+            const files = input.files as FileList;
+            if (files === null) return;
+
+            const data_str = await file_to_text(files[0]);
+            const data = JSON.parse(data_str);
+            data.forEach((d: any[]) => {
+              d.forEach(dd => {
+                dd.date = new Date(dd.date);
+              });
+            });
+            open_graph(this.container.layoutManager, data);
+
+            input.value = '';
+          }
+        );
+      })
+      .finally(() => {});
   }
 
   private connect(protocol: string, addr: string): boolean {

@@ -41,6 +41,7 @@ interface TitleConfig {
 
 export interface Time2AxisLineGraphOptions {
   margin: Margin;
+  config?: ElementConfig;
   line?: LineConfig | [LineConfig, LineConfig];
   circle?: CircleConfig | [CircleConfig, CircleConfig];
   tooltip?: {
@@ -141,7 +142,14 @@ export class Time2AxisLineGraph {
     const full_width = width + margin.right + margin.left;
     const full_height = height + margin.bottom + margin.top;
 
-    this._svg.attr('width', full_width).attr('height', full_height);
+    this._svg
+      .attr('width', full_width)
+      .attr('height', full_height)
+      .attr('xmlns', 'http://www.w3.org/2000/svg')
+      .attr('viewBox', `0 0 ${full_width} ${full_height}`);
+
+    if (opt.config !== undefined)
+      element_config<SVGSVGElement>(this._svg, opt.config);
 
     this._g.attr('transform', `translate(${margin.left}, ${margin.top})`);
 

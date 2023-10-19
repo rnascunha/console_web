@@ -22,6 +22,11 @@ const rcolors = colors.slice(2)[0];
 
 const graph_options: Time2AxisLineGraphOptions = {
   margin: { top: 20, bottom: 40, left: 30, right: 40 },
+  config: {
+    style: {
+      'background-color': 'white',
+    },
+  },
   line: [
     {
       attr: {
@@ -160,7 +165,11 @@ const graph_options: Time2AxisLineGraphOptions = {
 export class ControlFlowGraph {
   private _graph_component?: Time2AxisLineGraphComponent;
 
-  public create_graph(layout: LayoutManager, data: ControlFlowData[][]): void {
+  public create_graph(
+    layout: LayoutManager,
+    data: ControlFlowData[][],
+    title = 'Control Flow Graph'
+  ): void {
     if (this._graph_component !== undefined) {
       this._graph_component.container.focus();
       return;
@@ -169,7 +178,7 @@ export class ControlFlowGraph {
     this._graph_component = layout.newComponentAtLocation(
       'Time2AxisLineGraphComponent',
       graph_options,
-      'Control Flow Graph',
+      title,
       [
         { typeId: LayoutManager.LocationSelector.TypeId.FirstRowOrColumn },
         { typeId: LayoutManager.LocationSelector.TypeId.FocusedItem },
@@ -234,4 +243,11 @@ function compute_date_line_graph_data(
     acc.push({ date: d.date, value: d[index] as number });
     return acc;
   }, []);
+}
+
+export function open_graph(
+  layout: LayoutManager,
+  data: ControlFlowData[][]
+): void {
+  new ControlFlowGraph().create_graph(layout, data);
 }

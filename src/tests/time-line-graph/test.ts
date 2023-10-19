@@ -41,6 +41,11 @@ const axis_label_config = {
 
 const graph_config: Time2AxisLineGraphOptions = {
   margin: { top: 20, bottom: 40, left: 40, right: 40 },
+  config: {
+    attr: {
+      fill: 'white',
+    },
+  },
   line: [
     {
       curve: d3.curveLinear,
