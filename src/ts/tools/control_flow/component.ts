@@ -1,4 +1,8 @@
-import { type ComponentContainer, type JsonValue } from 'golden-layout';
+import {
+  type ComponentContainer,
+  type JsonValue,
+  LayoutManager,
+} from 'golden-layout';
 import { ComponentBase } from '../../golden-components/component-base';
 import {
   parse,
@@ -223,6 +227,7 @@ const template = (function () {
         <div id=flow-rate-info>-</div>
       </fieldset>
     </div>
+    <button id=open-data title='Open data'>&#x1F50E;</button>
     <button id=save-data title='Save data'>&#x1F4BE;</button>
     <button id=time-line-graph title='Open graphic'>&#x1F4C8;</button>
     <input-file id=open-data-graph title='Open graph data' accept=.json>&#x1F4C2;</input-file>
@@ -241,7 +246,9 @@ interface ControlFlowOptions {
 }
 
 export interface ControlFlowData {
+  received: Date;
   date: Date;
+  uptime: number;
   volume: number;
   flow_instant: number;
   flow_mean: number;
@@ -514,13 +521,17 @@ export class ControlFlowComponent extends ComponentBase {
                 dd.date = new Date(dd.date);
               });
             });
-            open_graph(this.container.layoutManager, data);
+            open_graph(this.container.layoutManager, data, files[0].name);
 
             input.value = '';
           }
         );
       })
       .finally(() => {});
+
+    shadow.querySelector('#open-data')?.addEventListener('click', () => {
+      this.open_data();
+    });
   }
 
   private connect(protocol: string, addr: string): boolean {
@@ -605,10 +616,15 @@ export class ControlFlowComponent extends ComponentBase {
 
   private compute_data(resp: ControlFlowStateResponse): void {
     const volume = (1000 * resp.pulses) / this._k_ratio;
-    if (this._valve_state === State.CLOSE && resp.state === State.OPEN) {
+    if (
+      (this._valve_state === State.CLOSE && resp.state === State.OPEN) ||
+      this._data.length === 0
+    ) {
       this._data.push([
         {
+          received: new Date(),
           date: new Date(),
+          uptime: resp.uptime,
           pulses: resp.pulses,
           volume,
           state: resp.state,
@@ -626,7 +642,9 @@ export class ControlFlowComponent extends ComponentBase {
       const before_volume = d[d.length - 1].volume;
       const before_date = d[d.length - 1].date.getTime();
       d.push({
-        date: new Date(),
+        received: new Date(),
+        date: new Date(init + (resp.uptime - d[0].uptime)),
+        uptime: resp.uptime,
         pulses: resp.pulses,
         volume,
         state: resp.state,
@@ -638,6 +656,21 @@ export class ControlFlowComponent extends ComponentBase {
         flow_mean: flow_rate_to_liters_per_minute(volume, init, Date.now()),
       });
     }
+  }
+
+  private open_data(): void {
+    const comp = this.container.layoutManager.newComponentAtLocation(
+      'json',
+      { value: JSON.stringify(this._data), indent: true },
+      'Data',
+      [
+        { typeId: LayoutManager.LocationSelector.TypeId.FirstRowOrColumn },
+        { typeId: LayoutManager.LocationSelector.TypeId.FocusedItem },
+        { typeId: LayoutManager.LocationSelector.TypeId.FirstStack },
+        { typeId: LayoutManager.LocationSelector.TypeId.Root },
+      ]
+    )?.component as ComponentBase;
+    comp.title = 'Control Flow Data';
   }
 }
 

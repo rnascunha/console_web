@@ -247,7 +247,8 @@ function compute_date_line_graph_data(
 
 export function open_graph(
   layout: LayoutManager,
-  data: ControlFlowData[][]
+  data: ControlFlowData[][],
+  title: string
 ): void {
-  new ControlFlowGraph().create_graph(layout, data);
+  new ControlFlowGraph().create_graph(layout, data, title);
 }

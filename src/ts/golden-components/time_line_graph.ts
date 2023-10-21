@@ -49,6 +49,8 @@ export class Time2AxisLineGraphComponent extends ComponentBase {
   private _data: [Data[][], Data[][]] = [[], []];
   private readonly _opt_graph: Time2AxisLineGraphOptions;
 
+  private _is_draw: boolean = false;
+
   constructor(
     container: ComponentContainer,
     state: JsonValue | undefined,
@@ -106,10 +108,12 @@ export class Time2AxisLineGraphComponent extends ComponentBase {
 
   private draw(): void {
     this._graph.draw(this._graph_el, this._opt_graph);
+    this._is_draw = true;
     this.update(this._data);
   }
 
   public update(data: [Data[][], Data[][]]): void {
+    if (!this._is_draw) return;
     this._graph.data(data[0], data[1]);
     this._data = data;
   }

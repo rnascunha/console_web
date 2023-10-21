@@ -17,6 +17,7 @@ import { download, open_file_picker } from '../../helper/download';
 
 export interface JSONOptions {
   value?: string;
+  indent?: boolean;
 }
 
 const tool_name = 'json';
@@ -176,6 +177,7 @@ export class JSONComponent extends ComponentBase {
         ?.component as MonacoComponent
     ).editor;
     editor.setValue(opt.value ?? '');
+    if (opt.indent === true) indent(editor).finally(() => {});
 
     const markers = this._layout.findFirstComponentItemById('markers')
       ?.component as MarkersComponent;
@@ -202,10 +204,7 @@ export class JSONComponent extends ComponentBase {
     });
 
     shadow.querySelector('#indent')?.addEventListener('click', () => {
-      editor
-        .getAction('editor.action.formatDocument')
-        ?.run()
-        .finally(() => {});
+      indent(editor).finally(() => {});
     });
 
     shadow.querySelector('#copy')?.addEventListener('click', () => {
@@ -281,4 +280,13 @@ async function read_file(files: FileList): Promise<string> {
   if (files.length === 0) throw new Error('No file selected');
   const file = files[0];
   return await file.text();
+}
+
+async function indent(
+  editor: monaco.editor.IStandaloneCodeEditor
+): Promise<void> {
+  editor
+    .getAction('editor.action.formatDocument')
+    ?.run()
+    .finally(() => {});
 }

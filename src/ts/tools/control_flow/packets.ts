@@ -20,7 +20,7 @@ export enum ErrorDescription {
 
 const ERROR_PACKET_SIZE = 3;
 const CONFIG_PACKET_SIZE = 9;
-const STATE_PACKET_SIZE = 14;
+const STATE_PACKET_SIZE = 18;
 
 function make_packet(cmd: Command, ...args: number[]): Uint8Array {
   return new Uint8Array([cmd, ...args]);
@@ -43,6 +43,7 @@ export enum State {
 }
 
 export interface ControlFlowStateResponse {
+  uptime: number;
   state: State;
   pulses: number;
   limit: number;
@@ -71,10 +72,11 @@ function parse_state(data: Uint8Array): ControlFlowStateResponse {
 
   const dv = new DataView(data.buffer);
   return {
-    state: data[1] as State,
-    pulses: dv.getInt32(2, true),
-    limit: dv.getInt32(6, true),
-    freq: dv.getInt32(10, true),
+    uptime: dv.getUint32(1, true),
+    state: data[5] as State,
+    pulses: dv.getInt32(6, true),
+    limit: dv.getInt32(10, true),
+    freq: dv.getInt32(14, true),
   };
 }
 
