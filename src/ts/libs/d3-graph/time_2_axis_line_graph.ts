@@ -13,6 +13,7 @@ import {
   default_classes,
 } from './types';
 import { type LegendConfig, draw_legend } from './legend';
+import { zoom } from './zoom';
 
 export interface Data {
   date: Date;
@@ -56,6 +57,7 @@ export interface Time2AxisLineGraphOptions {
     rect_config: ElementConfig<SVGRectElement, string>;
     legend_config: ElementConfig<SVGTextElement, string>;
   };
+  zoom?: boolean;
 }
 
 const default_line_config = {
@@ -147,6 +149,8 @@ export class Time2AxisLineGraph {
       .attr('height', full_height)
       .attr('xmlns', 'http://www.w3.org/2000/svg')
       .attr('viewBox', `0 0 ${full_width} ${full_height}`);
+
+    if (opt.zoom !== false) zoom(this._svg, this._g, { width, height, margin });
 
     if (opt.config !== undefined)
       element_config<SVGSVGElement>(this._svg, opt.config);
