@@ -188,7 +188,7 @@ const template = (function () {
         <button id=close-pkt title='Close valve'>🛑</button>
       </fieldset>
       <div id=config-packets>
-        <button id=clear-display>&#x239A;</button>
+        <button id=clear-display title="Clear data">&#x239A;</button>
         <fieldset class=command-fs>
           <legend>Config</legend>
           <input-with-unit type=number min=0 id=config-k placeholder='Pulses/L' title='K (Pulses / L)' unit=p/L></input-with-unit>
