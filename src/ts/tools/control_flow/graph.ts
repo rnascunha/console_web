@@ -143,7 +143,7 @@ const graph_options: Time2AxisLineGraphOptions = {
   tooltip: {
     on: (ev, d) =>
       `${time_format((d as Data).date)}: ${(d as Data).value.toFixed(1)}`,
-    config: { style: { transition: 'opacity 1s' } },
+    config: { style: { transition: 'opacity 0.5s' } },
   },
   legend: {
     legends: ['Flow rate instant', 'Flow rate mean', 'Volume'],

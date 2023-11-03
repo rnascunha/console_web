@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import { curves } from '../../ts/libs/d3-graph/types';
 import { time as time_format } from '../../ts/helper/time';
+import { BrushX } from '../../ts/libs/d3-graph/brush';
 
 import {
   Time2AxisLineGraph,
@@ -8,10 +9,12 @@ import {
   type Time2AxisLineGraphOptions,
   type LineConfig,
 } from '../../ts/libs/d3-graph/time_2_axis_line_graph';
+import { get_dimensions } from '../../ts/libs/d3-graph/helper';
 
 const $ = document.querySelector.bind(document);
 
 const graph_el = $('#graph') as HTMLElement;
+const graph_brush_el = $('#graph-brush') as HTMLElement;
 const value = $('#value') as HTMLInputElement;
 const add = $('#add') as HTMLElement;
 const clear = $('#clear') as HTMLElement;
@@ -26,6 +29,10 @@ const stroke_width = $('#stroke-width') as HTMLInputElement;
 const number_lines = 2;
 
 const graph = new Time2AxisLineGraph();
+const graph_brush = new Time2AxisLineGraph();
+const brush = new BrushX();
+// const brush = d3.brushX<undefined>();
+// const sel = [0, 0];
 
 const data: Data[][] = [];
 const data2: Data[][] = [];
@@ -120,6 +127,11 @@ const graph_config: Time2AxisLineGraphOptions = {
         },
       },
     },
+  },
+  axis: {
+    x: true,
+    y: true,
+    y2: true,
   },
   label: [
     {
@@ -284,7 +296,7 @@ const graph_config: Time2AxisLineGraphOptions = {
   ],
   tooltip: {
     on: (ev, d) => `${time_format((d as Data).date)}: ${(d as Data).value}`,
-    config: { style: { transition: 'opacity 1s' } },
+    config: { style: { transition: 'opacity 0.5s' } },
   },
   legend: {
     legends: ['legend 0', 'legend 1', 'legend 2'],
@@ -305,6 +317,34 @@ const graph_config: Time2AxisLineGraphOptions = {
         'font-size': 20,
       },
     },
+  },
+};
+
+const graph_brush_config: Time2AxisLineGraphOptions = {
+  margin: { top: 0, bottom: 20, left: 40, right: 40 },
+  config: {
+    attr: {
+      fill: 'white',
+    },
+  },
+  line: [
+    {
+      curve: d3.curveLinear,
+      attr: {
+        'stroke-width': 1.5,
+        stroke: d3.schemeCategory10,
+      },
+    },
+    {
+      curve: d3.curveLinear,
+      attr: {
+        'stroke-width': 1.5,
+        stroke: d3.schemeCategory10.slice(number_lines),
+      },
+    },
+  ],
+  axis: {
+    x: true,
   },
 };
 
@@ -384,7 +424,12 @@ remove_last.addEventListener('click', () => {
 randonize();
 create_graph();
 
+/***********************************/
+// Functions
+/***********************************/
+
 function update_graph(): void {
+  graph_brush.data(data, data2);
   graph.data(data, data2);
 }
 
@@ -393,6 +438,23 @@ function create_graph(): void {
   graph_el.appendChild(
     graph.draw(graph_el, graph_config).data(data, data2).node() as SVGSVGElement
   );
+
+  graph_brush_el.innerHTML = '';
+  graph_brush_el.appendChild(
+    graph_brush
+      .draw(graph_brush_el, graph_brush_config)
+      .data(data, data2)
+      .node() as SVGSVGElement
+  );
+  const { width, height } = get_dimensions(
+    graph_brush_el,
+    graph_brush_config.margin
+  );
+  brush.draw(graph_brush.group, width, height);
+  brush.on('brush', () => {
+    graph.focus(brush.focus(graph_brush.x));
+    update_graph();
+  });
 }
 
 function simple_random(): number {
@@ -423,6 +485,5 @@ function create_data(): void {
 }
 
 window.addEventListener('resize', ev => {
-  console.log('resize');
   graph.draw(graph_el, graph_config).data(data, data2);
 });

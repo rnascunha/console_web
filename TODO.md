@@ -94,8 +94,8 @@
 - [ ] Make lib `esp` as a library;
 - [x] Rename to `ESPTool`;
 - [ ] Make it possible drag files/directories;
-- [ ] Update device via HTTP (OTA);
-- [ ] Do OTA operations on device (see https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/ota.html#ota-tool-otatool-py);
+- [x] Update device via HTTP (OTA);
+- [x] Do OTA operations on device (see https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/ota.html#ota-tool-otatool-py);
 
 ### New Tools
 

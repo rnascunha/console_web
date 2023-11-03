@@ -18,9 +18,21 @@
         flex-direction: column;
       }
 
-      #graph {
+      #graph-container {
+        display: flex;
+        flex-direction: column;
         flex-grow: 1;
         overflow: hidden;
+      }
+
+      #graph {
+        flex-grow: 1;
+        /* overflow: hidden; */
+        padding: 5px;
+      }
+
+      #graph-brush {
+        height: 100px;
         padding: 5px;
       }
 
@@ -49,6 +61,9 @@
       <button id="remove-last">-Last</button>
       <input id="stroke-width" type="number" value="1.5" step="0.1" />
     </div>
-    <div id="graph"></div>
+    <div id="graph-container">
+      <div id="graph"></div>
+      <div id="graph-brush"></div>
+    </div>
   </body>
 </html>

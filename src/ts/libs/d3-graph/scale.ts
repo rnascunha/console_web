@@ -4,15 +4,18 @@ import {
   type ScaleTime as D3ScaleTime,
   scaleTime,
   scaleLinear,
+  type NumberValue,
 } from 'd3';
 
 type RangeType = [number, number];
 type DomainType<D> = (d: readonly any[], accessor: Accessor<D, any>) => [D, D];
 
-interface ScaleType<D> {
+export interface ScaleType<D> {
   range: (d: [number, number]) => any;
   domain: (d: Iterable<D>) => any;
   nice: (ticks?: number) => any;
+  invert: (value: NumberValue) => D;
+  copy: () => this;
 }
 
 interface ScaleOptions {
@@ -20,7 +23,7 @@ interface ScaleOptions {
 }
 
 const default_scale_options = {
-  nice: true,
+  nice: false,
 };
 
 export class Scale<D, T extends ScaleType<D>> {
@@ -36,6 +39,10 @@ export class Scale<D, T extends ScaleType<D>> {
 
   public get scale(): T {
     return this._scale;
+  }
+
+  public invert(value: NumberValue): D {
+    return this._scale.invert(value);
   }
 
   public draw(range: RangeType): void {

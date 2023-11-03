@@ -1,4 +1,9 @@
-import { type Selection, type ZoomBehavior, zoom as d3Zoom } from 'd3';
+import {
+  type Selection,
+  type ZoomBehavior,
+  zoom as d3Zoom,
+  type Transition,
+} from 'd3';
 import type { Dimension } from './types';
 
 export function zoom(
@@ -15,15 +20,22 @@ export function zoom(
   select.call(zm);
 
   select.on('auxclick', ev => {
-    select.call(zm.scaleTo, 1);
-    select
-      .transition()
-      .call(
-        zm.translateTo,
-        0.5 * dim.width,
-        0.5 * dim.height + dim.margin.top / 2
-      );
+    select.call(zm.scaleTo, 1).transition().call(reset, zm, dim);
   });
 
   return zm;
+}
+
+function reset(
+  select:
+    | Selection<SVGSVGElement, undefined, null, undefined>
+    | Transition<SVGSVGElement, undefined, null, undefined>,
+  zoom: ZoomBehavior<SVGSVGElement, undefined>,
+  dim: Dimension
+): void {
+  select.call(
+    zoom.translateTo,
+    0.5 * dim.width,
+    0.5 * dim.height + dim.margin.top / 2
+  );
 }
