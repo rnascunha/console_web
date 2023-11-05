@@ -1,8 +1,10 @@
 import type {
   Data,
-  Time2AxisLineGraphOptions,
+  // Time2AxisLineGraphOptions,
 } from '../../libs/d3-graph/time_2_axis_line_graph';
-import type { Time2AxisLineGraphComponent } from '../../golden-components/time_line_graph';
+import type { Time2AxisLineBrushGraphOptions } from '../../libs/d3-graph/time_2_axis_line_brush_graph';
+// import type { Time2AxisLineGraphComponent } from '../../golden-components/time_line_graph';
+import type { Time2AxisLineBrushGraphComponent } from '../../golden-components/time_line_graph';
 import { time as time_format } from '../../helper/time';
 import { LayoutManager } from 'golden-layout';
 import type { ControlFlowData } from './component';
@@ -20,7 +22,8 @@ const colors = ['blue', 'red', 'yellow'];
 const lcolors = colors.slice(0, 2);
 const rcolors = colors.slice(2)[0];
 
-const graph_options: Time2AxisLineGraphOptions = {
+const graph_options: Time2AxisLineBrushGraphOptions = {
+  brush_height: 70,
   margin: { top: 20, bottom: 40, left: 30, right: 40 },
   config: {
     style: {
@@ -93,6 +96,11 @@ const graph_options: Time2AxisLineGraphOptions = {
       },
     },
   },
+  axis: {
+    x: true,
+    y: true,
+    y2: true,
+  },
   label: [
     {
       axis: 'left',
@@ -163,7 +171,7 @@ const graph_options: Time2AxisLineGraphOptions = {
 };
 
 export class ControlFlowGraph {
-  private _graph_component?: Time2AxisLineGraphComponent;
+  private _graph_component?: Time2AxisLineBrushGraphComponent;
 
   public create_graph(
     layout: LayoutManager,
@@ -176,7 +184,7 @@ export class ControlFlowGraph {
     }
 
     this._graph_component = layout.newComponentAtLocation(
-      'Time2AxisLineGraphComponent',
+      'Time2AxisLineBrushGraphComponent',
       graph_options,
       title,
       [
@@ -185,7 +193,7 @@ export class ControlFlowGraph {
         { typeId: LayoutManager.LocationSelector.TypeId.FirstStack },
         { typeId: LayoutManager.LocationSelector.TypeId.Root },
       ]
-    )?.component as Time2AxisLineGraphComponent;
+    )?.component as Time2AxisLineBrushGraphComponent;
 
     this.update_graph(data);
 

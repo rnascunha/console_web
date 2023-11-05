@@ -23,7 +23,7 @@ interface ScaleOptions {
 }
 
 const default_scale_options = {
-  nice: false,
+  nice: true,
 };
 
 export class Scale<D, T extends ScaleType<D>> {

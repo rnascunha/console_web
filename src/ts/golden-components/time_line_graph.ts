@@ -5,6 +5,10 @@ import {
   type Data,
   type Time2AxisLineGraphOptions,
 } from '../libs/d3-graph/time_2_axis_line_graph';
+import {
+  Time2AxisLineBrushGraph,
+  type Time2AxisLineBrushGraphOptions,
+} from '../libs/d3-graph/time_2_axis_line_brush_graph';
 import { download } from '../helper/download';
 
 const template = (function () {
@@ -103,6 +107,81 @@ export class Time2AxisLineGraphComponent extends ComponentBase {
   }
 
   get graph(): Time2AxisLineGraph {
+    return this._graph;
+  }
+
+  private draw(): void {
+    this._graph.draw(this._graph_el, this._opt_graph);
+    this._is_draw = true;
+    this.update(this._data);
+  }
+
+  public update(data: [Data[][], Data[][]]): void {
+    if (!this._is_draw) return;
+    this._graph.data(data[0], data[1]);
+    this._data = data;
+  }
+}
+
+export class Time2AxisLineBrushGraphComponent extends ComponentBase {
+  private readonly _graph_el: HTMLElement;
+  private readonly _graph: Time2AxisLineBrushGraph;
+  private _data: [Data[][], Data[][]] = [[], []];
+  private readonly _opt_graph: Time2AxisLineBrushGraphOptions;
+
+  private _is_draw: boolean = false;
+
+  constructor(
+    container: ComponentContainer,
+    state: JsonValue | undefined,
+    virtual: boolean
+  ) {
+    super(container, virtual);
+
+    this._opt_graph = state as Time2AxisLineBrushGraphOptions;
+
+    this.rootHtmlElement.appendChild(template.content.cloneNode(true));
+    this._graph_el = this.rootHtmlElement.querySelector(
+      '#graph'
+    ) as HTMLElement;
+    this._graph = new Time2AxisLineBrushGraph();
+
+    this.container.on('resize', () => {
+      setTimeout(() => {
+        this.draw();
+      }, 1);
+    });
+
+    this.container.on('maximised', () => {
+      setTimeout(() => {
+        this.draw();
+      }, 1);
+    });
+
+    this.container.on('open', () => {
+      setTimeout(() => {
+        this.draw();
+      }, 1);
+    });
+
+    (
+      this.rootHtmlElement.querySelector('#save-graph') as HTMLElement
+    ).addEventListener('click', () => {
+      const svg = (
+        this.rootHtmlElement.querySelector('svg') as SVGSVGElement
+      ).cloneNode(true) as SVGSVGElement;
+
+      svg.removeAttribute('width');
+      svg.removeAttribute('height');
+
+      const source = new XMLSerializer().serializeToString(svg);
+      download('graph.svg', source, {
+        type: 'data:image/svg+xml;charset=utf-8',
+      });
+    });
+  }
+
+  get graph(): Time2AxisLineBrushGraph {
     return this._graph;
   }
 

@@ -1,4 +1,9 @@
-import { type Selection, brushX } from 'd3';
+import {
+  type Selection,
+  brushX,
+  type BrushBehavior,
+  type BrushSelection,
+} from 'd3';
 import type { Scale, ScaleType } from './scale';
 import EventEmitter from '../event_emitter';
 
@@ -7,22 +12,32 @@ interface BrushXEvents {
 }
 
 export class BrushX extends EventEmitter<BrushXEvents> {
-  private _focus: [number, number] | null = null;
+  private _brush?: BrushBehavior<undefined>;
+  private _focus: BrushSelection | null = null;
 
   constructor(focus?: [number, number]) {
     super();
     if (focus !== undefined) this._focus = focus;
   }
 
-  get range(): [number, number] | null {
+  get range(): BrushSelection | null {
     return this._focus;
   }
 
-  public focus<D, T extends ScaleType<D>>(
-    scale: Scale<D, T>
-  ): [D, D] | undefined {
-    if (this._focus === null) return undefined;
-    return [scale.invert(this._focus[0]), scale.invert(this._focus[1])];
+  public set_focus(
+    g: Selection<SVGGElement, undefined, null, undefined>,
+    f: BrushSelection | null
+  ): void {
+    this._focus = f;
+    this._brush?.move(g, f);
+  }
+
+  public focus<D, T extends ScaleType<D>>(scale: Scale<D, T>): [D, D] | null {
+    if (this._focus === null) return null;
+    return [
+      scale.invert(this._focus[0] as number),
+      scale.invert(this._focus[1] as number),
+    ];
   }
 
   public draw(
@@ -30,32 +45,45 @@ export class BrushX extends EventEmitter<BrushXEvents> {
     width: number,
     height: number
   ): void {
-    const brush = brushX<undefined>().extent([
+    this._brush = brushX<undefined>().extent([
       [0, 0],
       [width, height],
     ]);
 
-    g.call(brush).call(brush.move, this._focus);
+    g.call(this._brush).call(this._brush.move, this._focus);
 
-    const brushed = ({ selection }: { selection?: [number, number] }): void => {
+    const brushed = ({
+      selection,
+      mode,
+    }: {
+      mode?: string;
+      selection?: [number, number];
+    }): void => {
       if (selection !== undefined) {
         this._focus = selection;
-        this.emit('brush', this);
+        if (mode !== undefined) this.emit('brush', this);
       }
     };
 
     const brushended = ({
       selection,
+      mode,
     }: {
+      mode?: string;
       selection?: [number, number];
     }): void => {
       if (selection === undefined) {
         this._focus = null;
-        g.call(brush.move, [0, width]);
+        g.call((this._brush as BrushBehavior<undefined>).move, null);
+        if (mode !== undefined) this.emit('brush', this);
+      }
+      if (selection === null && mode === 'handle') {
+        this._focus = null;
+        g.call((this._brush as BrushBehavior<undefined>).move, null);
         this.emit('brush', this);
       }
     };
 
-    brush.on('brush', brushed).on('end', brushended);
+    this._brush.on('brush', brushed).on('end', brushended);
   }
 }

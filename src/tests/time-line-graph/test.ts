@@ -31,8 +31,6 @@ const number_lines = 2;
 const graph = new Time2AxisLineGraph();
 const graph_brush = new Time2AxisLineGraph();
 const brush = new BrushX();
-// const brush = d3.brushX<undefined>();
-// const sel = [0, 0];
 
 const data: Data[][] = [];
 const data2: Data[][] = [];
@@ -431,6 +429,19 @@ create_graph();
 function update_graph(): void {
   graph_brush.data(data, data2);
   graph.data(data, data2);
+  brush.set_focus(
+    graph_brush.group,
+    domain_to_range(graph_brush, graph.get_focus())
+  );
+}
+
+function domain_to_range(
+  graph: Time2AxisLineGraph,
+  focus: [Date, Date] | null
+): [number, number] | null {
+  const x = graph.x.scale;
+  if (focus === null) return null;
+  return [x(focus[0]), x(focus[1])];
 }
 
 function create_graph(): void {

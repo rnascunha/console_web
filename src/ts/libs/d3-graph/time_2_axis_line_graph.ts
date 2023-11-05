@@ -99,7 +99,7 @@ export class Time2AxisLineGraph {
   private _line_config: [LineConfig, LineConfig];
   private _circle_config?: [CircleConfig, CircleConfig];
 
-  private _focus?: [Date, Date];
+  private _focus: [Date, Date] | null = null;
 
   constructor() {
     this._svg = d3.create('svg');
@@ -127,16 +127,17 @@ export class Time2AxisLineGraph {
       .append('rect');
 
     this._g
+      .selectAll()
+      .data([
+        default_classes.line_area,
+        default_classes.line_area_right,
+        default_classes.circle_area,
+        default_classes.circle_area_right,
+      ])
+      .enter()
       .append('g')
-      .classed(default_classes.line_area, true)
+      .attr('class', d => d)
       .attr('clip-path', `url(#--clip-${uid}`);
-    this._g.append('g').classed(default_classes.circle_area, true);
-
-    this._g
-      .append('g')
-      .classed(default_classes.line_area_right, true)
-      .attr('clip-path', `url(#--clip-${uid}`);
-    this._g.append('g').classed(default_classes.circle_area_right, true);
   }
 
   get node(): d3.Selection<SVGSVGElement, undefined, null, undefined> {
@@ -151,8 +152,12 @@ export class Time2AxisLineGraph {
     return this._g;
   }
 
-  public focus(f?: [Date, Date]): void {
+  public focus(f: [Date, Date] | null): void {
     this._focus = f;
+  }
+
+  public get_focus(): [Date, Date] | null {
+    return this._focus;
   }
 
   public draw(container: HTMLElement, opt: Time2AxisLineGraphOptions): this {
@@ -227,7 +232,7 @@ export class Time2AxisLineGraph {
     data: readonly Data[][],
     data2: readonly Data[][]
   ): d3.Selection<SVGSVGElement, undefined, null, undefined> {
-    if (this._focus === undefined) this._x.data(data, (d: Data) => d.date);
+    if (this._focus === null) this._x.data(data, (d: Data) => d.date);
     else this._x.scale.domain(this._focus);
     this._y.data(data, (d: Data) => d.value);
     this._y2.data(data2, (d: Data) => d.value);
