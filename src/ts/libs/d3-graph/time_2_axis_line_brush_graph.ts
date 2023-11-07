@@ -1,5 +1,6 @@
+import { brushSelection } from 'd3';
 import { BrushX } from './brush';
-import { get_dimensions } from './helper';
+import { get_dimensions, domain_to_range, range_to_domain } from './helper';
 import {
   Time2AxisLineGraph,
   type Data,
@@ -88,13 +89,20 @@ export class Time2AxisLineBrushGraph {
     this._data[0] = data;
     this._data[1] = data2;
 
-    this._graph.data(data, data2);
-    this._graph_brush.data(data, data2);
+    const select = brushSelection(
+      this._graph_brush.group.node() as SVGGElement
+    ) as [number, number] | null;
+    const is_end =
+      select !== null && select[1] === this._graph.x.scale.range()[1];
 
-    this._brush.set_focus(
-      this._graph_brush.group,
-      domain_to_range(this._graph_brush, this._graph.get_focus())
-    );
+    this._graph_brush.data(data, data2);
+    if (is_end) this._graph.focus(range_to_domain(this._graph_brush.x, select));
+    this._graph.data(data, data2);
+    if (!is_end)
+      this._brush.set_focus(
+        this._graph_brush.group,
+        domain_to_range(this._graph_brush.x, this._graph.get_focus())
+      );
 
     return this;
   }
@@ -116,15 +124,6 @@ export class Time2AxisLineBrushGraph {
       container.querySelector('.--brush') as HTMLElement,
     ];
   }
-}
-
-function domain_to_range(
-  graph: Time2AxisLineGraph,
-  focus: [Date, Date] | null
-): [number, number] | null {
-  const x = graph.x.scale;
-  if (focus === null) return null;
-  return [x(focus[0]), x(focus[1])];
 }
 
 function create_brush_options(

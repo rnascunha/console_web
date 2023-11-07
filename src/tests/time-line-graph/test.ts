@@ -2,6 +2,11 @@ import * as d3 from 'd3';
 import { curves } from '../../ts/libs/d3-graph/types';
 import { time as time_format } from '../../ts/helper/time';
 import { BrushX } from '../../ts/libs/d3-graph/brush';
+import {
+  domain_to_range,
+  range_to_domain,
+  get_dimensions,
+} from '../../ts/libs/d3-graph/helper';
 
 import {
   Time2AxisLineGraph,
@@ -9,7 +14,6 @@ import {
   type Time2AxisLineGraphOptions,
   type LineConfig,
 } from '../../ts/libs/d3-graph/time_2_axis_line_graph';
-import { get_dimensions } from '../../ts/libs/d3-graph/helper';
 
 const $ = document.querySelector.bind(document);
 
@@ -31,6 +35,7 @@ const number_lines = 2;
 const graph = new Time2AxisLineGraph();
 const graph_brush = new Time2AxisLineGraph();
 const brush = new BrushX();
+// const zoom = d3.zoom<SVGSVGElement, undefined>();
 
 const data: Data[][] = [];
 const data2: Data[][] = [];
@@ -76,12 +81,13 @@ const graph_config: Time2AxisLineGraphOptions = {
       },
       circle: {
         attr: {
-          r: 1,
+          r: 5,
         },
         transition: {
-          duration: 2000,
+          duration: 1000,
           attr: {
-            r: (d, i) => 1 + 1 * i,
+            // r: (d, i) => 1 + 1 * i,
+            r: 5,
           },
         },
       },
@@ -94,12 +100,12 @@ const graph_config: Time2AxisLineGraphOptions = {
       },
       circle: {
         attr: {
-          r: 1,
+          r: 5,
         },
         transition: {
           duration: 2000,
           attr: {
-            r: 10,
+            r: 5,
             fill: d3.schemeDark2,
           },
         },
@@ -420,6 +426,7 @@ remove_last.addEventListener('click', () => {
 });
 
 randonize();
+// add_data(100, 10000);
 create_graph();
 
 /***********************************/
@@ -427,21 +434,19 @@ create_graph();
 /***********************************/
 
 function update_graph(): void {
-  graph_brush.data(data, data2);
-  graph.data(data, data2);
-  brush.set_focus(
-    graph_brush.group,
-    domain_to_range(graph_brush, graph.get_focus())
-  );
-}
+  const select = d3.brushSelection(graph_brush.group.node() as SVGGElement) as
+    | [number, number]
+    | null;
+  const is_end = select !== null && select[1] === graph.x.scale.range()[1];
 
-function domain_to_range(
-  graph: Time2AxisLineGraph,
-  focus: [Date, Date] | null
-): [number, number] | null {
-  const x = graph.x.scale;
-  if (focus === null) return null;
-  return [x(focus[0]), x(focus[1])];
+  graph_brush.data(data, data2);
+  if (is_end) graph.focus(range_to_domain(graph_brush.x, select));
+  graph.data(data, data2);
+  if (!is_end)
+    brush.set_focus(
+      graph_brush.group,
+      domain_to_range(graph_brush.x, graph.get_focus())
+    );
 }
 
 function create_graph(): void {
@@ -466,6 +471,29 @@ function create_graph(): void {
     graph.focus(brush.focus(graph_brush.x));
     update_graph();
   });
+
+  // const dz = get_dimensions(graph_el, graph_config.margin);
+  // const E = [
+  //   [0, 0],
+  //   [dz.width, dz.height],
+  // ] as [[number, number], [number, number]];
+  // zoom
+  //   .scaleExtent([1, 2])
+  //   .extent(E)
+  //   .translateExtent(E)
+  //   .on('zoom', event => {
+  //     // console.log('zoom', event);
+  //     const xz = event.transform.rescaleX(graph.x.scale);
+  //     if (!isNaN(xz.domain()[0])) graph.focus(xz.domain());
+  //     else graph.focus(null);
+  //     console.log(
+  //       'diff',
+  //       (xz.domain()[0] as Date).getTime() - (xz.domain()[1] as Date).getTime()
+  //     );
+  //     graph.data(data, data2);
+  //   });
+
+  // graph.node.call(zoom).transition().duration(100).call(zoom.scaleTo, 1);
 }
 
 function simple_random(): number {
@@ -498,3 +526,25 @@ function create_data(): void {
 window.addEventListener('resize', ev => {
   graph.draw(graph_el, graph_config).data(data, data2);
 });
+
+// function add_data(count: number, interval: number): void {
+//   const now = Date.now();
+
+//   if (data.length === 0) data.push([], []);
+//   if (data2.length === 0) data2.push([]);
+
+//   for (let i = 0; i < count; ++i) {
+//     data[0].push({
+//       date: new Date(now + i * interval),
+//       value: simple_random(),
+//     });
+//     data[1].push({
+//       date: new Date(now + i * interval),
+//       value: simple_random(),
+//     });
+//     data2[0].push({
+//       date: new Date(now + i * interval),
+//       value: simple_random(),
+//     });
+//   }
+// }

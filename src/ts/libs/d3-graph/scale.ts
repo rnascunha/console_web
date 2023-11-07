@@ -16,6 +16,7 @@ export interface ScaleType<D> {
   nice: (ticks?: number) => any;
   invert: (value: NumberValue) => D;
   copy: () => this;
+  (n: D): number;
 }
 
 interface ScaleOptions {
@@ -27,7 +28,7 @@ const default_scale_options = {
 };
 
 export class Scale<D, T extends ScaleType<D>> {
-  private readonly _scale: T;
+  private _scale: T;
   private readonly _domain: DomainType<D>;
   private readonly _opt: ScaleOptions;
 
@@ -39,6 +40,10 @@ export class Scale<D, T extends ScaleType<D>> {
 
   public get scale(): T {
     return this._scale;
+  }
+
+  public set scale(s: T) {
+    this._scale = s;
   }
 
   public invert(value: NumberValue): D {

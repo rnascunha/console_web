@@ -1,6 +1,7 @@
 import { type BaseType, type Numeric, extent } from 'd3';
 import type { Accessor, Dimension, Margin } from './types';
 import type { ElementConfig } from './attributes';
+import type { Scale, ScaleType } from './scale';
 
 export function extent_multi_domain<D, T extends Numeric>(
   data: readonly D[][],
@@ -42,4 +43,20 @@ export function add_class_config<T extends BaseType>(
 ): void {
   if (config.class === undefined) config.class = [classs];
   else config.class.push(classs);
+}
+
+export function domain_to_range<D, T extends ScaleType<D>>(
+  scale: Scale<D, T>,
+  domain: [D, D] | null
+): [number, number] | null {
+  if (domain === null) return null;
+  return [scale.scale(domain[0]), scale.scale(domain[1])];
+}
+
+export function range_to_domain<D, T extends ScaleType<D>>(
+  scale: Scale<D, T>,
+  range: [number, number] | null
+): [D, D] | null {
+  if (range === null) return null;
+  return [scale.scale.invert(range[0]), scale.scale.invert(range[1])];
 }
