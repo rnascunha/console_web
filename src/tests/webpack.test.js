@@ -14,8 +14,19 @@ module.exports = {
     input_with_unit: path.resolve(__dirname, './input-with-unit/test.ts'),
     progress_bar: path.resolve(__dirname, './progress-bar/test.ts'),
     time_line_graph: path.resolve(__dirname, './time-line-graph/test.ts'),
+    zoomable: path.resolve(__dirname, './zoomable/test.ts'),
     test: path.resolve(__dirname, './test/test.ts'),
   },
+
+  module: {
+    rules: [
+      {
+        test: /\.csv$/,
+        type: 'asset/resource',
+      },
+    ],
+  },
+
   plugins: [
     new HtmlWebpackPlugin({
       chunks: ['split_vertical'],
@@ -56,6 +67,11 @@ module.exports = {
       chunks: ['time_line_graph'],
       filename: 'time_line_graph.html',
       template: path.resolve(__dirname, './time-line-graph/test.html'),
+    }),
+    new HtmlWebpackPlugin({
+      chunks: ['zoomable'],
+      filename: 'zoomable.html',
+      template: path.resolve(__dirname, './zoomable/test.html'),
     }),
     new HtmlWebpackPlugin({
       chunks: ['test'],

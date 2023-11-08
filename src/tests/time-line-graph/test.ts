@@ -50,6 +50,7 @@ const axis_label_config = {
 };
 
 const graph_config: Time2AxisLineGraphOptions = {
+  // zoom: true,
   margin: { top: 20, bottom: 40, left: 40, right: 40 },
   config: {
     attr: {
@@ -382,11 +383,11 @@ add.addEventListener('click', () => {
     return;
   }
 
-  [data, data2].forEach(dd => {
+  [data, data2].forEach((dd, ii) => {
     dd.forEach((d, i) => {
       d.push({
         date: new Date(),
-        value: i === 0 ? +value.value : simple_random(),
+        value: ii === 0 && i === 0 ? +value.value : simple_random(),
       });
     });
   });
@@ -426,7 +427,7 @@ remove_last.addEventListener('click', () => {
 });
 
 randonize();
-// add_data(100, 10000);
+add_data(100, 10000);
 create_graph();
 
 /***********************************/
@@ -527,24 +528,24 @@ window.addEventListener('resize', ev => {
   graph.draw(graph_el, graph_config).data(data, data2);
 });
 
-// function add_data(count: number, interval: number): void {
-//   const now = Date.now();
+function add_data(count: number, interval: number): void {
+  const now = Date.now() - count * interval;
 
-//   if (data.length === 0) data.push([], []);
-//   if (data2.length === 0) data2.push([]);
+  if (data.length === 0) data.push([], []);
+  if (data2.length === 0) data2.push([]);
 
-//   for (let i = 0; i < count; ++i) {
-//     data[0].push({
-//       date: new Date(now + i * interval),
-//       value: simple_random(),
-//     });
-//     data[1].push({
-//       date: new Date(now + i * interval),
-//       value: simple_random(),
-//     });
-//     data2[0].push({
-//       date: new Date(now + i * interval),
-//       value: simple_random(),
-//     });
-//   }
-// }
+  for (let i = 0; i < count; ++i) {
+    data[0].push({
+      date: new Date(now + i * interval),
+      value: simple_random(),
+    });
+    data[1].push({
+      date: new Date(now + i * interval),
+      value: simple_random(),
+    });
+    data2[0].push({
+      date: new Date(now + i * interval),
+      value: simple_random(),
+    });
+  }
+}
