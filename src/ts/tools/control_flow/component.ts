@@ -554,12 +554,12 @@ export class ControlFlowComponent extends ComponentBase {
         })
         .finally(() => {});
 
-      this._onopen();
-
       this._ws.onopen = ev => {
         this._state.protocol = protocol;
         this._state.address = addr;
         this.save_state();
+
+        this._onopen();
 
         this._display.command(`Socket ${protocol}://${addr} opened`);
       };
