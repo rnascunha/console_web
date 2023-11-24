@@ -254,7 +254,7 @@ export default class DataDisplay extends HTMLElement {
   }
 
   /**
-   * This is not good. Make is better
+   * This is not good. Make it better
    */
   private follow_data(el: HTMLElement): void {
     if (this._follow.checked) {
@@ -267,7 +267,7 @@ export default class DataDisplay extends HTMLElement {
   }
 
   /**
-   * This is not good. Make is better
+   * This is not good. Make it better
    */
   private is_at_end(): boolean {
     if (!this.is_inverted()) {

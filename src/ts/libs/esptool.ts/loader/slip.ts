@@ -125,46 +125,6 @@ export function parse_response(
   };
 }
 
-// export function parse_response(
-//   data_raw: number[],
-//   is_stub: boolean
-// ): type.Response | ESPFlashError {
-//   const data = decode(data_raw);
-
-//   if (data instanceof ESPFlashError) return data;
-//   if (data.length < HEADER_RESPONSE_SIZE)
-//     return new ESPFlashError(ErrorCode.PACKET_TOO_SMALL);
-
-//   if (data[0] !== type.Direction.RESPONSE)
-//     return new ESPFlashError(ErrorCode.WRONG_DIRECTION);
-
-//   const command = data[1] as type.Command;
-//   const size = bytes_to_uint16(data[2], data[3]);
-//   const payload_received = data.length - HEADER_RESPONSE_SIZE;
-//   if (size !== payload_received)
-//     return new ESPFlashError(ErrorCode.SIZE_NOT_MATCH);
-
-//   const value = unpack32([data[4], data[5], data[6], data[7]]);
-
-//   const status_size = is_stub ? 2 : 4;
-//   if (size < status_size) return new ESPFlashError(ErrorCode.PAYLOAD_TOO_SMALL);
-
-//   const payload = data.slice(HEADER_RESPONSE_SIZE, -status_size);
-//   const status_data = data.slice(-status_size);
-
-//   return {
-//     direction: type.Direction.RESPONSE,
-//     command,
-//     size,
-//     value,
-//     data: payload,
-//     status: {
-//       status: status_data[0] as type.Status,
-//       error: status_data[1],
-//     },
-//   };
-// }
-
 export function parse(
   raw_data: Uint8Array | number[],
   is_stub: boolean,

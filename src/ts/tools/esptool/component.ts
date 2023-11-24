@@ -119,6 +119,13 @@ const template = (function () {
     flex-grow: 1;
   }
 
+  #bootloader-debug {
+    display: inline-flex;
+    gap: 2px;
+    position: absolute;
+    right: 2px;
+  }
+
   /* Chrome, Safari, Edge, Opera */
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
@@ -147,13 +154,15 @@ const template = (function () {
         <datalist id=serial-baudrate-list></datalist>
         <button id=serial-open data-state=close></button>
         <button id=serial-reset>Reset</button>
-        <button id=serial-terminal-clear title=clear>&#x239A;</button>
-        <button id=serial-bootloader>BOOT</button>
-        <button id=serial-sync title=Sync>&#x21B9;</button>
-        <button id=serial-chip title='Chip information'>&#x2139;</button>
-        <button id=serial-change-baud title='Change Baudrate'>BR</button>
-        <button id=serial-upload-stub title='Upload stub'>&#x26F0</button>
         <button id=serial-erase-flash title='Erase flash'>&#x2327;</button>
+        <button id=serial-terminal-clear title=clear>&#x239A;</button>
+        <div id=bootloader-debug>
+          <button id=serial-bootloader>BOOT</button>
+          <button id=serial-sync title=Sync>&#x21B9;</button>
+          <button id=serial-chip title='Chip information'>&#x2139;</button>
+          <button id=serial-change-baud title='Change Baudrate'>BR</button>
+          <button id=serial-upload-stub title='Upload stub'>&#x26F0</button>
+        </div>
       </div>
       <div id=console></div>
     </div>
@@ -190,6 +199,7 @@ const bar_color = '#00cc00';
 
 const color_ok = { colors: [Color.FG_GREEN] };
 const color_fail = { colors: [Color.FG_RED] };
+const color_warn = { colors: [Color.FG_YELLOW] };
 
 function reset_file_list(list: ESPFlashFileList): void {
   list.error('');
@@ -327,7 +337,7 @@ export class ESPToolComponent extends ComponentBase {
     }
   }
 
-  private console(): void {
+  private console(debug: boolean = false): void {
     const shadow = this.rootHtmlElement.shadowRoot as ShadowRoot;
     shadow.adoptedStyleSheets = [terminal_style];
 
@@ -337,7 +347,7 @@ export class ESPToolComponent extends ComponentBase {
     this.container.on('open', () => {
       setTimeout(() => {
         this._terminal.fit();
-      }, 0);
+      }, 1);
     });
 
     this.container.on('resize', () => {
@@ -345,9 +355,7 @@ export class ESPToolComponent extends ComponentBase {
     });
 
     if (!is_serial_supported()) {
-      this._terminal.write_str(
-        'Serial API is not supported at this browser! Use a chrome based browser.'
-      );
+      this._terminal.write_str('Serial API is not supported at this browser!');
       this._terminal.write_str('https://caniuse.com/web-serial');
       return;
     }
@@ -357,6 +365,11 @@ export class ESPToolComponent extends ComponentBase {
     const open = shadow.querySelector('#serial-open') as HTMLButtonElement;
     const br = shadow.querySelector('#serial-baudrate') as HTMLInputElement;
     const reset = shadow.querySelector('#serial-reset') as HTMLButtonElement;
+    const erase_flash = shadow.querySelector(
+      '#serial-erase-flash'
+    ) as HTMLButtonElement;
+
+    // Debug buttons
     const boot = shadow.querySelector(
       '#serial-bootloader'
     ) as HTMLButtonElement;
@@ -368,9 +381,12 @@ export class ESPToolComponent extends ComponentBase {
     const upload_stub = shadow.querySelector(
       '#serial-upload-stub'
     ) as HTMLButtonElement;
-    const erase_flash = shadow.querySelector(
-      '#serial-erase-flash'
-    ) as HTMLButtonElement;
+
+    // Show debug
+    if (!debug) {
+      (shadow.querySelector('#bootloader-debug') as HTMLElement).style.display =
+        'none';
+    }
 
     shadow.querySelector('#serial-request')?.addEventListener('click', () => {
       ConsoleApp.serial_list.request();
@@ -464,27 +480,11 @@ export class ESPToolComponent extends ComponentBase {
     };
     list.on('disconnect', update_open);
     list.on('connect', update_open);
+    list.on('get_ports', update_open);
     update_open(list.ports);
     ConsoleApp.serial_list.get_ports();
 
     set_state(undefined);
-
-    const open_cb = async (): Promise<void> => {
-      if (this._loader === undefined) return;
-      set_state(ESPToolState.OPEN);
-      this._terminal.write_str('Connected', { colors: [Color.BG_GREEN] });
-
-      // this._loader.callback = (data: Uint8Array) => {
-      //   this._terminal.write(data);
-      // };
-
-      // this._terminal.write_str('Syncing...', { bl: false });
-      // if (await this._loader.try_connect()) this._terminal.write_str('Synced');
-      // else {
-      //   this._terminal.write_str('Error syncing.');
-      //   await this._loader.close();
-      // }
-    };
 
     open.addEventListener('click', () => {
       if (this._loader !== undefined) {
@@ -499,7 +499,13 @@ export class ESPToolComponent extends ComponentBase {
       if (serial === undefined || serial.state === 'open') return;
       this._loader = new ESPLoader(serial);
       this._loader.on('open', () => {
-        open_cb().finally(() => {});
+        if (this._loader === undefined) return;
+        set_state(ESPToolState.OPEN);
+        this._terminal.write_str('Connected', color_ok);
+
+        this._loader.callback = (data: Uint8Array) => {
+          this._terminal.write(data);
+        };
       });
       this._loader.on('close', () => {
         set_state(ESPToolState.CLOSE);
@@ -521,7 +527,12 @@ export class ESPToolComponent extends ComponentBase {
         this._terminal.write_str(`ESPTool error [${err.message}]`, color_fail);
       });
 
-      this._loader.open(+br.value).finally(() => {});
+      this._loader
+        .open(+br.value)
+        .then(() => {
+          this.bootloader_sync().finally(() => {});
+        })
+        .finally(() => {});
     });
 
     this.container.on('beforeComponentRelease', () => {
@@ -542,30 +553,13 @@ export class ESPToolComponent extends ComponentBase {
 
     boot.addEventListener('click', () => {
       if (this._loader === undefined) {
-        this._terminal.write_str('ESPTool not intiated...', color_fail);
+        this._terminal.write_str('ESPTool not intiated...', color_warn);
         return;
       }
-      this._terminal.write_str('Booting...', { bl: false });
+      this._terminal.write_str('Booting... ', { bl: false });
       this._loader
         .signal_bootloader()
         .then(async () => {
-          let timeout = 1000;
-          while (timeout > 0) {
-            const start = Date.now();
-            try {
-              const d = await this._loader?.read(timeout);
-              this._terminal.write_str(new TextDecoder().decode(d), {
-                bl: false,
-              });
-            } catch (e) {
-              console.log((e as Error).message);
-              console.log('silent');
-              break;
-            } finally {
-              timeout -= Date.now() - start;
-              console.log(timeout);
-            }
-          }
           this._terminal.write_str('done', color_ok);
         })
         .finally(() => {});
@@ -573,7 +567,7 @@ export class ESPToolComponent extends ComponentBase {
 
     sync.addEventListener('click', () => {
       if (this._loader === undefined) {
-        this._terminal.write_str('ESPTool not intiated...');
+        this._terminal.write_str('ESPTool not intiated...', color_warn);
         return;
       }
       this._terminal.write_str('Syncing...', { bl: false });
@@ -589,66 +583,34 @@ export class ESPToolComponent extends ComponentBase {
 
     info.addEventListener('click', () => {
       if (this._loader === undefined) {
-        this._terminal.write_str('ESPTool not intiated...');
+        this._terminal.write_str('ESPTool not intiated...', color_warn);
         return;
       }
-      this._terminal.write_str('Reading chip info...');
-      read_chip_info(this._loader)
-        .then(res => {
-          this._terminal.write_str(`Chip...${chip_name(res.chip)}`);
-          this._terminal.write_str(
-            `Efuses...${Array.from(res.efuses)
-              .map(f => hex(f))
-              .join(':')}`
-          );
-          this._terminal.write_str(`MAC...${mac_string(res.mac)}`);
-          this._terminal.write_str(`Crystal...${res.crystal}MHz`);
-          this._terminal.write_str(
-            `Flash ID...${this._loader!.flash_size.name}` // eslint-disable-line
-          );
-        })
-        .catch(e => {
-          this._terminal.write_str('Error reading chip info', color_fail);
-        })
-        .finally(() => {});
+      this.read_show_chip_info().catch(() => {
+        this._terminal.write_str('fail', color_fail);
+      });
     });
 
     change_baud.addEventListener('click', () => {
       if (this._loader === undefined) {
-        this._terminal.write_str('ESPTool not intiated...', color_fail);
+        this._terminal.write_str('ESPTool not intiated...', color_warn);
         return;
       }
 
-      const new_baud = 460800;
-      this._terminal.write_str(`Changing baudrate to ${new_baud}...`, {
-        bl: false,
+      this.change_show_baudrate().catch(() => {
+        this._terminal.write_str('fail', color_fail);
       });
-      this._loader
-        .change_baudrate(new_baud)
-        .then(() => {
-          this._terminal.write_str('done', color_ok);
-        })
-        .catch(() => {
-          this._terminal.write_str('FAIL', color_fail);
-        })
-        .finally(() => {});
     });
 
     upload_stub.addEventListener('click', () => {
       if (this._loader === undefined) {
-        this._terminal.write_str('ESPTool not intiated...', color_fail);
+        this._terminal.write_str('ESPTool not intiated...', color_warn);
         return;
       }
 
-      this._terminal.write_str('Uploading stub...', { bl: false });
-      this._loader
-        .upload_stub()
-        .then(() => {
-          this._terminal.write_str('done', color_ok);
-        })
-        .catch(e => {
-          this._terminal.write_str(`FAIL [${e.message as string}]`, color_fail);
-        });
+      this.update_show_stub().catch(e => {
+        this._terminal.write_str(`fail [${e.message as string}]`, color_fail);
+      });
     });
 
     erase_flash.addEventListener('click', () => {
@@ -667,6 +629,57 @@ export class ESPToolComponent extends ComponentBase {
           this._terminal.write_str('FAIL', color_fail);
         });
     });
+  }
+
+  private async bootloader_sync(): Promise<void> {
+    this._terminal.write_str('Syncing... ', { bl: false });
+    if (!(await (this._loader as ESPLoader).try_connect())) {
+      this._terminal.write_str('fail', color_fail);
+      await (this._loader as ESPLoader).close();
+      return;
+    }
+    this._terminal.write_str('done', color_ok);
+
+    try {
+      await this.read_show_chip_info();
+      await this.change_show_baudrate();
+      await this.update_show_stub();
+    } catch (e) {
+      this._terminal.write_str('fail', color_fail);
+    }
+  }
+
+  private async read_show_chip_info(): Promise<void> {
+    this._terminal.write_str('Reading chip info... ', { bl: false });
+
+    const res = await read_chip_info(this._loader as ESPLoader);
+    this._terminal.write_str('done', color_ok);
+
+    this._terminal.write_str(`Chip... ${chip_name(res.chip)}`);
+    this._terminal.write_str(
+      `Efuses...${Array.from(res.efuses)
+        .map(f => hex(f))
+        .join(':')}`
+    );
+    this._terminal.write_str(`MAC... ${mac_string(res.mac)}`);
+    this._terminal.write_str(`Crystal... ${res.crystal}MHz`);
+    this._terminal.write_str(
+      `Flash ID... ${this._loader!.flash_size.name}` // eslint-disable-line
+    );
+  }
+
+  private async change_show_baudrate(new_baud: number = 460800): Promise<void> {
+    this._terminal.write_str(`Changing baudrate to ${new_baud}... `, {
+      bl: false,
+    });
+    await (this._loader as ESPLoader).change_baudrate(new_baud);
+    this._terminal.write_str('done', color_ok);
+  }
+
+  private async update_show_stub(): Promise<void> {
+    this._terminal.write_str('Uploading stub... ', { bl: false });
+    await (this._loader as ESPLoader).upload_stub();
+    this._terminal.write_str('done', color_ok);
   }
 
   private save_state(): void {
@@ -763,17 +776,17 @@ async function flash_files(
       if (flags.verify) {
         try {
           terminal.write_str('Verifiy...');
-          terminal.write_str('Image...', { bl: false });
+          terminal.write_str('Image... ', { bl: false });
           const hash_image = await loader.flash_md5_calc(
             offset,
             file.file.size
           );
           terminal.write_str(hash_image);
-          terminal.write_str('File....', { bl: false });
+          terminal.write_str('File.... ', { bl: false });
           const hash_file = md5_digest.hash(file.buffer);
           terminal.write_str(hash_file);
           terminal.write_str(
-            `Flash image verify...${hash_image === hash_file ? 'OK' : 'FAIL'}`
+            `Flash image verify... ${hash_image === hash_file ? 'OK' : 'FAIL'}`
           );
         } catch (err) {
           terminal.write_str(`FAIL [${(err as Error).message}]`);
@@ -785,8 +798,8 @@ async function flash_files(
       throw err;
     }
   }
-  // if (flags.monitor) {
-  //   terminal.write_str('Rebooting...');
-  //   await loader.signal_reset();
-  // }
+  if (flags.monitor) {
+    terminal.write_str('Rebooting...');
+    await loader.signal_reset();
+  }
 }

@@ -18,11 +18,7 @@ import {
 import { ErrorCode, ESPFlashError } from './error';
 import { ESP32_stub } from './stubs';
 import EventEmitter from '../../event_emitter';
-import {
-  bootloader_reset,
-  // bootloader_reset_esp32r0,
-  hard_reset,
-} from './reset';
+import { bootloader_reset, hard_reset } from './reset';
 
 const ROM_BAUDRATE = 115200;
 const default_timeout = 3000;
@@ -65,7 +61,7 @@ interface ESPLoaderEvents {
 
 export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   private readonly _serial: SerialConn;
-  // private _callback?: (data: Uint8Array) => void;
+  private _callback?: (data: Uint8Array) => void;
 
   private _is_stub: boolean = false;
   private _baudrate: number = ROM_BAUDRATE;
@@ -80,25 +76,33 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
 
     this._serial = device;
 
-    // this._serial.on('data', data => {
-    //   if (this._callback !== undefined) this._callback(data);
-    // });
+    this._serial.on('data', data => {
+      if (this._callback !== undefined) this._callback(data);
+    });
   }
 
   get is_stub(): boolean {
     return this._is_stub;
   }
 
-  // private async serial_read(): Promise<void> {
-  //   this._serial.read().catch(e => {
-  //     this.emit('error', e);
-  //   });
-  // }
+  get baudrate(): number {
+    return this._baudrate;
+  }
+
+  get serial(): SerialConn {
+    return this._serial;
+  }
+
+  private async serial_read(): Promise<void> {
+    this._serial.read().catch(e => {
+      this.emit('error', e);
+    });
+  }
 
   async open(baud: number): Promise<void> {
     this._serial.on('open', () => {
       this.emit('open', this);
-      // this.serial_read().finally(() => {});
+      this.serial_read().finally(() => {});
     });
     this._serial.on('close', () => {
       this.emit('close', this);
@@ -110,6 +114,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     this._baudrate = baud;
     await this._serial.open({
       baudRate: baud,
+      flowControl: 'none',
     });
   }
 
@@ -118,28 +123,18 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     this._serial.clear_events();
   }
 
-  async read(timeout: number): Promise<Uint8Array> {
-    return await this._serial.read_timeout(timeout);
-  }
-
   async try_connect(): Promise<boolean> {
-    // const cb = this.callback;
-    // this.callback = undefined;
+    const cb = this.callback;
+    this.callback = undefined;
     for (let i = 0; i < 10; ++i) {
       try {
         await sleep(1000);
-        console.log('booting');
         await this.signal_bootloader();
-        // await bootloader_reset_esp32r0(this._serial);
-        console.log('booted');
         const was_silent = await this.wait_silent(10, 1000);
-        console.log('silent', was_silent);
         if (!was_silent) continue;
         this.emit('bootloader', this);
-        console.log('syncing');
         await this.sync();
-        console.log('synced');
-        // this.callback = cb;
+        this.callback = cb;
         return true;
       } catch (e) {
         console.log(
@@ -147,7 +142,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
         );
       }
     }
-    // this.callback = cb;
+    this.callback = cb;
     return false;
   }
 
@@ -184,7 +179,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     if (resp instanceof ESPFlashError) throw resp;
     this._baudrate = baud;
     await this._serial.change_config({ baudRate: baud });
-    // this.serial_read().finally(() => {});
+    this.serial_read().finally(() => {});
   }
 
   async crystal_frequency(): Promise<number> {
@@ -241,13 +236,13 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     else await this.command(Command.RUN_USER_CODE, [], 0, 0);
   }
 
-  // get callback(): ((data: Uint8Array) => void) | undefined {
-  //   return this._callback;
-  // }
+  get callback(): ((data: Uint8Array) => void) | undefined {
+    return this._callback;
+  }
 
-  // set callback(cb: ((data: Uint8Array) => void) | undefined) {
-  //   this._callback = cb;
-  // }
+  set callback(cb: ((data: Uint8Array) => void) | undefined) {
+    this._callback = cb;
+  }
 
   async signal_bootloader(): Promise<void> {
     await bootloader_reset(this._serial);
@@ -599,9 +594,8 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   ): Promise<boolean> {
     while (--retries >= 0) {
       try {
-        await this._serial.read_timeout(timeout);
+        await this.read_timeout(timeout);
       } catch (e) {
-        console.log('waited right');
         return true;
       }
       await sleep(50);
@@ -635,46 +629,20 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     throw new ESPFlashError(packet.status.error as number);
   }
 
-  // private async command(
-  //   op: Command,
-  //   data: number[],
-  //   checksum: number,
-  //   timeout: number = default_timeout
-  // ): Promise<Response> {
-  //   await this._serial.write(SLIP.command(op, new Uint8Array(data), checksum));
-  //   if (timeout === 0) return SLIP.empty_response(op, this._is_stub);
-
-  //   let packet: any;
-  //   let remain: number[] = [];
-  //   const check_command = (data: Uint8Array): boolean => {
-  //     const packets = SLIP.parse(data, this._is_stub, remain);
-  //     remain = packets.remain;
-  //     packet = packets.packets.find(p => p.command === op);
-  //     return packet !== undefined;
-  //   };
-
-  //   if (!(await this.read_timeout_until(timeout, check_command)))
-  //     throw new ESPFlashError(ErrorCode.RESPONSE_NOT_RECEIVED);
-
-  //   if (packet instanceof ESPFlashError) throw packet;
-  //   if (packet.status.status === Status.SUCCESS) return packet;
-  //   throw new ESPFlashError(packet.status.error as number);
-  // }
-
-  // private async read_timeout(timeout: number): Promise<Uint8Array> {
-  //   return await new Promise((resolve, reject) => {
-  //     const cb = this._callback;
-  //     this._callback = data => {
-  //       clearTimeout(handler);
-  //       this._callback = cb;
-  //       resolve(data);
-  //     };
-  //     const handler = setTimeout(() => {
-  //       this._callback = cb;
-  //       reject(new ESPFlashError(ErrorCode.TIMEOUT));
-  //     }, timeout);
-  //   });
-  // }
+  private async read_timeout(timeout: number): Promise<Uint8Array> {
+    return await new Promise((resolve, reject) => {
+      const cb = this._callback;
+      this._callback = data => {
+        clearTimeout(handler);
+        this._callback = cb;
+        resolve(data);
+      };
+      const handler = setTimeout(() => {
+        this._callback = cb;
+        reject(new ESPFlashError(ErrorCode.TIMEOUT));
+      }, timeout);
+    });
+  }
 
   private async read_timeout_until(
     timeout: number,
@@ -682,7 +650,7 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   ): Promise<boolean> {
     while (timeout >= 0) {
       const start = Date.now();
-      const response = await this._serial.read_timeout(timeout);
+      const response = await this.read_timeout(timeout);
       timeout -= Date.now() - start;
 
       if (func(response)) return true;
@@ -693,12 +661,6 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
   private flash_write_size(): number {
     return this._is_stub ? STUBLOADER_FLASH_WRITE_SIZE : FLASH_WRITE_SIZE;
   }
-
-  // private async flush_input(timeout: number = 100): Promise<void> {
-  //   try {
-  //     await this.read_timeout(timeout);
-  //   } catch (e) {}
-  // }
 
   /*
    Must call spi_attach before use it

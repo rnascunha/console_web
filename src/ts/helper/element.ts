@@ -3,7 +3,8 @@ export function roll_to_bottom(el: HTMLElement): void {
 }
 
 export function is_at_bottom(el: HTMLElement): boolean {
-  return el.scrollTop - (el.scrollHeight - el.offsetHeight) >= -1;
+  // return el.scrollTop - (el.scrollHeight - el.offsetHeight) >= -1;
+  return Math.abs(el.scrollTop - (el.scrollHeight - el.offsetHeight)) < 100;
 }
 
 export function roll_to_top(el: HTMLElement): void {
