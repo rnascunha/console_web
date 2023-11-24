@@ -216,7 +216,15 @@ export class ESPLoader extends EventEmitter<ESPLoaderEvents> {
     await this.command(Command.ERASE_FLASH, [], 0, timeout);
   }
 
-  async signal_reset(): Promise<void> {
+  async signal_reset(baud?: number): Promise<void> {
+    if (baud !== undefined && baud !== this._baudrate) {
+      await this._serial.change_config({
+        baudRate: baud,
+        flowControl: 'none',
+      });
+      await this.serial_read();
+      this._baudrate = baud;
+    }
     await hard_reset(this._serial);
     this.emit('open', this);
   }

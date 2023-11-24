@@ -211,6 +211,8 @@ export class ESPToolComponent extends ComponentBase {
   private readonly _terminal: DataTerminal;
   private _state: ESPToolState = ESPToolState.CLOSE;
 
+  private _baudrate: number = 115200;
+
   constructor(
     container: ComponentContainer,
     state: JsonValue | undefined,
@@ -324,7 +326,8 @@ export class ESPToolComponent extends ComponentBase {
             { bl: false }
           );
         },
-        file_list.flags
+        file_list.flags,
+        this._baudrate
       );
       file_list.progress({ value: 100, text: 'Files flashed' });
     } catch (err) {
@@ -351,7 +354,9 @@ export class ESPToolComponent extends ComponentBase {
     });
 
     this.container.on('resize', () => {
-      this._terminal.fit();
+      setTimeout(() => {
+        this._terminal.fit();
+      }, 1);
     });
 
     if (!is_serial_supported()) {
@@ -527,8 +532,9 @@ export class ESPToolComponent extends ComponentBase {
         this._terminal.write_str(`ESPTool error [${err.message}]`, color_fail);
       });
 
+      this._baudrate = +br.value;
       this._loader
-        .open(+br.value)
+        .open(this._baudrate)
         .then(() => {
           this.bootloader_sync().finally(() => {});
         })
@@ -540,7 +546,7 @@ export class ESPToolComponent extends ComponentBase {
     });
 
     reset.addEventListener('click', () => {
-      this._loader?.signal_reset().finally(() => {
+      this._loader?.signal_reset(this._baudrate).finally(() => {
         this._terminal.write_str('Reseting device', { colors: [Color.ITALIC] });
       });
     });
@@ -657,7 +663,7 @@ export class ESPToolComponent extends ComponentBase {
 
     this._terminal.write_str(`Chip... ${chip_name(res.chip)}`);
     this._terminal.write_str(
-      `Efuses...${Array.from(res.efuses)
+      `Efuses... ${Array.from(res.efuses)
         .map(f => hex(f))
         .join(':')}`
     );
@@ -733,73 +739,97 @@ async function flash_files(
   files: ESPFlashFile[],
   terminal: DataTerminal,
   cb: (file: string, info: FlashImageProgress) => void,
-  flags: FlashFlags
+  flags: FlashFlags,
+  original_baudrate: number
 ): Promise<void> {
-  for (const file of files) {
-    if (file.buffer === undefined)
-      file.buffer = await file_to_arraybuffer(file.file);
+  for (const file of files)
+    await flash_file(loader, terminal, file, cb, flags.verify);
 
-    terminal.write_str(
-      `Flashing ${file.name} at ${file.offset} [size=${file.file.size}]`
-    );
-    try {
-      const offset = parseInt(file.offset);
-      if (compression_support()) {
-        terminal.write_str('Compression supported');
-        const compressed_buffer = await compress_image(file.buffer, 'deflate');
-        terminal.write_str(
-          `Compression...${file.buffer.byteLength} -> ${
-            compressed_buffer.byteLength
-          } (${(
-            (100 * compressed_buffer.byteLength) /
-            file.buffer.byteLength
-          ).toFixed(1)}%)`
-        );
-        await loader.flash_image_deflate(
-          new Uint8Array(compressed_buffer),
-          file.buffer.byteLength,
-          offset,
-          {
-            callback: (data: FlashImageProgress) => {
-              cb(file.name, data);
-            },
-          }
-        );
-      } else {
-        await loader.flash_image(new Uint8Array(file.buffer), offset, {
-          callback: (data: FlashImageProgress) => {
-            cb(file.name, data);
-          },
-        });
-      }
-      terminal.write_str('Image flashed');
-      if (flags.verify) {
-        try {
-          terminal.write_str('Verifiy...');
-          terminal.write_str('Image... ', { bl: false });
-          const hash_image = await loader.flash_md5_calc(
-            offset,
-            file.file.size
-          );
-          terminal.write_str(hash_image);
-          terminal.write_str('File.... ', { bl: false });
-          const hash_file = md5_digest.hash(file.buffer);
-          terminal.write_str(hash_file);
-          terminal.write_str(
-            `Flash image verify... ${hash_image === hash_file ? 'OK' : 'FAIL'}`
-          );
-        } catch (err) {
-          terminal.write_str(`FAIL [${(err as Error).message}]`);
-          throw err;
-        }
-      }
-    } catch (err) {
-      terminal.write_str('FAIL');
-      throw err;
-    }
-  }
   if (flags.monitor) {
     terminal.write_str('Rebooting...');
-    await loader.signal_reset();
+    await loader.signal_reset(original_baudrate);
+  }
+}
+
+async function flash_file(
+  loader: ESPLoader,
+  terminal: DataTerminal,
+  file: ESPFlashFile,
+  cb: (file: string, info: FlashImageProgress) => void,
+  verify: boolean
+): Promise<void> {
+  if (file.buffer === undefined)
+    file.buffer = await file_to_arraybuffer(file.file);
+
+  terminal.write_str(
+    `Flashing ${file.name} at ${file.offset} [size=${file.file.size}]`
+  );
+  try {
+    const offset = parseInt(file.offset);
+    if (compression_support())
+      await compression_flash(loader, terminal, file, offset, cb);
+    else
+      await loader.flash_image(new Uint8Array(file.buffer), offset, {
+        callback: (data: FlashImageProgress) => {
+          cb(file.name, data);
+        },
+      });
+    terminal.write_str('Image flashed');
+    if (verify) await verify_image(loader, terminal, file, offset);
+  } catch (err) {
+    terminal.write_str('FAIL');
+    throw err;
+  }
+}
+
+async function compression_flash(
+  loader: ESPLoader,
+  terminal: DataTerminal,
+  file: ESPFlashFile,
+  offset: number,
+  cb: (file: string, info: FlashImageProgress) => void
+): Promise<void> {
+  const buffer = file.buffer as ArrayBuffer;
+
+  terminal.write_str('Compression supported');
+  const compressed_buffer = await compress_image(buffer, 'deflate');
+  terminal.write_str(
+    `Compression...${buffer.byteLength} -> ${compressed_buffer.byteLength} (${(
+      (100 * compressed_buffer.byteLength) /
+      buffer.byteLength
+    ).toFixed(1)}%)`
+  );
+  await loader.flash_image_deflate(
+    new Uint8Array(compressed_buffer),
+    buffer.byteLength,
+    offset,
+    {
+      callback: (data: FlashImageProgress) => {
+        cb(file.name, data);
+      },
+    }
+  );
+}
+
+async function verify_image(
+  loader: ESPLoader,
+  terminal: DataTerminal,
+  file: ESPFlashFile,
+  offset: number
+): Promise<void> {
+  try {
+    terminal.write_str('Verifiy...');
+    terminal.write_str('Image... ', { bl: false });
+    const hash_image = await loader.flash_md5_calc(offset, file.file.size);
+    terminal.write_str(hash_image);
+    terminal.write_str('File.... ', { bl: false });
+    const hash_file = md5_digest.hash(file.buffer as ArrayBuffer);
+    terminal.write_str(hash_file);
+    terminal.write_str(
+      `Flash image verify... ${hash_image === hash_file ? 'OK' : 'FAIL'}`
+    );
+  } catch (err) {
+    terminal.write_str(`FAIL [${(err as Error).message}]`);
+    throw err;
   }
 }
