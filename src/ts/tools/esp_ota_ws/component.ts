@@ -16,8 +16,8 @@ import {
   action_packet,
 } from './packets';
 import type DataDisplay from '../../web-components/data-display/data-display';
-import { discover_file } from '../esptool/files';
-import { type ESPFlashFile } from '../esptool/types';
+import { discover_file } from '../../libs/esptool.ts/files';
+import { type ESPFlashFile } from '../../libs/esptool.ts/file_types';
 import {
   time as time_format,
   miliseconds_to_duration,

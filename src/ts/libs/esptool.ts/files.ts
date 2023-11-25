@@ -1,10 +1,8 @@
-import { ESPError, error_code } from '../../libs/esptool.ts/error';
+import { ESPError, error_code } from './error';
 import { file_to_arraybuffer, file_to_text } from '../../helper/file';
-import { type ESPFlashFile, type ESPFileType, files_info } from './types';
-import {
-  esp_bootloader,
-  esp_image,
-} from '../../libs/esptool.ts/esp_image_parser';
+import { type ESPFlashFile, type ESPFileType, files_info } from './file_types';
+import { esp_bootloader, esp_image } from './esp_image_parser';
+import JSZip from 'jszip';
 
 const flash_args_file = 'flasher_args.json';
 
@@ -66,8 +64,10 @@ function binary_file_type(
   return type;
 }
 
-export async function read_directory(files: FileList): Promise<ESPFlashFile[]> {
-  const fs = Array.from(files);
+export async function read_directory(
+  files: FileList | File[]
+): Promise<ESPFlashFile[]> {
+  const fs = Array.isArray(files) ? files : Array.from(files);
   let base: string = '';
   const flash_args = fs.find(f => {
     if (f.name !== flash_args_file) return false;
@@ -105,4 +105,68 @@ export async function read_directory(files: FileList): Promise<ESPFlashFile[]> {
   });
 
   return output;
+}
+
+/**
+ * Class create to be possible to configure webkitRelativePath
+ */
+class MFile extends File {
+  private readonly _webkitRelativePath: string; // eslint-disable-line
+  constructor(
+    fileBits: BlobPart[],
+    fileName: string,
+    options?: FilePropertyBag | undefined,
+    path: string = ''
+  ) {
+    super(fileBits, fileName, options);
+    this._webkitRelativePath = path;
+  }
+
+  // eslint-disable-next-line
+  override get webkitRelativePath(): string {
+    return this._webkitRelativePath;
+  }
+}
+
+export async function read_zip_file(file: File): Promise<ESPFlashFile[]> {
+  const f = await JSZip.loadAsync(file);
+  const promises: Array<{
+    name: string;
+    path: string;
+    promise: Promise<ArrayBuffer>;
+  }> = [];
+  f.forEach((path: string, file: JSZip.JSZipObject) => {
+    if (!file.dir)
+      promises.push({
+        name: file.name.split('/').slice(-1)[0],
+        path: `/${path}`,
+        promise: file.async('arraybuffer'),
+      });
+  });
+  const files: File[] = [];
+  // eslint-disable-next-line @typescript-eslint/promise-function-async
+  const ff = await Promise.all(promises.map(d => d.promise));
+  for (let i = 0; i < ff.length; ++i)
+    files.push(
+      new MFile(
+        [ff[i]],
+        promises[i].name,
+        {
+          type: /.json$/.test(promises[i].name) ? 'application/json' : '',
+        },
+        promises[i].path
+      )
+    );
+  return await read_directory(files);
+}
+
+export async function zip_files(files: ESPFlashFile[]): Promise<ArrayBuffer> {
+  const zip = new JSZip();
+  const flash_files: any = {};
+  files.forEach(f => {
+    flash_files[f.offset] = f.name;
+    zip.file(f.name, f.file);
+  });
+  zip.file(flash_args_file, JSON.stringify({ flash_files }));
+  return await zip.generateAsync({ type: 'arraybuffer' });
 }

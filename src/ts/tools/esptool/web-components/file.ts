@@ -1,4 +1,7 @@
-import { type ESPFlashFile, files_info } from '../types';
+import {
+  type ESPFlashFile,
+  files_info,
+} from '../../../libs/esptool.ts/file_types';
 import { is_serial_supported } from '../../../libs/serial/functions';
 
 const template = (function () {

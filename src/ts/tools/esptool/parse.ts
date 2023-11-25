@@ -4,7 +4,7 @@ import {
   esp_image,
 } from '../../libs/esptool.ts/esp_image_parser';
 import { output_image_html, output_file_html } from './format';
-import type { ESPFlashFile } from './types';
+import type { ESPFlashFile } from '../../libs/esptool.ts/file_types';
 
 export async function output_file(file: ESPFlashFile): Promise<HTMLElement> {
   if (file.buffer === undefined)

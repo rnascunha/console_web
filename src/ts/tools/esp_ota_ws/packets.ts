@@ -1,4 +1,4 @@
-import { type ESPFlashFile } from '../esptool/types';
+import { type ESPFlashFile } from '../../libs/esptool.ts/file_types';
 import { pack16, pack32 } from '../../helper/pack';
 
 export enum Command {

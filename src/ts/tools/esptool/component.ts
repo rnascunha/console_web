@@ -1,6 +1,11 @@
 import { type ComponentContainer, type JsonValue } from 'golden-layout';
 import { ComponentBase } from '../../golden-components/component-base';
-import { read_directory, discover_file } from './files';
+import {
+  read_directory,
+  discover_file,
+  read_zip_file,
+  zip_files,
+} from '../../libs/esptool.ts/files';
 import {
   ESPFlashFileList,
   type ESPFlashFileListState,
@@ -22,7 +27,8 @@ import {
   compression_support,
   compress_image,
 } from '../../libs/esptool.ts/utility';
-import type { ESPFlashFile } from './types';
+import { download } from '../../helper/download';
+import type { ESPFlashFile } from '../../libs/esptool.ts/file_types';
 import { file_to_arraybuffer } from '../../helper/file';
 
 import { ArrayBuffer as md5_digest } from 'spark-md5';
@@ -140,7 +146,7 @@ const template = (function () {
 
   </style>
   <div id=header>
-    <input-file id=esp-file accept='.bin' class=header-icon><span>✚</span></input-file>
+    <input-file id=esp-file accept='.bin,.zip' class=header-icon><span>✚</span></input-file>
     <input-file id=esp-folder class=header-icon webkitdirectory><span>&#x1F4C2;</span></input-file>
     <span id=error></span>
   </div>
@@ -255,9 +261,23 @@ export class ESPToolComponent extends ComponentBase {
           const files = input.files as FileList;
           if (files.length === 0) return;
 
+          if (files[0].type === 'application/zip') {
+            try {
+              const esp_file = await read_zip_file(files[0]);
+              parser.appendChild(new ESPFlashFileList(esp_file));
+              error.textContent = '';
+            } catch (err) {
+              if (err instanceof ESPError)
+                error.textContent = error_message(err);
+              else console.log(err);
+            }
+            this.save_state();
+            input.value = '';
+            return;
+          }
+
           try {
-            const file = (input.files as FileList)[0];
-            const esp_file = await discover_file(file);
+            const esp_file = await discover_file(files[0]);
             parser.appendChild(new ESPFlashFileList([esp_file]));
             error.textContent = '';
           } catch (err) {
@@ -300,6 +320,23 @@ export class ESPToolComponent extends ComponentBase {
       const list = ev.target as ESPFlashFileList;
       if (list.files.length === 0) parser.removeChild(list);
       this.save_state();
+    });
+
+    shadow.addEventListener('pack', ev => {
+      const files = (ev as CustomEvent).detail as ESPFlashFile[];
+      zip_files(files)
+        .then(zipped => {
+          const esp_file = files.find(f => f.type === 'app');
+          download(
+            `${
+              esp_file !== undefined
+                ? esp_file.file.name.replace(/.bin$/, '')
+                : 'esp-flash'
+            }.zip`,
+            zipped
+          );
+        })
+        .finally(() => {});
     });
   }
 

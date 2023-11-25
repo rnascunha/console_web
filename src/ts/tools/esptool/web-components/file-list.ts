@@ -1,10 +1,10 @@
 import '../../../web-components/progress-bar';
 
 import { ProgressBar } from '../../../web-components/progress-bar';
-import type { ESPFlashFile } from '../types';
+import type { ESPFlashFile } from '../../../libs/esptool.ts/file_types';
 import { ESPFlashFileElement } from './file';
 import { output_file } from '../parse';
-import { discover_file } from '../files';
+import { discover_file } from '../../../libs/esptool.ts/files';
 import { is_serial_supported } from '../../../libs/serial/functions';
 
 const template = (function () {
@@ -80,6 +80,7 @@ const template = (function () {
   <div id=header>
     <input-file id=add-file title="Add file"><button>✚</button></input-file>
     <button id=close title="Add file">✖</button>
+    <button id=pack-files>&#x1f4e6;</button>
   </div>
   <div id=container></div>
   <div id=execute>
@@ -143,24 +144,24 @@ export class ESPFlashFileList extends HTMLElement {
 
     if (is_serial_supported()) {
       shadow.querySelector('#flash-all')?.addEventListener('click', () => {
-        const files = Array.from(shadow.querySelectorAll('esp-flash-file')).map(
-          f => (f as ESPFlashFileElement).file
-        );
+        // const files = Array.from(shadow.querySelectorAll('esp-flash-file')).map(
+        //   f => (f as ESPFlashFileElement).file
+        // );
         this.dispatchEvent(
           new CustomEvent('flash', {
-            detail: files,
+            detail: this.files,
             bubbles: true,
           })
         );
       });
 
       shadow.querySelector('#flash-selected')?.addEventListener('click', () => {
-        const files = Array.from(shadow.querySelectorAll('esp-flash-file'))
-          .filter(f => (f as ESPFlashFileElement).file.select)
-          .map(f => (f as ESPFlashFileElement).file);
+        // const files = Array.from(shadow.querySelectorAll('esp-flash-file'))
+        //   .filter(f => (f as ESPFlashFileElement).file.select)
+        //   .map(f => (f as ESPFlashFileElement).file);
         this.dispatchEvent(
           new CustomEvent('flash', {
-            detail: files,
+            detail: this.files.filter(f => f.select),
             bubbles: true,
           })
         );
@@ -194,6 +195,15 @@ export class ESPFlashFileList extends HTMLElement {
     container.addEventListener('delete', ev => {
       container.removeChild(ev.target as HTMLElement);
       this.dispatchEvent(new Event('delete', { bubbles: true }));
+    });
+
+    shadow.querySelector('#pack-files')?.addEventListener('click', () => {
+      this.dispatchEvent(
+        new CustomEvent('pack', {
+          detail: this.files,
+          bubbles: true,
+        })
+      );
     });
 
     const parsed = shadow.querySelector('#parsed') as HTMLElement;
