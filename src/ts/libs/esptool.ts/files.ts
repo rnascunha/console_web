@@ -162,11 +162,12 @@ export async function read_zip_file(file: File): Promise<ESPFlashFile[]> {
 
 export async function zip_files(files: ESPFlashFile[]): Promise<ArrayBuffer> {
   const zip = new JSZip();
-  const flash_files: any = {};
+  const flash_args: any = { flash_files: {} };
   files.forEach(f => {
-    flash_files[f.offset] = f.name;
+    flash_args.flash_files[f.offset] = f.name;
     zip.file(f.name, f.file);
+    flash_args[f.type] = { offset: f.offset, file: f.name, encrypted: false };
   });
-  zip.file(flash_args_file, JSON.stringify({ flash_files }));
+  zip.file(flash_args_file, JSON.stringify(flash_args));
   return await zip.generateAsync({ type: 'arraybuffer' });
 }
