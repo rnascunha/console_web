@@ -811,6 +811,7 @@ async function flash_file(
           cb(file.name, data);
         },
       });
+    terminal.write_str(''); // break line
     terminal.write_str('Image flashed');
     if (verify) await verify_image(loader, terminal, file, offset);
   } catch (err) {
