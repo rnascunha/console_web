@@ -2,10 +2,12 @@ export const error_code = {
   NO_ERROR: 0,
   WRONG_MAGIC_BYTE_HEADER: 1,
   WRONG_MAGIC_WORD_APP: 2,
+  WRONG_MAGIC_WORD_PARTITION_TABLE: 2,
   WRONG_MAGIC_BYTE_BOOTLOADER: 3,
   HASH_NOT_MATCH: 4,
   NOT_SUPPORTED: 5,
   FILE_NOT_FOUND: 6,
+  SIZE_TOO_SMALL: 7,
 };
 
 type ESPErrorCode = (typeof error_code)[keyof typeof error_code];

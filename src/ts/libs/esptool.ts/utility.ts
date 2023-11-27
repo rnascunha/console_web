@@ -1,4 +1,5 @@
 import { format, to_array_string } from '../binary-dump';
+import { ESPError, error_code } from './error';
 
 export function digest_support(): boolean {
   return 'crypto' in window && 'subtle' in window.crypto;
@@ -32,4 +33,20 @@ export async function compress_image(
   return await new Response(
     new Response(input).body?.pipeThrough(new CompressionStream(type))
   ).arrayBuffer();
+}
+
+export async function image_hash_compare(image: ArrayBuffer): Promise<string> {
+  if (!digest_support())
+    throw new ESPError(error_code.NOT_SUPPORTED, 'Crypto API not supported');
+
+  const calculated = await hex_sha256(image.slice(0, -32));
+  const hash = blob_to_hex(image.slice(-32));
+
+  if (calculated !== hash)
+    throw new ESPError(error_code.HASH_NOT_MATCH, 'Hash not match', {
+      calculated,
+      hash,
+    });
+
+  return hash;
 }

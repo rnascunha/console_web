@@ -1,53 +1,61 @@
+import { blob_to_hex, read_c_string, image_hash_compare } from '../utility';
 import {
-  hex_sha256,
-  blob_to_hex,
-  digest_support,
-  read_c_string,
-} from './utility';
-import * as espt from './types';
-import { error_code, ESPError } from './error';
+  chip_id,
+  spi_flash_mode,
+  spi_image_frequency,
+  image_flash_size,
+  ESP_IMAGE_HEADER_MAGIC,
+  header_size,
+  header_segment_size,
+  ESP_APP_DESC_MAGIC_WORD,
+  ESP_BOOTLOADER_DESC_MAGIC_BYTE,
+  bootloader_description_size,
+  description_size,
+} from './constants';
+import type {
+  ESPImageHeader,
+  ESPHeaderSegment,
+  ESPImageBase,
+  ESPAppDescription,
+  ESPBootloaderDescription,
+  ESPImageBootloader,
+  ESPImageApp,
+} from './types';
+import { to_hex } from '../../../helper/number_format';
+import { error_code, ESPError } from '../error';
 
-function to_hex(n: number): string {
-  return `0x${n.toString(16).padStart(2, '0')}`;
-}
-
-function parse_header(header: ArrayBuffer): espt.ESPImageHeader {
+function parse_header(header: ArrayBuffer): ESPImageHeader {
   const view = new DataView(header);
   const spi_mode = view.getUint8(2);
   const spi_speed = view.getUint8(3) & 0xf;
   const spi_size = (view.getUint8(3) >> 4) & 0xf;
-  const chip_id = view.getUint16(12, true);
+  const chip_id_val = view.getUint16(12, true);
 
   return {
     magic: view.getUint8(0),
     segment_count: view.getUint8(1),
     spi_mode: {
       value: spi_mode,
-      name:
-        spi_mode in espt.spi_flash_mode
-          ? espt.spi_flash_mode[spi_mode]
-          : spi_mode,
+      name: spi_mode in spi_flash_mode ? spi_flash_mode[spi_mode] : spi_mode,
     },
     spi_speed: {
       value: spi_speed,
       name:
-        spi_speed in espt.spi_image_frequency
-          ? espt.spi_image_frequency[spi_speed]
+        spi_speed in spi_image_frequency
+          ? spi_image_frequency[spi_speed]
           : spi_speed,
     },
     spi_size: {
       value: spi_size,
       name:
-        spi_size in espt.image_flash_size
-          ? espt.image_flash_size[spi_size]
-          : spi_size,
+        spi_size in image_flash_size ? image_flash_size[spi_size] : spi_size,
     },
     entry_addr: view.getUint32(4, true),
     wp_pin: view.getUint8(8),
     spi_pin_drv: header.slice(9, 12),
     chip_id: {
-      value: chip_id,
-      name: chip_id in espt.esp_chid_id ? espt.esp_chid_id[chip_id] : chip_id,
+      value: chip_id_val,
+      name: chip_id_val in chip_id ? chip_id[chip_id_val] : chip_id_val,
     },
     min_chip_rev: view.getUint8(14),
     min_chip_rev_full: view.getUint16(15, true),
@@ -56,7 +64,7 @@ function parse_header(header: ArrayBuffer): espt.ESPImageHeader {
   };
 }
 
-function parse_header_segment(seg: ArrayBuffer): espt.ESPHeaderSegment {
+function parse_header_segment(seg: ArrayBuffer): ESPHeaderSegment {
   const arr = new Uint32Array(seg);
   return {
     load_addr: arr[0],
@@ -64,31 +72,29 @@ function parse_header_segment(seg: ArrayBuffer): espt.ESPHeaderSegment {
   };
 }
 
-async function parse_image_base(
-  image: ArrayBuffer
-): Promise<espt.ESPImageBase> {
+async function parse_image_base(image: ArrayBuffer): Promise<ESPImageBase> {
   const mw = new Uint8Array(image, 0, 1)[0];
-  if (mw !== espt.ESP_IMAGE_HEADER_MAGIC)
+  if (mw !== ESP_IMAGE_HEADER_MAGIC)
     throw new ESPError(
       error_code.WRONG_MAGIC_BYTE_HEADER,
       "Header magic byte doesn't match",
-      `${to_hex(mw)} != ${to_hex(espt.ESP_IMAGE_HEADER_MAGIC)}`
+      `${to_hex(mw)} != ${to_hex(ESP_IMAGE_HEADER_MAGIC)}`
     );
 
-  const header_buffer = image.slice(0, espt.header_size);
+  const header_buffer = image.slice(0, header_size);
   const header_segment = image.slice(
-    espt.header_size,
-    espt.header_size + espt.header_segment_size
+    header_size,
+    header_size + header_segment_size
   );
 
-  const data: espt.ESPImageBase = {
+  const data: ESPImageBase = {
     header: parse_header(header_buffer),
     header_segment: parse_header_segment(header_segment),
   };
 
   if (data.header.hash_appended === 1) {
     try {
-      data.hash = await esp_hash(image);
+      data.hash = await image_hash_compare(image);
     } catch (e) {
       if (!(e instanceof ESPError) || e.code !== error_code.NOT_SUPPORTED)
         throw e;
@@ -98,15 +104,13 @@ async function parse_image_base(
   return data;
 }
 
-function parse_app_description(
-  description: ArrayBuffer
-): espt.ESPAppDescription {
+function parse_app_description(description: ArrayBuffer): ESPAppDescription {
   const magic_word = new Uint32Array(description, 0, 1)[0];
-  if (magic_word !== espt.ESP_APP_DESC_MAGIC_WORD)
+  if (magic_word !== ESP_APP_DESC_MAGIC_WORD)
     throw new ESPError(
       error_code.WRONG_MAGIC_WORD_APP,
       "App description magic word doesn't match",
-      `${to_hex(magic_word)} != ${to_hex(espt.ESP_APP_DESC_MAGIC_WORD)}`
+      `${to_hex(magic_word)} != ${to_hex(ESP_APP_DESC_MAGIC_WORD)}`
     );
 
   return {
@@ -133,14 +137,14 @@ function parse_app_description(
 
 function parse_bootloader_description(
   desc: ArrayBuffer
-): espt.ESPBootloaderDescription {
+): ESPBootloaderDescription {
   const dv = new DataView(desc);
   const magic_byte = dv.getUint8(0);
-  if (magic_byte !== espt.ESP_BOOTLOADER_DESC_MAGIC_BYTE)
+  if (magic_byte !== ESP_BOOTLOADER_DESC_MAGIC_BYTE)
     throw new ESPError(
       error_code.WRONG_MAGIC_BYTE_BOOTLOADER,
       "Bootloader magic byte doesn't match",
-      `${to_hex(magic_byte)} != ${to_hex(espt.ESP_BOOTLOADER_DESC_MAGIC_BYTE)}`
+      `${to_hex(magic_byte)} != ${to_hex(ESP_BOOTLOADER_DESC_MAGIC_BYTE)}`
     );
 
   return {
@@ -155,27 +159,11 @@ function parse_bootloader_description(
   };
 }
 
-async function esp_hash(image: ArrayBuffer): Promise<string> {
-  if (!digest_support())
-    throw new ESPError(error_code.NOT_SUPPORTED, 'Crypto API not supported');
-
-  const calculated = await hex_sha256(image.slice(0, -32));
-  const hash = blob_to_hex(image.slice(-32));
-
-  if (calculated !== hash)
-    throw new ESPError(error_code.HASH_NOT_MATCH, 'Hash not match', {
-      calculated,
-      hash,
-    });
-
-  return hash;
-}
-
-export async function esp_image(image: ArrayBuffer): Promise<espt.ESPImageApp> {
-  const base: espt.ESPImageBase = await parse_image_base(image);
+export async function esp_image(image: ArrayBuffer): Promise<ESPImageApp> {
+  const base: ESPImageBase = await parse_image_base(image);
   const description = image.slice(
-    espt.header_size + espt.header_segment_size,
-    espt.header_size + espt.header_segment_size + espt.description_size
+    header_size + header_segment_size,
+    header_size + header_segment_size + description_size
   );
 
   return {
@@ -186,13 +174,11 @@ export async function esp_image(image: ArrayBuffer): Promise<espt.ESPImageApp> {
 
 export async function esp_bootloader(
   image: ArrayBuffer
-): Promise<espt.ESPImageBootloader> {
-  const base: espt.ESPImageBase = await parse_image_base(image);
+): Promise<ESPImageBootloader> {
+  const base: ESPImageBase = await parse_image_base(image);
   const desc = image.slice(
-    espt.header_size + espt.header_segment_size,
-    espt.header_size +
-      espt.header_segment_size +
-      espt.bootloader_description_size
+    header_size + header_segment_size,
+    header_size + header_segment_size + bootloader_description_size
   );
 
   try {

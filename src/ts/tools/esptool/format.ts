@@ -1,8 +1,9 @@
+import type { Partitions } from '../../libs/esptool.ts/parser/partition-table-parser';
 import type {
   ESPImageApp,
   ESPImageBootloader,
   ESPValue,
-} from '../../libs/esptool.ts/types';
+} from '../../libs/esptool.ts/parser/types';
 
 const config: Record<string, string> = {
   pre_segment: '--',
@@ -350,4 +351,71 @@ export function output_image_html(
   adata.file = output_file_data('file', file, names.file.data);
 
   return create_segment_html(adata, filter);
+}
+
+export function output_partition_table_html(
+  file: File,
+  partitions: Partitions
+): HTMLElement {
+  const out = create_segment_html(
+    {
+      file: output_file_data('file', file, names.file.data),
+    },
+    ['file', 'hash']
+  );
+
+  {
+    const fs = document.createElement('fieldset');
+    fs.classList.add('parser-container');
+    const legend = document.createElement('legend');
+    legend.textContent = 'Partition Tables';
+
+    const div = document.createElement('div');
+    const header = document.createElement('div');
+    header.textContent = [
+      'label',
+      'type',
+      'subtype',
+      'address',
+      'size',
+      'encrypted',
+      'readonly',
+    ].join(', ');
+    div.appendChild(header);
+
+    partitions.partitions.forEach(p => {
+      const dd = document.createElement('div');
+      dd.textContent = [
+        p.label,
+        p.type.name,
+        p.subtype.name,
+        p.address.name,
+        p.size.name,
+        p.encrypted,
+        p.readonly,
+      ].join(', ');
+      div.appendChild(dd);
+    });
+
+    fs.appendChild(legend);
+    fs.appendChild(div);
+    out.appendChild(fs);
+  }
+
+  if (partitions.hash !== undefined) {
+    const fs = document.createElement('fieldset');
+    fs.classList.add('parser-container');
+    const legend = document.createElement('legend');
+    legend.textContent = 'Hash';
+
+    const div = document.createElement('div');
+    div.title = partitions.hash.hash;
+    div.textContent = `hash.${cut_hash(partitions.hash.hash)}`;
+
+    fs.appendChild(legend);
+    fs.appendChild(div);
+    out.appendChild(fs);
+  }
+
+  return out;
 }

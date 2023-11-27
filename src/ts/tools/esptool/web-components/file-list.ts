@@ -144,9 +144,6 @@ export class ESPFlashFileList extends HTMLElement {
 
     if (is_serial_supported()) {
       shadow.querySelector('#flash-all')?.addEventListener('click', () => {
-        // const files = Array.from(shadow.querySelectorAll('esp-flash-file')).map(
-        //   f => (f as ESPFlashFileElement).file
-        // );
         this.dispatchEvent(
           new CustomEvent('flash', {
             detail: this.files,
@@ -156,9 +153,6 @@ export class ESPFlashFileList extends HTMLElement {
       });
 
       shadow.querySelector('#flash-selected')?.addEventListener('click', () => {
-        // const files = Array.from(shadow.querySelectorAll('esp-flash-file'))
-        //   .filter(f => (f as ESPFlashFileElement).file.select)
-        //   .map(f => (f as ESPFlashFileElement).file);
         this.dispatchEvent(
           new CustomEvent('flash', {
             detail: this.files.filter(f => f.select),

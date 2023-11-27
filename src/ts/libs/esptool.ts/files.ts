@@ -1,7 +1,7 @@
 import { ESPError, error_code } from './error';
 import { file_to_arraybuffer, file_to_text } from '../../helper/file';
 import { type ESPFlashFile, type ESPFileType, files_info } from './file_types';
-import { esp_bootloader, esp_image } from './esp_image_parser';
+import { esp_bootloader, esp_image } from './parser/image_parser';
 import JSZip from 'jszip';
 
 const flash_args_file = 'flasher_args.json';

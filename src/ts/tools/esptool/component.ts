@@ -31,7 +31,7 @@ import { download } from '../../helper/download';
 import type { ESPFlashFile } from '../../libs/esptool.ts/file_types';
 import { file_to_arraybuffer } from '../../helper/file';
 
-import { ArrayBuffer as md5_digest } from 'spark-md5';
+import { ArrayBuffer as MD5Digest } from 'spark-md5';
 
 import terminal_style from 'xterm/css/xterm.css';
 
@@ -859,8 +859,8 @@ async function verify_image(
     terminal.write_str('Image... ', { bl: false });
     const hash_image = await loader.flash_md5_calc(offset, file.file.size);
     terminal.write_str(hash_image);
-    terminal.write_str('File.... ', { bl: false });
-    const hash_file = md5_digest.hash(file.buffer as ArrayBuffer);
+    terminal.write_str('File... ', { bl: false });
+    const hash_file = MD5Digest.hash(file.buffer as ArrayBuffer);
     terminal.write_str(hash_file);
     terminal.write_str(
       `Flash image verify... ${hash_image === hash_file ? 'OK' : 'FAIL'}`
