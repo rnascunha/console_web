@@ -128,7 +128,7 @@ const template = (function () {
   #bootloader-debug {
     display: inline-flex;
     gap: 2px;
-    position: absolute;
+    /* position: absolute; */
     right: 2px;
   }
 
@@ -198,6 +198,7 @@ enum ESPToolState {
   BOOTLOADER,
   SYNC,
   STUB,
+  UNSUPPORTED,
 }
 
 const bg_color = '#999999';
@@ -389,20 +390,14 @@ export class ESPToolComponent extends ComponentBase {
     this.container.on('open', () => {
       setTimeout(() => {
         this._terminal.fit();
-      }, 1);
+      }, 5);
     });
 
     this.container.on('resize', () => {
       setTimeout(() => {
         this._terminal.fit();
-      }, 1);
+      }, 5);
     });
-
-    if (!is_serial_supported()) {
-      this._terminal.write_str('Serial API is not supported at this browser!');
-      this._terminal.write_str('https://caniuse.com/web-serial');
-      return;
-    }
 
     // HTML Elements
     const select = shadow.querySelector('#serial-select') as HTMLSelectElement;
@@ -426,13 +421,16 @@ export class ESPToolComponent extends ComponentBase {
       '#serial-upload-stub'
     ) as HTMLButtonElement;
 
+    const serial_request = shadow.querySelector('#serial-request') as HTMLButtonElement;
+    const clear = shadow.querySelector('#serial-terminal-clear') as HTMLButtonElement;
+
     // Show debug
     if (!debug) {
       (shadow.querySelector('#bootloader-debug') as HTMLElement).style.display =
         'none';
     }
 
-    shadow.querySelector('#serial-request')?.addEventListener('click', () => {
+    serial_request.addEventListener('click', () => {
       ConsoleApp.serial_list.request();
     });
 
@@ -514,8 +512,30 @@ export class ESPToolComponent extends ComponentBase {
           upload_stub.disabled = true;
           erase_flash.disabled = false;
           break;
+        case ESPToolState.UNSUPPORTED:
+          open.dataset.state = 'open';
+          open.disabled = true;
+          select.disabled = true;
+          br.disabled = true;
+          reset.disabled = true;
+          boot.disabled = true;
+          sync.disabled = true;
+          info.disabled = true;
+          change_baud.disabled = true;
+          upload_stub.disabled = true;
+          erase_flash.disabled = true;
+          serial_request.disabled = true;
+          clear.disabled = true;
+          break;
       }
     };
+
+    if (!is_serial_supported()) {
+      this._terminal.write_str('Serial API is not supported at this browser!');
+      this._terminal.write_str('https://caniuse.com/web-serial');
+      set_state(ESPToolState.UNSUPPORTED);
+      return;
+    }
 
     const list = ConsoleApp.serial_list;
     install_serial_events(list, select);
@@ -590,9 +610,7 @@ export class ESPToolComponent extends ComponentBase {
       });
     });
 
-    shadow
-      .querySelector('#serial-terminal-clear')
-      ?.addEventListener('click', () => {
+    clear.addEventListener('click', () => {
         this._terminal.terminal.clear();
       });
 
