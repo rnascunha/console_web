@@ -10,63 +10,46 @@ export enum ParititonType {
   END = 0xff,
 }
 
-// export enum PartitionAppSubtype {
-//   FACTORY = 0x00,
-//   OTA_FLAG = 0x10,
-//   OTA_MASK = 0x0f,
-//   TEST = 0x20,
-//   END = 0xff,
-// }
-
 export enum PartitionAppSubtype {
-  FACTORY = 0x00, //!< Factory application partition
-  OTA_0 = 0x10, //!< OTA partition 0
-  OTA_1 = OTA_0 + 1, //!< OTA partition 1
-  OTA_2 = OTA_0 + 2, //!< OTA partition 2
-  OTA_3 = OTA_0 + 3, //!< OTA partition 3
-  OTA_4 = OTA_0 + 4, //!< OTA partition 4
-  OTA_5 = OTA_0 + 5, //!< OTA partition 5
-  OTA_6 = OTA_0 + 6, //!< OTA partition 6
-  OTA_7 = OTA_0 + 7, //!< OTA partition 7
-  OTA_8 = OTA_0 + 8, //!< OTA partition 8
-  OTA_9 = OTA_0 + 9, //!< OTA partition 9
-  OTA_10 = OTA_0 + 10, //!< OTA partition 10
-  OTA_11 = OTA_0 + 11, //!< OTA partition 11
-  OTA_12 = OTA_0 + 12, //!< OTA partition 12
-  OTA_13 = OTA_0 + 13, //!< OTA partition 13
-  OTA_14 = OTA_0 + 14, //!< OTA partition 14
-  OTA_15 = OTA_0 + 15, //!< OTA partition 15
-  OTA_MAX = OTA_0 + 16, //!< Max subtype of OTA partition
-  TEST = 0x20, //!< Test application partition
+  FACTORY = 0x00, // Factory application partition
+  OTA_0 = 0x10, // OTA partition 0
+  OTA_1 = OTA_0 + 1, // OTA partition 1
+  OTA_2 = OTA_0 + 2, // OTA partition 2
+  OTA_3 = OTA_0 + 3, // OTA partition 3
+  OTA_4 = OTA_0 + 4, // OTA partition 4
+  OTA_5 = OTA_0 + 5, // OTA partition 5
+  OTA_6 = OTA_0 + 6, // OTA partition 6
+  OTA_7 = OTA_0 + 7, // OTA partition 7
+  OTA_8 = OTA_0 + 8, // OTA partition 8
+  OTA_9 = OTA_0 + 9, // OTA partition 9
+  OTA_10 = OTA_0 + 10, // OTA partition 10
+  OTA_11 = OTA_0 + 11, // OTA partition 11
+  OTA_12 = OTA_0 + 12, // OTA partition 12
+  OTA_13 = OTA_0 + 13, // OTA partition 13
+  OTA_14 = OTA_0 + 14, // OTA partition 14
+  OTA_15 = OTA_0 + 15, // OTA partition 15
+  OTA_MAX = OTA_0 + 16, // Max subtype of OTA partition
+  TEST = 0x20, // Test application partition
 
-  APP_ANY = 0xff, //!< Used to search for partitions with any subtype
+  APP_ANY = 0xff, // Used to search for partitions with any subtype
 }
 
 export enum PartitionDataSubtype {
-  OTA = 0x00, //!< OTA selection partition
-  PHY = 0x01, //!< PHY init data partition
-  NVS = 0x02, //!< NVS partition
-  COREDUMP = 0x03, //!< COREDUMP partition
-  NVS_KEYS = 0x04, //!< Partition for NVS keys
-  EFUSE_EM = 0x05, //!< Partition for emulate eFuse bits
-  UNDEFINED = 0x06, //!< Undefined (or unspecified) data partition
+  OTA = 0x00, // OTA selection partition
+  PHY = 0x01, // PHY init data partition
+  NVS = 0x02, // NVS partition
+  COREDUMP = 0x03, // COREDUMP partition
+  NVS_KEYS = 0x04, // Partition for NVS keys
+  EFUSE_EM = 0x05, // Partition for emulate eFuse bits
+  UNDEFINED = 0x06, // Undefined (or unspecified) data partition
 
-  ESPHTTPD = 0x80, //!< ESPHTTPD partition
-  FAT = 0x81, //!< FAT partition
-  SPIFFS = 0x82, //!< SPIFFS partition
-  LITTLEFS = 0x83, //!< LITTLEFS partition
+  ESPHTTPD = 0x80, // ESPHTTPD partition
+  FAT = 0x81, // FAT partition
+  SPIFFS = 0x82, // SPIFFS partition
+  LITTLEFS = 0x83, // LITTLEFS partition
 
-  DATA_ANY = 0xff, //!< Used to search for partitions with any subtype
+  DATA_ANY = 0xff, // Used to search for partitions with any subtype
 }
-
-// export enum PartitionDataSubtype {
-//   OTA = 0x00,
-//   RF = 0x01,
-//   WIFI = 0x02,
-//   NVS_KEYS = 0x04,
-//   EFUSE_EM = 0x05,
-//   END = 0xff,
-// }
 
 // https://github.com/espressif/esp-idf/blob/a7fbf452fa181452f266b16c49063e2ff069f119/components/bootloader_support/include/esp_flash_partitions.h#L69C1-L84C24
 // typedef struct {
@@ -113,12 +96,8 @@ export interface Partitions {
   hash?: ParitionHash;
 }
 
-function type_to_string(
-  type: ParititonType,
-  def: string = 'Urecognized'
-): string {
-  const v = Object.values(ParititonType)[type as number];
-  return v !== undefined ? (v as string) : def;
+function type_to_string(type: ParititonType): string {
+  return ParititonType[type] ?? to_hex(type);
 }
 
 function app_subtype_to_string(subtype: PartitionAppSubtype): string {

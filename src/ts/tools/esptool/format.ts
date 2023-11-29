@@ -4,6 +4,7 @@ import type {
   ESPImageBootloader,
   ESPValue,
 } from '../../libs/esptool.ts/parser/types';
+import { byte_size, to_hex } from '../../helper/number_format';
 
 const config: Record<string, string> = {
   pre_segment: '--',
@@ -35,16 +36,6 @@ type Segments = (typeof segments)[number];
 
 const to_string = (arg: any): string => arg.toString();
 const value_string = (arg: ESPValue): string => arg.name.toString();
-// const arraybuffer_string = (arg: ArrayBuffer): string => {
-//   return new Uint8Array(arg).reduce((acc, v) => {
-//     acc = acc + v.toString(16).padStart(2, '0');
-//     return acc;
-//   }, '0x');
-// };
-const byte_size = (size: number): string =>
-  size < 1024 ? `${size}b` : `${Math.floor(size / 1024)}kb`;
-const to_hex = (arg: number): string =>
-  `0x${arg.toString(16).padStart(2, '0')}`;
 
 const cut_hash = (hash: string): string => {
   return hash.slice(-10);
