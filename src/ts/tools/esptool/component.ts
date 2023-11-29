@@ -261,7 +261,9 @@ export class ESPToolComponent extends ComponentBase {
           const files = input.files as FileList;
           if (files.length === 0) return;
 
-          if (files[0].type === 'application/zip') {
+          console.log(files[0]);
+          if (files[0].type === 'application/zip' ||                // linux chrome
+              files[0].type === 'application/x-zip-compressed') {   // windows chrome edge
             try {
               const esp_file = await read_zip_file(files[0]);
               parser.appendChild(new ESPFlashFileList(esp_file));
