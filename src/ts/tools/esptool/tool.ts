@@ -3,7 +3,7 @@ import './web-components/file-list';
 
 import type { JsonValue } from 'golden-layout';
 import { Tool } from '../tools';
-import { ESPToolComponent } from './component';
+import { ESPToolComponent, ESPToolOptions } from './component';
 
 export class ESPToolTool extends Tool {
   constructor() {
@@ -11,6 +11,14 @@ export class ESPToolTool extends Tool {
   }
 
   public override open_link(url: URL): JsonValue {
-    return {};
+    const state: ESPToolOptions = {};
+    url.searchParams.forEach((value, key) => {
+      switch (key) {
+        case 'debug':
+          state.debug = value === '1';
+          break;
+      }
+    });
+    return state;
   }
 }

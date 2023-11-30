@@ -371,8 +371,12 @@ export function output_partition_table_html(
       'size',
       'encrypted',
       'readonly',
-    ].join(', ');
+    ].join('|');
     div.appendChild(header);
+    
+    const hr = document.createElement('div');
+    hr.textContent = '-'.repeat(header.textContent.length)
+    div.appendChild(hr)
 
     partitions.partitions.forEach(p => {
       const dd = document.createElement('div');
@@ -384,7 +388,7 @@ export function output_partition_table_html(
         p.size.name,
         p.encrypted,
         p.readonly,
-      ].join(', ');
+      ].join('|');
       div.appendChild(dd);
     });
 

@@ -163,6 +163,7 @@ const template = (function () {
         <button id=serial-erase-flash title='Erase flash'>&#x2327;</button>
         <button id=serial-terminal-clear title=clear>&#x239A;</button>
         <div id=bootloader-debug>
+          <button id=serial-open-no-sync title='Open (no sync)'>&#x23ef;</button>
           <button id=serial-bootloader>BOOT</button>
           <button id=serial-sync title=Sync>&#x21B9;</button>
           <button id=serial-chip title='Chip information'>&#x2139;</button>
@@ -213,6 +214,10 @@ function reset_file_list(list: ESPFlashFileList): void {
   list.progress({ value: 0, text: '0/0', bar: bar_color, bg: bg_color });
 }
 
+export interface ESPToolOptions {
+  debug?: boolean;
+}
+
 export class ESPToolComponent extends ComponentBase {
   private _loader?: ESPLoader;
   private readonly _terminal: DataTerminal;
@@ -236,7 +241,7 @@ export class ESPToolComponent extends ComponentBase {
 
     this._terminal = new DataTerminal();
 
-    this.console();
+    this.console((state as ESPToolOptions).debug === true);
     this.parser(sstate.list);
 
     shadow.addEventListener('state', ev => {
@@ -380,7 +385,7 @@ export class ESPToolComponent extends ComponentBase {
     }
   }
 
-  private console(debug: boolean = false): void {
+  private console(debug: boolean): void {
     const shadow = this.rootHtmlElement.shadowRoot as ShadowRoot;
     shadow.adoptedStyleSheets = [terminal_style];
 
@@ -409,6 +414,9 @@ export class ESPToolComponent extends ComponentBase {
     ) as HTMLButtonElement;
 
     // Debug buttons
+    const open_debug = shadow.querySelector(
+      '#serial-open-no-sync'
+    ) as HTMLButtonElement;
     const boot = shadow.querySelector(
       '#serial-bootloader'
     ) as HTMLButtonElement;
@@ -441,6 +449,7 @@ export class ESPToolComponent extends ComponentBase {
         select.disabled = false;
         br.disabled = false;
         reset.disabled = true;
+        open_debug.disabled = false;
         boot.disabled = true;
         sync.disabled = true;
         info.disabled = true;
@@ -457,6 +466,7 @@ export class ESPToolComponent extends ComponentBase {
           select.disabled = false;
           br.disabled = false;
           reset.disabled = true;
+          open_debug.disabled = false;
           boot.disabled = true;
           sync.disabled = true;
           info.disabled = true;
@@ -469,6 +479,7 @@ export class ESPToolComponent extends ComponentBase {
           select.disabled = true;
           br.disabled = true;
           reset.disabled = false;
+          open_debug.disabled = true;
           boot.disabled = false;
           sync.disabled = false;
           info.disabled = true;
@@ -482,6 +493,7 @@ export class ESPToolComponent extends ComponentBase {
           br.disabled = true;
           reset.disabled = false;
           boot.disabled = false;
+          open_debug.disabled = true;
           sync.disabled = false;
           info.disabled = true;
           change_baud.disabled = true;
@@ -493,6 +505,7 @@ export class ESPToolComponent extends ComponentBase {
           select.disabled = true;
           br.disabled = true;
           reset.disabled = false;
+          open_debug.disabled = true;
           boot.disabled = true;
           sync.disabled = true;
           info.disabled = false;
@@ -505,6 +518,7 @@ export class ESPToolComponent extends ComponentBase {
           select.disabled = true;
           br.disabled = true;
           reset.disabled = false;
+          open_debug.disabled = true;
           boot.disabled = true;
           sync.disabled = true;
           info.disabled = false;
@@ -518,6 +532,7 @@ export class ESPToolComponent extends ComponentBase {
           select.disabled = true;
           br.disabled = true;
           reset.disabled = true;
+          open_debug.disabled = true;
           boot.disabled = true;
           sync.disabled = true;
           info.disabled = true;
@@ -541,6 +556,7 @@ export class ESPToolComponent extends ComponentBase {
     install_serial_events(list, select);
     const update_open = (serials: SerialConn[]): void => {
       open.disabled = serials.length === 0;
+      open_debug.disabled = serials.length === 0;
     };
     list.on('disconnect', update_open);
     list.on('connect', update_open);
@@ -562,34 +578,8 @@ export class ESPToolComponent extends ComponentBase {
       const serial = list.port_by_id(id);
       if (serial === undefined || serial.state === 'open') return;
       this._loader = new ESPLoader(serial);
-      this._loader.on('open', () => {
-        if (this._loader === undefined) return;
-        set_state(ESPToolState.OPEN);
-        this._terminal.write_str('Connected', color_ok);
-
-        this._loader.callback = (data: Uint8Array) => {
-          this._terminal.write(data);
-        };
-      });
-      this._loader.on('close', () => {
-        set_state(ESPToolState.CLOSE);
-        this._terminal.write_str('Closed', { colors: [Color.BG_RED] });
-        this._loader = undefined;
-      });
-      this._loader.on('sync', () => {
-        set_state(ESPToolState.SYNC);
-      });
-      this._loader.on('stub', () => {
-        set_state(ESPToolState.STUB);
-      });
-      this._loader.on('disconnect', () => {
-        set_state(undefined);
-        this._terminal.write_str('Serial device disconnected...', color_fail);
-        this._loader = undefined;
-      });
-      this._loader.on('error', err => {
-        this._terminal.write_str(`ESPTool error [${err.message}]`, color_fail);
-      });
+      
+      this.when_open(set_state);
 
       this._baudrate = +br.value;
       this._loader
@@ -613,6 +603,27 @@ export class ESPToolComponent extends ComponentBase {
     clear.addEventListener('click', () => {
         this._terminal.terminal.clear();
       });
+
+    open_debug.addEventListener('click', () => {
+      if (this._loader !== undefined) {
+        this._terminal.write_str('Already opened', color_warn);
+        return;
+      }
+
+      const id = +select.value;
+      if (id === 0) return;
+
+      const serial = list.port_by_id(id);
+      if (serial === undefined || serial.state === 'open') return;
+      this._loader = new ESPLoader(serial);
+      
+      this.when_open(set_state);
+
+      this._baudrate = +br.value;
+      this._loader
+        .open(this._baudrate)
+        .finally(() => {});
+    });
 
     boot.addEventListener('click', () => {
       if (this._loader === undefined) {
@@ -691,6 +702,38 @@ export class ESPToolComponent extends ComponentBase {
         .catch(() => {
           this._terminal.write_str('FAIL', color_fail);
         });
+    });
+  }
+
+  private when_open(set_state:(state?:ESPToolState) => void) : void {
+    if (this._loader === undefined) return;
+    this._loader.on('open', () => {
+      if (this._loader === undefined) return;
+      set_state(ESPToolState.OPEN);
+      this._terminal.write_str('Connected', color_ok);
+
+      this._loader.callback = (data: Uint8Array) => {
+        this._terminal.write(data);
+      };
+    });
+    this._loader.on('close', () => {
+      set_state(ESPToolState.CLOSE);
+      this._terminal.write_str('Closed', { colors: [Color.BG_RED] });
+      this._loader = undefined;
+    });
+    this._loader.on('sync', () => {
+      set_state(ESPToolState.SYNC);
+    });
+    this._loader.on('stub', () => {
+      set_state(ESPToolState.STUB);
+    });
+    this._loader.on('disconnect', () => {
+      set_state(undefined);
+      this._terminal.write_str('Serial device disconnected...', color_fail);
+      this._loader = undefined;
+    });
+    this._loader.on('error', err => {
+      this._terminal.write_str(`ESPTool error [${err.message}]`, color_fail);
     });
   }
 
